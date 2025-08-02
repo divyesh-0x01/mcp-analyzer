@@ -86,6 +86,18 @@ function analyzeToolForMaliciousIndicators(toolName, toolDescription, toolInputS
         }
         catch (error) {
             riskFactors.push(`⚠️ Could not parse input schema: ${error}`);
+            // Even if JSON parsing fails, try to detect dangerous patterns in the raw string
+            const dangerousPatterns = [
+                { pattern: /command|cmd|script|code|expression/i, risk: 15, type: "Code execution" },
+                { pattern: /file|path|url|address/i, risk: 10, type: "File/URL access" },
+                { pattern: /user|password|credential|token|key/i, risk: 12, type: "Credential input" }
+            ];
+            for (const pattern of dangerousPatterns) {
+                if (pattern.pattern.test(toolInputSchema)) {
+                    maliciousIndicators.push(`🚨 Dangerous pattern in input schema: "${pattern.type}"`);
+                    riskScore += pattern.risk;
+                }
+            }
         }
     }
     // 4. BEHAVIORAL PATTERN ANALYSIS
