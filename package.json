@@ -1,25 +1,21 @@
 {
-  "name": "mcp-minimal",
-  "version": "0.1.0",
-  "description": "Minimal MCP server for testing",
+  "name": "mcp-analyzer",
+  "version": "1.0.0",
+  "description": "MCP Security Analysis Server for detecting malicious tools",
   "license": "MIT",
   "author": "Your Name",
-  "homepage": "https://github.com/divyesh-0x01/mcp-minimal",
+  "homepage": "https://github.com/divyesh-0x01/mcp-analyzer",
   "type": "module",
   "bin": {
-    "mcp-server-minimal": "dist/minimal-server.js",
     "mcp-analyzer": "dist/mcp-analyzer.js"
   },
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "tsc src/minimal-server.ts --outDir dist --target es2022 --module es2022 --moduleResolution node && chmod +x dist/minimal-server.js",
-    "build:analyzer": "tsc src/mcp-analyzer.ts --outDir dist --target es2022 --module es2022 --moduleResolution node && chmod +x dist/mcp-analyzer.js",
-    "build:all": "npm run build && npm run build:analyzer",
-    "prepare": "npm run build:all",
-    "start": "node dist/minimal-server.js",
-    "start:analyzer": "node dist/mcp-analyzer.js"
+    "build": "tsc src/mcp-analyzer.ts --outDir dist --target es2022 --module es2022 --moduleResolution node && chmod +x dist/mcp-analyzer.js",
+    "prepare": "npm run build",
+    "start": "node dist/mcp-analyzer.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.17.1"
@@ -30,7 +26,9 @@
   },
   "keywords": [
     "mcp",
-    "minimal",
-    "test"
+    "security",
+    "analyzer",
+    "malicious",
+    "tools"
   ]
 }
