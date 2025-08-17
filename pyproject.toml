@@ -1,0 +1,13 @@
+[project]
+name = "mcp-analyzer"
+version = "0.1.0"
+description = "Active stdio MCP scanner with safe probes and proof collection"
+authors = [{name="Your Name", email="you@example.com"}]
+requires-python = ">=3.10"
+dependencies = [
+    "rich>=13.7.0",
+]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+pythonpath = ["."]
