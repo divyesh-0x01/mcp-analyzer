@@ -1,5 +1,5 @@
 from __future__ import annotations
-import asyncio, os, shlex, logging, contextlib
+import asyncio, os, shlex, logging, contextlib, json
 from typing import Any, Dict, List, Tuple
 from rich.console import Console
 from .auth import has_auth_env
@@ -208,14 +208,35 @@ async def scan_server(
             finding.probe_results["exec"] = pr_exec
             
             if pr_exec and isinstance(pr_exec, dict) and pr_exec.get("success"):
-                finding.active_risk = "critical"
-                finding.proof = (pr_exec.get("proof") or "")[:160]
-                finding.matches.append("tool_poisoning:command_exec")
-            elif isinstance(pr_exec, Finding) and pr_exec.proof:
-                finding.active_risk = "critical"
-                finding.proof = (pr_exec.proof or "")[:160]
-                finding.matches.append("tool_poisoning:command_exec")
-            
+                # Check if the proof is already a JSON string
+                proof = pr_exec.get("proof")
+                if proof and isinstance(proof, str) and proof.startswith('{') and proof.endswith('}'):
+                    try:
+                        # If it's already valid JSON, use it as is
+                        json.loads(proof)
+                        finding.proof = proof
+                    except json.JSONDecodeError:
+                        # If not valid JSON, create a proper JSON structure
+                        finding.proof = json.dumps({
+                            "tool_name": tname,
+                            "server": server_name,
+                            "response": str(proof)[:500],
+                            "classification": "normal_behavior"
+                        }, indent=2)
+                else:
+                    # If proof is not a string or not JSON, create a proper JSON structure
+                    finding.proof = json.dumps({
+                        "tool_name": tname,
+                        "server": server_name,
+                        "response": str(proof or "")[:500],
+                        "classification": "normal_behavior"
+                    }, indent=2)
+                    
+                # Only mark as critical if we actually found suspicious behavior
+                if pr_exec.get("is_tool_poisoning", False):
+                    finding.active_risk = "critical"
+                    finding.matches.append("tool_poisoning:command_exec")
+                
             # If no vulnerabilities found but tool is marked as dangerous, keep medium risk
             if finding.active_risk == "none" and static_risk == "dangerous":
                 finding.active_risk = "medium"

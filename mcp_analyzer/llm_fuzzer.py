@@ -68,9 +68,10 @@ async def generate_payloads(tool_name: str, tool_description: str, input_schema:
         )
         print("[LLM-FUZZER] Ollama call finished.")
     except Exception as e:
-        logging.error(f"LLM invocation failed for {name}: {e}")
+        logging.error(f"LLM invocation failed for {tool_name}: {e}")
         print("[LLM-FUZZER] ERROR: Ollama call failed")
-        print(e.stderr.decode("utf-8"))
+        if hasattr(e, 'stderr') and e.stderr:
+            print(e.stderr.decode("utf-8"))
         return []
     if result.returncode != 0:
         logging.error(f"Mistral error (code {result.returncode}): {result.stderr.strip()}")

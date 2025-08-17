@@ -91,165 +91,183 @@ def is_suspicious_behavior(tool_name: str, tool_desc: str, input_payload: Any, o
     """
     Detect if a tool is showing behavior that doesn't match its stated purpose.
     Returns True if the behavior is suspicious/indicative of tool poisoning.
+    Uses contextual analysis to detect anomalies in tool behavior.
     """
     if not output_text or not isinstance(output_text, str):
         return False
-        
-    tool_purpose = f"{tool_name} {tool_desc}".lower()
+    
     output_lower = output_text.lower()
+    output_stripped = output_text.strip()
     
-    # Common error messages that should not be considered suspicious
-    error_indicators = [
-        r'command not found',
-        r'no such file or directory',
-        r'permission denied',
-        r'error:',
-        r'failed',
-        r'not found',
-        r'invalid',
-        r'failed to execute',
-        r'syntax error',
-        r'not recognized',
-        r'no such command',
-        r'unknown command',
-    ]
-    
-    # Check if this looks like an error message
-    if any(err in output_lower for err in error_indicators):
+    # First, check for obviously safe outputs
+    if not output_stripped:  # Empty output is not suspicious
         return False
     
-    # Check for actual command execution indicators
-    command_indicators = [
-        # System information
-        r'\b(uid=\d+\()',
-        r'\b(home|pwd|path)=[^\s\n]+',
-        r'\b(hostname|uname|whoami|id)\s*=',
-        # File system access with paths
-        r'\b(ls|dir|cat|type|more|less|head|tail)\s+[^\s&|;`$(){}]*[./]',
-        # Network commands with arguments
-        r'\b(ifconfig|ipconfig|netstat|ping|nslookup|dig|traceroute|tracert|curl|wget|netcat|nc)\s+',
-        # Process commands with arguments
-        r'\b(ps|top|htop|tasklist|taskkill|kill|pkill|pgrep)\s+',
-        # Shell metacharacters in context
-        r'[;&|`$(){}]\s*\w',
-        # Common sensitive file paths
-        r'/etc/passwd', 
-        r'/etc/shadow', 
-        r'/etc/hosts', 
-        r'C:\\Windows\\System32',
-        # Environment variables in use
-        r'\$(\w+|\{[^}]+\})',
+    # Get tool purpose for better classification
+    tool_purpose = f"{tool_name} {tool_desc}".lower()
+    
+    # Define tool categories and their expected behaviors
+    tool_categories = {
+        'greeting': ['hello', 'hi', 'greet', 'welcome', 'hey'],
+        'calculator': ['calculator', 'calculate', 'math', 'add', 'sum', 'multiply', 'divide'],
+        'time': ['time', 'date', 'clock', 'now', 'today'],
+        'echo': ['echo', 'repeat', 'say', 'print']
+    }
+    
+    # Determine tool category
+    tool_category = None
+    for category, keywords in tool_categories.items():
+        if any(keyword in tool_purpose for keyword in keywords):
+            tool_category = category
+            break
+    
+    # Define expected output patterns for each category
+    expected_patterns = {
+        'greeting': [
+            r'^[\w\s\-!,\.?]+$',  # Basic text with common punctuation
+            r'^\s*Hello,\s*[^\n]*!?\s*$',
+            r'^\s*Hi\b[^\n]*$',
+            r'^\s*Welcome\b[^\n]*$',
+            r'^\s*Greetings?\b[^\n]*$'
+        ],
+        'calculator': [
+            r'^[\d\s\+\-\*/\.=()]+$',  # Basic math expressions
+            r'^\s*[0-9]+(?:\.[0-9]+)?\s*$',  # Simple number
+            r'^\s*[0-9]+(?:\.[0-9]+)?\s*[+\-*/]\s*[0-9]+(?:\.[0-9]+)?\s*=\s*[0-9]+(?:\.[0-9]+)?\s*$',
+            r'^\s*[-+]?\d*\.?\d+\s*$'  # Any number
+        ],
+        'time': [
+            r'^\s*\d{1,2}:\d{2}(?::\d{2})?\s*(?:[AP]M)?\s*$',  # Time format
+            r'^\s*\d{4}-\d{2}-\d{2}(?:[T ]\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:?\d{2})?)?\s*$',
+            r'^\s*(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)[a-z]*,?\s+[A-Za-z]+\s+\d{1,2},\s+\d{4}(?:\s+\d{1,2}:\d{2}(?::\d{2})?\s*(?:[AP]M)?)?\s*$',
+            r'^\s*\d{1,2}/\d{1,2}/\d{2,4}(?:\s+\d{1,2}:\d{2}(?::\d{2})?\s*(?:[AP]M)?)?\s*$',
+            r'^[\d\s\-:APMapm/,]+$'  # General time/date characters
+        ],
+        'echo': [
+            r'^.{0,500}$'  # Simple text response up to 500 chars
+        ]
+    }
+    
+    # If we know the tool's category, check if output matches expected patterns
+    if tool_category and tool_category in expected_patterns:
+        if any(re.match(p, output_text, re.IGNORECASE) for p in expected_patterns[tool_category]):
+            return False  # Output matches expected patterns for this tool type
+    
+    # Check for clear indicators of command execution in output
+    command_execution_indicators = [
+        # System information patterns
+        r'\b(?:uid|gid|groups?)=\d+',
+        r'\b(?:user|username|hostname)\s*[:=]\s*[^\s\n]+',
+        r'\b(?:home|pwd|path)\s*[:=]\s*[^\s\n]+',
+        
+        # Common command output patterns
+        r'\b(?:drwx[rwx-]+\s+\d+\s+\w+\s+\w+\s+\d+\s+[^\n]+)',  # ls -l output
+        r'\b(?:total \d+|total \d+\s+\d+)',  # du/ls -l header
+        r'\b(?:Filesystem|Size|Used|Avail|Use%|Mounted on)\b',  # df output
+        r'\b(?:Active|Connections|Proto|Recv-Q|Send-Q|Local Address|Foreign Address|State)\b',  # netstat/ss output
+        
+        # Shell prompt patterns
+        r'\[?\w+@[\w-]+\s[^\s]+\]?[\$#]\s*$',
+        
+        # Command output headers
+        r'^\s*(?:PID\s+USER|USER\s+PID|COMMAND\s+PID|MEM\s+USAGE)',
     ]
     
-    # Check for system information in output that shouldn't be there
-    has_system_info = any(re.search(pattern, output_text) for pattern in command_indicators)
+    # Check for actual command execution evidence
+    has_command_output = any(
+        re.search(p, output_text, re.IGNORECASE) 
+        for p in command_execution_indicators
+    )
     
-    # Check if tool behavior is inconsistent with its stated purpose
-    is_inconsistent = False
-    
-    # Simple tools should never show system info
-    simple_functions = ['greet', 'hello', 'calculator', 'calculate', 'convert', 'formatter']
-    is_simple_tool = any(fn in tool_purpose for fn in simple_functions)
-    
-    if is_simple_tool and has_system_info:
-        # Check if this is actually command output (not just mentioning commands in help text)
-        has_actual_output = any(
-            re.search(r'\b' + re.escape(cmd) + r'\b.*\n', output_text) 
-            for cmd in ['user', 'hostname', 'pwd', 'ls', 'cat']
-        )
-        if has_actual_output:
-            is_inconsistent = True
-    
-    # Check if this is a bash test we injected by looking at the payload
-    is_bash_test = False
-    if isinstance(input_payload, dict):
-        # Check if any value in the payload contains command injection patterns
-        is_bash_test = any(
-            key in input_payload and 
-            any(cmd in str(input_payload.get(key, '')).lower() 
-                for cmd in ['id', 'echo', ';', '|', '&&', '||', '`', '$(', '>', '<', '>>', '&', 'exec', 'system'])
-            for key in input_payload
+    # Check for suspicious input patterns
+    suspicious_input = False
+    if input_payload:
+        input_str = str(input_payload).lower()
+        suspicious_input = any(
+            re.search(p, input_str, re.IGNORECASE) 
+            for p in command_execution_indicators
         )
     
-    # Check if the tool is designed to execute commands
-    # Also check if the tool name or description indicates it's a command execution tool
-    tool_name_lower = tool_name.lower() if tool_name else ''
-    tool_purpose_lower = tool_purpose.lower()
+    # If we have both suspicious input and command output, it's definitely suspicious
+    if suspicious_input and has_command_output:
+        return True
     
-    is_command_tool = any(term in tool_purpose_lower for term in 
-                         ['command', 'exec', 'shell', 'terminal', 'sh', 'bash', 'cmd', 'powershell', 'run'])
-    
-    # Special case for add_numbers tool - it's not a command execution tool
-    if 'add_numbers' in tool_name_lower or 'add numbers' in tool_purpose_lower:
-        is_command_tool = False
+    # Check for specific security-sensitive patterns in output
+    security_patterns = [
+        # System files and sensitive data
+        r'\b(?:passwd|shadow|group)\s*:',  # /etc/passwd or /etc/group format
+        r'\b(?:ssh|rsa|dsa|ecdsa|ed25519)[-\s]*(?:key|id)[^\n]*-----',  # Private keys
+        r'\b(?:AWS_ACCESS_KEY|AWS_SECRET_KEY|API[_-]?KEY|SECRET[_-]?KEY|PASSWORD|TOKEN)\s*[:=]\s*[^\s\n]+',
         
-        # Check if the output contains command execution results
-        if has_system_info:
-            # If we see command output (like uid, gid, etc.), it's a real security issue
-            command_output_indicators = [
-                r'uid=\d+',
-                r'gid=\d+',
-                r'groups=\d+',
-                r'command not found',
-                r'syntax error',
-                r'error:',
-                r'invalid',
-                r'failed',
-                r'not found'
-            ]
+        # Dangerous commands
+        r'\b(?:rm\s+-[rf]|del\s+/[sq]|format\s+[^\s]+|shutdown\s+\-h|killall|pkill|taskkill)',
+        r'\b(?:/etc/(?:passwd|shadow|group|hosts?)|C:\\Windows\\System32)\\',
+        
+        # Code execution patterns
+        r'\b(?:eval\(|exec\(|os\.system\()',
+        r'\b(?:subprocess\.run\(|subprocess\.Popen\()',
+        r'\b(?:import\s+os\s*$|import\s+subprocess\s*$|import\s+sys\s*$)',
+        r'\b(?:__import__\(|getattr\(|setattr\()',
+        r'\b(?:open\([^)]*,[^)]*w[^)]*\))',  # File write operations
+        
+        # Suspicious patterns
+        r'\b(?:<|>|\|)',  # Redirection/pipe characters
+        r'\b(?:&&|\|\||;|`|\$\()',  # Command chaining/substitution
+        r'\b(?:echo|print)\s+[^\n]*\$\{',  # Variable expansion
+    ]
+    
+    if any(re.search(pattern, output_text, re.IGNORECASE) for pattern in security_patterns):
+        return True
+        
+    # Contextual analysis based on tool type
+    if tool_category == 'greeting':
+        # For greeting tools, be very strict about allowed output
+        if len(output_stripped) > 100:  # Unusually long greeting
+            return True
             
-            # If we see any of these in the output, it's a real security issue
-            if any(re.search(pattern, output_text.lower()) for pattern in command_output_indicators):
-                # But only if it's not just an error message
-                if 'command not found' in output_text.lower() or 'syntax error' in output_text.lower():
+        # Check for suspicious characters that shouldn't be in a greeting
+        if any(c in output_text for c in '{}[]|;`$()'):
+            return True
+            
+        # Check for code execution patterns
+        if re.search(r'\b(?:echo|print|exec|system|os\.|subprocess\.|import\s+os|import\s+subprocess)\b', output_text):
+            return True
+            
+    elif tool_category == 'calculator':
+        # For calculator tools, first check if it's an error response
+        try:
+            # Check if the output is a JSON error response
+            error_data = json.loads(output_text)
+            if 'error' in error_data:
+                # If it's a validation error about invalid input type, it's expected behavior
+                error_msg = json.dumps(error_data['error']).lower()
+                if 'invalid_type' in error_msg and 'expected number' in error_msg:
                     return False
+        except (json.JSONDecodeError, TypeError):
+            # Not a JSON error, continue with normal validation
+            pass
+            
+        # For successful calculations, only allow basic math expressions and results
+        if not re.match(r'^[\d\s\+\-\*/\.,=()]+$', output_stripped):
+            # If it's not a simple math expression, check if it's a common error message
+            if not any(msg in output_lower for msg in ['error', 'invalid', 'expected']):
                 return True
             
-            # If the output is a simple number, it's expected behavior
-            if re.match(r'^\s*\d+\s*$', output_text.strip()):
-                return False
-                
-            # If the output is empty or just whitespace, don't flag it
-            if not output_text.strip():
-                return False
-                
-            # If we get here, it's not a simple number but also doesn't contain command output
-            # So it's likely not a security issue
-            return False
-    
-    # If we detect command execution in a non-command tool that wasn't from our test
-    if has_system_info and not (is_command_tool or is_bash_test):
-        # Look for command output patterns
-        command_output_patterns = [
-            r'\n\s*\w+@[\w-]+',  # username@hostname
-            r'\b(uid|gid|groups?)=',  # id command output
-            r'\b(cwd|pwd)\s*[:=]',  # Current working directory
-            r'\b(user|hostname|pwd|ls|cat)\b.*\n',  # Common command names with output
-            r'\n\s*\d+\s+\d+\s+\d+\s+\d+\s+\w+\s+\d+\s+[\d:]+\s+[^\n]+',  # ls -l output
-        ]
-        
-        has_command_output = any(re.search(pattern, output_text) for pattern in command_output_patterns)
-        
-        if has_command_output:
-            # Check if this is a false positive by looking for help text
-            is_help_text = any(term in output_text.lower() for term in 
-                             ['usage:', 'help:', 'options:', 'commands:', '--help'])
+    elif tool_category == 'time':
+        # For time/date tools, only allow time/date related formats
+        if not re.match(r'^[\d\s\-:APMapm/,]+$', output_stripped):
+            return True
             
-            if not is_help_text:
-                is_inconsistent = True
+    elif tool_category == 'echo':
+        # For echo tools, limit the length and check for suspicious patterns
+        if len(output_stripped) > 1000:  # Very long echo response
+            return True
+            
+        if any(c in output_text for c in '{}[]|;`$()'):
+            return True
     
-    # Check for unexpected security-related patterns
-    security_patterns = [
-        r'\b(root|admin|sudo|privileged)\b',
-        r'\b(TOOL POISONING DETECTED)\b',
-        r'\b(secret|key|token|password|pwd|passwd|credential)\s*[:=]',
-    ]
-    
-    has_security_issue = any(re.search(pattern, output_text, re.IGNORECASE) 
-                           for pattern in security_patterns)
-    
-    # Only flag as suspicious if we're very confident
-    return (has_system_info and is_inconsistent) or has_security_issue
+    # For any tool, if we detected command output, it's suspicious
+    return has_command_output
 
 
 async def probe_exec(server: str, tool: Dict[str, Any], reader, writer) -> Dict[str, Any]:
@@ -412,10 +430,20 @@ async def probe_exec(server: str, tool: Dict[str, Any], reader, writer) -> Dict[
                 
                 # Only mark as success if we haven't detected suspicious behavior
                 if not suspicious_behaviors:
+                    # Create a properly structured proof object
+                    proof_data = {
+                        "tool_name": tool_name,
+                        "tool_description": tool_desc,
+                        "server": server,
+                        "payload": payload,
+                        "response": text.strip(),
+                        "classification": "normal_behavior"
+                    }
+                    
                     probe.update(
                         success=True, 
                         payload=payload, 
-                        proof=text.strip(), 
+                        proof=json.dumps(proof_data, indent=2, ensure_ascii=False),
                         response=resp
                     )
             
@@ -432,15 +460,30 @@ async def probe_exec(server: str, tool: Dict[str, Any], reader, writer) -> Dict[
     
     # If we found suspicious behaviors, mark as tool poisoning
     if suspicious_behaviors:
+        # Ensure we have valid JSON for the proof
+        proof_data = {
+            "suspicious_behaviors": suspicious_behaviors,
+            "tool_name": tool["name"],
+            "tool_description": tool.get("description", ""),
+            "server": server
+        }
+        
+        try:
+            proof_json = json.dumps(proof_data, indent=2, ensure_ascii=False)
+        except (TypeError, ValueError) as e:
+            logging.error(f"Failed to serialize proof data: {e}")
+            # Fall back to a minimal valid JSON structure if serialization fails
+            proof_json = json.dumps({
+                "error": "Failed to serialize proof data",
+                "tool_name": tool["name"],
+                "server": server
+            })
+            
         probe.update(
             success=True,
-            is_tool_poisoning=True,
-            proof=json.dumps({
-                "suspicious_behaviors": suspicious_behaviors,
-                "tool_name": tool["name"],
-                "tool_description": tool.get("description", ""),
-            }, indent=2, ensure_ascii=False),
-            payload=suspicious_behaviors[0]["payload"]
+            is_tool_poisoning=bool(suspicious_behaviors),  # Only mark as poisoning if we have behaviors
+            proof=proof_json,
+            payload=suspicious_behaviors[0]["payload"] if suspicious_behaviors else None
         )
         logging.warning("Potential tool poisoning detected in %s: %s", 
                       tool_name, suspicious_behaviors[0]["reason"])
