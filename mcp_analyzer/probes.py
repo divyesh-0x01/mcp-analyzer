@@ -1,7 +1,7 @@
 from __future__ import annotations
 import os, re, json, logging
 from typing import Any, Dict
-from .tools import call_tool_rpc
+from . import call_tool_with_client
 from .llm_fuzzer import generate_payloads
 import logging
 from .utils import extract_result_text, looks_like_passwd
@@ -41,24 +41,40 @@ def extract_result_text(resp: dict) -> str:
         return json.dumps(resp)
 
 async def probe_file_read(mcp_client, tool: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Test a tool for file read vulnerabilities.
+    
+    Args:
+        mcp_client: MCP client instance for making tool calls
+        tool: Tool definition dictionary
+        
+    Returns:
+        Dictionary with probe results
+    """
     probe = {"success": False, "payload": None, "proof": None, "response": None, "attempts": []}
 
-    # Generate payloads from LLM
-    payloads = await generate_payloads(
+    # Generate payloads from LLM with the MCP client
+    payloads_result = await generate_payloads(
         tool["name"],
         tool.get("description", ""),
-        tool.get("raw", {}).get("inputSchema", {})
+        tool.get("raw", {}).get("inputSchema", {}),
+        mcp_client=mcp_client
     )
+    
+    # Extract just the payloads from the results
+    payloads = [p.get("payload") for p in payloads_result if p.get("payload")]
 
     if not payloads:
         return probe
 
     for payload in payloads:
         try:
-            resp = await mcp_client.call_tool(tool["name"], payload)
+            resp = await call_tool_with_client(mcp_client, tool["name"], payload)
+            if resp is None:
+                continue
         except Exception as e:
-            resp = None
             logging.error("Error calling tool %s: %s", tool["name"], e)
+            continue
 
         attempt = {"args": payload, "resp_short": str(resp)[:200] if resp else None}
 
@@ -270,15 +286,14 @@ def is_suspicious_behavior(tool_name: str, tool_desc: str, input_payload: Any, o
     return has_command_output
 
 
-async def probe_exec(server: str, tool: Dict[str, Any], reader, writer) -> Dict[str, Any]:
+async def probe_exec(server: str, tool: Dict[str, Any], mcp_client) -> Dict[str, Any]:
     """
     Execute a tool with various payloads to test for command injection and tool poisoning.
     
     Args:
         server: Server name
         tool: Tool definition dictionary
-        reader: Async reader for RPC communication
-        writer: Async writer for RPC communication
+        mcp_client: MCP client instance for making tool calls
         
     Returns:
         Dictionary with probe results
@@ -291,24 +306,6 @@ async def probe_exec(server: str, tool: Dict[str, Any], reader, writer) -> Dict[
         "attempts": [],
         "is_tool_poisoning": False
     }
-    
-    class SimpleMCPClient:
-        def __init__(self, reader, writer):
-            self.reader = reader
-            self.writer = writer
-        
-        async def call_tool(self, tool_name, payload):
-            from .rpc import send_jsonrpc, recv_json_until, next_id
-            request_id = next_id()
-            await send_jsonrpc(self.writer, {
-                "jsonrpc": "2.0",
-                "id": request_id,
-                "method": tool_name,
-                "params": payload
-            })
-            return await recv_json_until(self.reader, request_id, timeout=5.0)
-    
-    mcp_client = SimpleMCPClient(reader, writer)
     
     # Get tool metadata for better analysis
     tool_name = tool.get("name", "")
@@ -386,19 +383,12 @@ async def probe_exec(server: str, tool: Dict[str, Any], reader, writer) -> Dict[
         attempt = {"args": payload, "resp_short": None, "classification": "pending"}
         
         try:
-            # Try both call patterns to be compatible with different server implementations
-            resp = None
-            try:
-                resp = await call_tool_rpc(reader, writer, tool_name, payload, timeout=5.0)
-            except Exception as e:
-                try:
-                    resp = await mcp_client.call_tool(tool_name, payload)
-                except Exception as inner_e:
-                    logging.error("Error calling tool %s: %s", tool_name, str(inner_e))
-                    attempt["classification"] = "error"
-                    attempt["error"] = str(inner_e)
-                    probe["attempts"].append(attempt)
-                    continue
+            # Use call_tool_with_client which handles different calling patterns
+            resp = await call_tool_with_client(mcp_client, tool_name, payload)
+            if resp is None:
+                attempt["classification"] = "no_response"
+                probe["attempts"].append(attempt)
+                continue
             
             if not resp:
                 attempt["classification"] = "no_response"

@@ -1,7 +1,9 @@
 # mcp_analyzer/llm_fuzzer.py
 
 import subprocess, json, logging
-from typing import Dict, List
+from typing import Dict, List, Optional, Any
+
+from .tools import call_tool_with_client
 
 async def generate_payloads(tool_name: str, tool_description: str, input_schema: Dict = None, mcp_client = None) -> List[Dict]:
     """
@@ -43,7 +45,7 @@ async def generate_payloads(tool_name: str, tool_description: str, input_schema:
             {"a": "1; DROP TABLE users --", "b": 0}
         ]
         
-    print(f"[LLM-FUZZER] Preparing to call Ollama for tool: {tool_name}")
+    #print(f"[LLM-FUZZER] Preparing to call Ollama for tool: {tool_name}")
     try:
         schema_str = json.dumps(input_schema, indent=2) if input_schema else ""
     except Exception:
@@ -61,12 +63,12 @@ async def generate_payloads(tool_name: str, tool_description: str, input_schema:
             "Return only the JSON array, no explanation."
     )
     try:
-        print(f"[LLM-FUZZER] Running ollama call...")
+        #print(f"[LLM-FUZZER] Running ollama call...")
         result = subprocess.run(
             ["ollama", "run", "mistral"],
             input=prompt, text=True, capture_output=True, timeout=60
         )
-        print("[LLM-FUZZER] Ollama call finished.")
+        #print("[LLM-FUZZER] Ollama call finished.")
     except Exception as e:
         logging.error(f"LLM invocation failed for {tool_name}: {e}")
         print("[LLM-FUZZER] ERROR: Ollama call failed")
@@ -101,11 +103,15 @@ async def generate_payloads(tool_name: str, tool_description: str, input_schema:
 
             if mcp_client is not None:
                 try:
-                    # call the tool asynchronously
-                    response = await mcp_client.call_tool(tool_name, p)
-                    logging.info(f"[LLM-FUZZER] Response {i} from {tool_name}: {response}")
-                    print(f"[LLM-FUZZER] Response {i} from {tool_name}: {response}\n")
-                    results.append({"payload": p, "response": response})
+                    # call the tool asynchronously using call_tool_with_client
+                    response = await call_tool_with_client(mcp_client, tool_name, p)
+                    if response is not None:
+                        logging.info(f"[LLM-FUZZER] Response {i} from {tool_name}: {response}")
+                        print(f"[LLM-FUZZER] Response {i} from {tool_name}: {response}\n")
+                        results.append({"payload": p, "response": response})
+                    else:
+                        logging.warning(f"No response received for payload {i} on {tool_name}")
+                        results.append({"payload": p, "error": "No response received"})
                 except Exception as e:
                     logging.error(f"Error running payload {i} on {tool_name}: {e}")
                     print(f"[LLM-FUZZER] ERROR calling tool {tool_name} with payload {i}: {e}\n")

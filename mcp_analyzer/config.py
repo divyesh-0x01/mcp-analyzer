@@ -20,11 +20,18 @@ def load_config(path: str) -> Dict[str, Dict[str, Any]]:
     servers: Dict[str, Dict[str, Any]] = {}
     if "mcpServers" in data and isinstance(data["mcpServers"], dict):
         for name, conf in data["mcpServers"].items():
-            servers[name] = {
+            server_config = {
                 "command": conf.get("command"),
                 "args": conf.get("args", []),
                 "env": conf.get("env", {}),
+                "headers": conf.get("headers", {}),
+                "transport": conf.get("transport", "stdio"),
+                "url": conf.get("url"),
             }
+            # Include auth configuration if present
+            if "auth" in conf:
+                server_config["auth"] = conf["auth"]
+            servers[name] = server_config
     else:
         console.print("[yellow]No mcpServers key found in config.[/yellow]")
     return servers
