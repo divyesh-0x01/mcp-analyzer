@@ -1,0 +1,39 @@
+{
+  "version": "mcpx-local-scan-2.0-active-probes-proof",
+  "timestamp": "2025-08-23T10:57:53.970075",
+  "findings": [
+    {
+      "server": "challenge-1-server",
+      "unauthenticated": true,
+      "tool": "get_user_info",
+      "description": "Get information about a user",
+      "static_risk": "safe",
+      "active_risk": "none",
+      "matches": [],
+      "probe_results": {},
+      "proof": null
+    },
+    {
+      "server": "test-server",
+      "unauthenticated": true,
+      "tool": "hello",
+      "description": "A simple hello tool that returns a greeting message",
+      "static_risk": "safe",
+      "active_risk": "none",
+      "matches": [],
+      "probe_results": {},
+      "proof": null
+    },
+    {
+      "server": "test-server",
+      "unauthenticated": true,
+      "tool": "add_numbers",
+      "description": "Addition of the numbers",
+      "static_risk": "safe",
+      "active_risk": "none",
+      "matches": [],
+      "probe_results": {},
+      "proof": null
+    }
+  ]
+}

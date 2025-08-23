@@ -1,0 +1,1786 @@
+MCP Test Server Debug Log
+==================================================
+
+=== Fri Aug 22 17:16:27 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: */*
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 17:16:27 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: */*
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 17:16:27 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: application/json
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 17:16:27 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjMxODcsImV4cCI6MTc1NTg2Njc4Nywic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.DdCu8v_kvaNZyLbbk2Vgnve271d-aQJTkQHlLHEJby0
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 65
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "list_tools",
+  "params": {}
+}
+
+=== Fri Aug 22 17:16:27 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: application/json
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 17:16:27 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjMxODcsImV4cCI6MTc1NTg2Njc4Nywic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.DdCu8v_kvaNZyLbbk2Vgnve271d-aQJTkQHlLHEJby0
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 65
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "list_tools",
+  "params": {}
+}
+
+=== Fri Aug 22 17:16:27 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjMxODcsImV4cCI6MTc1NTg2Njc4Nywic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.DdCu8v_kvaNZyLbbk2Vgnve271d-aQJTkQHlLHEJby0
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 65
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "method": "tools/list",
+  "params": {}
+}
+
+=== Fri Aug 22 17:16:27 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjMxODcsImV4cCI6MTc1NTg2Njc4Nywic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.DdCu8v_kvaNZyLbbk2Vgnve271d-aQJTkQHlLHEJby0
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 65
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 3,
+  "method": "list_tools",
+  "params": {}
+}
+
+=== Fri Aug 22 17:16:27 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjMxODcsImV4cCI6MTc1NTg2Njc4Nywic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.DdCu8v_kvaNZyLbbk2Vgnve271d-aQJTkQHlLHEJby0
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 65
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 4,
+  "method": "tools.list",
+  "params": {}
+}
+
+=== Fri Aug 22 17:16:27 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjMxODcsImV4cCI6MTc1NTg2Njc4Nywic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.DdCu8v_kvaNZyLbbk2Vgnve271d-aQJTkQHlLHEJby0
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 64
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 5,
+  "method": "listTools",
+  "params": {}
+}
+
+=== Fri Aug 22 17:16:27 2025 ===
+GET /tools/list HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjMxODcsImV4cCI6MTc1NTg2Njc4Nywic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.DdCu8v_kvaNZyLbbk2Vgnve271d-aQJTkQHlLHEJby0
+  Accept: */*
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+
+=== Fri Aug 22 17:23:22 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: */*
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 17:23:22 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: */*
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 17:23:22 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: application/json
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 17:23:22 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjM2MDIsImV4cCI6MTc1NTg2NzIwMiwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.rFyjUgdjvvuLh2LlMAxQY9yCqXZ3MwdUCkQed677z2U
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 65
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "list_tools",
+  "params": {}
+}
+
+=== Fri Aug 22 17:23:22 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: application/json
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 17:23:22 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjM2MDIsImV4cCI6MTc1NTg2NzIwMiwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.rFyjUgdjvvuLh2LlMAxQY9yCqXZ3MwdUCkQed677z2U
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 65
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "list_tools",
+  "params": {}
+}
+
+=== Fri Aug 22 17:23:22 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjM2MDIsImV4cCI6MTc1NTg2NzIwMiwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.rFyjUgdjvvuLh2LlMAxQY9yCqXZ3MwdUCkQed677z2U
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 65
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "method": "tools/list",
+  "params": {}
+}
+
+=== Fri Aug 22 17:23:22 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjM2MDIsImV4cCI6MTc1NTg2NzIwMiwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.rFyjUgdjvvuLh2LlMAxQY9yCqXZ3MwdUCkQed677z2U
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 65
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 3,
+  "method": "list_tools",
+  "params": {}
+}
+
+=== Fri Aug 22 17:23:22 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjM2MDIsImV4cCI6MTc1NTg2NzIwMiwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.rFyjUgdjvvuLh2LlMAxQY9yCqXZ3MwdUCkQed677z2U
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 65
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 4,
+  "method": "tools.list",
+  "params": {}
+}
+
+=== Fri Aug 22 17:23:22 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjM2MDIsImV4cCI6MTc1NTg2NzIwMiwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.rFyjUgdjvvuLh2LlMAxQY9yCqXZ3MwdUCkQed677z2U
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 64
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 5,
+  "method": "listTools",
+  "params": {}
+}
+
+=== Fri Aug 22 17:23:22 2025 ===
+GET /tools/list HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjM2MDIsImV4cCI6MTc1NTg2NzIwMiwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.rFyjUgdjvvuLh2LlMAxQY9yCqXZ3MwdUCkQed677z2U
+  Accept: */*
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+
+=== Fri Aug 22 17:39:17 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: */*
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 17:39:17 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: */*
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 17:39:17 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: application/json
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 17:39:17 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjQ1NTcsImV4cCI6MTc1NTg2ODE1Nywic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.E1TaZzPm-zuFvudkcLhSzVOvw90oYbwYQlRWiy7xHxA
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 65
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "list_tools",
+  "params": {}
+}
+
+=== Fri Aug 22 17:39:17 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: application/json
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 17:39:17 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjQ1NTcsImV4cCI6MTc1NTg2ODE1Nywic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.E1TaZzPm-zuFvudkcLhSzVOvw90oYbwYQlRWiy7xHxA
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 65
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "list_tools",
+  "params": {}
+}
+
+=== Fri Aug 22 17:39:17 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjQ1NTcsImV4cCI6MTc1NTg2ODE1Nywic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.E1TaZzPm-zuFvudkcLhSzVOvw90oYbwYQlRWiy7xHxA
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 65
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "method": "tools/list",
+  "params": {}
+}
+
+=== Fri Aug 22 17:39:17 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjQ1NTcsImV4cCI6MTc1NTg2ODE1Nywic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.E1TaZzPm-zuFvudkcLhSzVOvw90oYbwYQlRWiy7xHxA
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 65
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 3,
+  "method": "list_tools",
+  "params": {}
+}
+
+=== Fri Aug 22 17:39:17 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjQ1NTcsImV4cCI6MTc1NTg2ODE1Nywic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.E1TaZzPm-zuFvudkcLhSzVOvw90oYbwYQlRWiy7xHxA
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 65
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 4,
+  "method": "tools.list",
+  "params": {}
+}
+
+=== Fri Aug 22 17:39:17 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjQ1NTcsImV4cCI6MTc1NTg2ODE1Nywic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.E1TaZzPm-zuFvudkcLhSzVOvw90oYbwYQlRWiy7xHxA
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 64
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 5,
+  "method": "listTools",
+  "params": {}
+}
+
+=== Fri Aug 22 17:39:17 2025 ===
+GET /tools/list HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjQ1NTcsImV4cCI6MTc1NTg2ODE1Nywic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.E1TaZzPm-zuFvudkcLhSzVOvw90oYbwYQlRWiy7xHxA
+  Accept: */*
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+
+=== Fri Aug 22 17:56:38 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: */*
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 17:56:38 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: */*
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 17:57:23 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: */*
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 17:57:23 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: */*
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 18:13:10 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: */*
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 18:13:10 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: */*
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 18:13:10 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: application/json
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 18:13:10 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjY1OTAsImV4cCI6MTc1NTg3MDE5MCwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.p3ExLfV5hDj_ERNYUMeFnsoBusUe664_p09f4IIGkto
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 65
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "list_tools",
+  "params": {}
+}
+
+=== Fri Aug 22 18:13:10 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: application/json
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 18:13:10 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjY1OTAsImV4cCI6MTc1NTg3MDE5MCwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.p3ExLfV5hDj_ERNYUMeFnsoBusUe664_p09f4IIGkto
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 65
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "list_tools",
+  "params": {}
+}
+
+=== Fri Aug 22 18:13:10 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjY1OTAsImV4cCI6MTc1NTg3MDE5MCwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.p3ExLfV5hDj_ERNYUMeFnsoBusUe664_p09f4IIGkto
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 65
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "method": "tools/list",
+  "params": {}
+}
+
+=== Fri Aug 22 18:13:10 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjY1OTAsImV4cCI6MTc1NTg3MDE5MCwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.p3ExLfV5hDj_ERNYUMeFnsoBusUe664_p09f4IIGkto
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 65
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 3,
+  "method": "list_tools",
+  "params": {}
+}
+
+=== Fri Aug 22 18:13:10 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjY1OTAsImV4cCI6MTc1NTg3MDE5MCwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.p3ExLfV5hDj_ERNYUMeFnsoBusUe664_p09f4IIGkto
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 65
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 4,
+  "method": "tools.list",
+  "params": {}
+}
+
+=== Fri Aug 22 18:13:10 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjY1OTAsImV4cCI6MTc1NTg3MDE5MCwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.p3ExLfV5hDj_ERNYUMeFnsoBusUe664_p09f4IIGkto
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 64
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 5,
+  "method": "listTools",
+  "params": {}
+}
+
+=== Fri Aug 22 18:13:10 2025 ===
+GET /tools/list HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjY1OTAsImV4cCI6MTc1NTg3MDE5MCwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.p3ExLfV5hDj_ERNYUMeFnsoBusUe664_p09f4IIGkto
+  Accept: */*
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+
+=== Fri Aug 22 18:13:35 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: */*
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 18:13:35 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: */*
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 18:13:35 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: application/json
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 18:13:35 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjY2MTUsImV4cCI6MTc1NTg3MDIxNSwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.cfewU4fxHedgleobkaujvN1wvORvkFwcaP1g3-u2_8s
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 65
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "list_tools",
+  "params": {}
+}
+
+=== Fri Aug 22 18:13:35 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: application/json
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 18:13:36 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjY2MTUsImV4cCI6MTc1NTg3MDIxNSwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.cfewU4fxHedgleobkaujvN1wvORvkFwcaP1g3-u2_8s
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 65
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "list_tools",
+  "params": {}
+}
+
+=== Fri Aug 22 18:13:36 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjY2MTUsImV4cCI6MTc1NTg3MDIxNSwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.cfewU4fxHedgleobkaujvN1wvORvkFwcaP1g3-u2_8s
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 65
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "method": "tools/list",
+  "params": {}
+}
+
+=== Fri Aug 22 18:13:36 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjY2MTUsImV4cCI6MTc1NTg3MDIxNSwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.cfewU4fxHedgleobkaujvN1wvORvkFwcaP1g3-u2_8s
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 65
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 3,
+  "method": "list_tools",
+  "params": {}
+}
+
+=== Fri Aug 22 18:13:36 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjY2MTUsImV4cCI6MTc1NTg3MDIxNSwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.cfewU4fxHedgleobkaujvN1wvORvkFwcaP1g3-u2_8s
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 65
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 4,
+  "method": "tools.list",
+  "params": {}
+}
+
+=== Fri Aug 22 18:13:36 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjY2MTUsImV4cCI6MTc1NTg3MDIxNSwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.cfewU4fxHedgleobkaujvN1wvORvkFwcaP1g3-u2_8s
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 64
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 5,
+  "method": "listTools",
+  "params": {}
+}
+
+=== Fri Aug 22 18:13:36 2025 ===
+GET /tools/list HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjY2MTUsImV4cCI6MTc1NTg3MDIxNSwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.cfewU4fxHedgleobkaujvN1wvORvkFwcaP1g3-u2_8s
+  Accept: */*
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+
+=== Fri Aug 22 18:15:21 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: */*
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 18:15:21 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: */*
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 18:15:21 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: application/json
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 18:15:21 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjY3MjEsImV4cCI6MTc1NTg3MDMyMSwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.2P4t9TCKkx5OyWv6hvB29zjSe90LVX0KwgixiHRmDWA
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 65
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "list_tools",
+  "params": {}
+}
+
+=== Fri Aug 22 18:15:21 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: application/json
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 18:15:21 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjY3MjEsImV4cCI6MTc1NTg3MDMyMSwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.2P4t9TCKkx5OyWv6hvB29zjSe90LVX0KwgixiHRmDWA
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 65
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "list_tools",
+  "params": {}
+}
+
+=== Fri Aug 22 18:15:21 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjY3MjEsImV4cCI6MTc1NTg3MDMyMSwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.2P4t9TCKkx5OyWv6hvB29zjSe90LVX0KwgixiHRmDWA
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 65
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "method": "tools/list",
+  "params": {}
+}
+
+=== Fri Aug 22 18:15:21 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjY3MjEsImV4cCI6MTc1NTg3MDMyMSwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.2P4t9TCKkx5OyWv6hvB29zjSe90LVX0KwgixiHRmDWA
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 65
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 3,
+  "method": "list_tools",
+  "params": {}
+}
+
+=== Fri Aug 22 18:15:21 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjY3MjEsImV4cCI6MTc1NTg3MDMyMSwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.2P4t9TCKkx5OyWv6hvB29zjSe90LVX0KwgixiHRmDWA
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 65
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 4,
+  "method": "tools.list",
+  "params": {}
+}
+
+=== Fri Aug 22 18:15:21 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjY3MjEsImV4cCI6MTc1NTg3MDMyMSwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.2P4t9TCKkx5OyWv6hvB29zjSe90LVX0KwgixiHRmDWA
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 64
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 5,
+  "method": "listTools",
+  "params": {}
+}
+
+=== Fri Aug 22 18:15:21 2025 ===
+GET /tools/list HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjY3MjEsImV4cCI6MTc1NTg3MDMyMSwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.2P4t9TCKkx5OyWv6hvB29zjSe90LVX0KwgixiHRmDWA
+  Accept: */*
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+
+=== Fri Aug 22 18:16:11 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: */*
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 18:16:11 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: */*
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 18:16:11 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: application/json
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 18:16:11 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjY3NzEsImV4cCI6MTc1NTg3MDM3MSwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.Z3UjfqKocOPnQe7BNFdY7U9Y95HDFc3UW5WbQuTsR-A
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 65
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "list_tools",
+  "params": {}
+}
+
+=== Fri Aug 22 18:16:11 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: application/json
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 18:16:11 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjY3NzEsImV4cCI6MTc1NTg3MDM3MSwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.Z3UjfqKocOPnQe7BNFdY7U9Y95HDFc3UW5WbQuTsR-A
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 65
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "list_tools",
+  "params": {}
+}
+
+=== Fri Aug 22 18:16:11 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjY3NzEsImV4cCI6MTc1NTg3MDM3MSwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.Z3UjfqKocOPnQe7BNFdY7U9Y95HDFc3UW5WbQuTsR-A
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 65
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "method": "tools/list",
+  "params": {}
+}
+
+=== Fri Aug 22 18:16:11 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjY3NzEsImV4cCI6MTc1NTg3MDM3MSwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.Z3UjfqKocOPnQe7BNFdY7U9Y95HDFc3UW5WbQuTsR-A
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 65
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 3,
+  "method": "list_tools",
+  "params": {}
+}
+
+=== Fri Aug 22 18:16:11 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjY3NzEsImV4cCI6MTc1NTg3MDM3MSwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.Z3UjfqKocOPnQe7BNFdY7U9Y95HDFc3UW5WbQuTsR-A
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 65
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 4,
+  "method": "tools.list",
+  "params": {}
+}
+
+=== Fri Aug 22 18:16:11 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjY3NzEsImV4cCI6MTc1NTg3MDM3MSwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.Z3UjfqKocOPnQe7BNFdY7U9Y95HDFc3UW5WbQuTsR-A
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 64
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 5,
+  "method": "listTools",
+  "params": {}
+}
+
+=== Fri Aug 22 18:16:11 2025 ===
+GET /tools/list HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjY3NzEsImV4cCI6MTc1NTg3MDM3MSwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.Z3UjfqKocOPnQe7BNFdY7U9Y95HDFc3UW5WbQuTsR-A
+  Accept: */*
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+
+=== Fri Aug 22 18:16:50 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: */*
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 18:16:50 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: */*
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 18:17:05 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: */*
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 18:17:06 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: */*
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 18:20:09 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: */*
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 18:20:09 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: */*
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 18:20:09 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: application/json
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 18:20:09 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjcwMDksImV4cCI6MTc1NTg3MDYwOSwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.Q_SVxznp0Sv6RJjSNaP4GDxxaeT4xrxJbMOaPxvR1GI
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 65
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "list_tools",
+  "params": {}
+}
+
+=== Fri Aug 22 18:20:09 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: application/json
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 18:20:09 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjcwMDksImV4cCI6MTc1NTg3MDYwOSwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.Q_SVxznp0Sv6RJjSNaP4GDxxaeT4xrxJbMOaPxvR1GI
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 65
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "list_tools",
+  "params": {}
+}
+
+=== Fri Aug 22 18:20:09 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjcwMDksImV4cCI6MTc1NTg3MDYwOSwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.Q_SVxznp0Sv6RJjSNaP4GDxxaeT4xrxJbMOaPxvR1GI
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 65
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "method": "tools/list",
+  "params": {}
+}
+
+=== Fri Aug 22 18:20:09 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjcwMDksImV4cCI6MTc1NTg3MDYwOSwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.Q_SVxznp0Sv6RJjSNaP4GDxxaeT4xrxJbMOaPxvR1GI
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 65
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 3,
+  "method": "list_tools",
+  "params": {}
+}
+
+=== Fri Aug 22 18:20:09 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjcwMDksImV4cCI6MTc1NTg3MDYwOSwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.Q_SVxznp0Sv6RJjSNaP4GDxxaeT4xrxJbMOaPxvR1GI
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 65
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 4,
+  "method": "tools.list",
+  "params": {}
+}
+
+=== Fri Aug 22 18:20:09 2025 ===
+POST / HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjcwMDksImV4cCI6MTc1NTg3MDYwOSwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.Q_SVxznp0Sv6RJjSNaP4GDxxaeT4xrxJbMOaPxvR1GI
+  Content-Type: application/json
+  Accept: application/json
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Content-Length: 64
+
+Body:
+{
+  "jsonrpc": "2.0",
+  "id": 5,
+  "method": "listTools",
+  "params": {}
+}
+
+=== Fri Aug 22 18:20:09 2025 ===
+GET /tools/list HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJtY3Atb2F1dGgtc2VydmVyIiwic3ViIjoiZGVtby1jbGllbnQiLCJhdWQiOiJtY3AtcmVzb3VyY2UiLCJpYXQiOjE3NTU4NjcwMDksImV4cCI6MTc1NTg3MDYwOSwic2NvcGUiOiJtY3AucmVhZCBtY3Aud3JpdGUiLCJjbGllbnRfaWQiOiJkZW1vLWNsaWVudCJ9.Q_SVxznp0Sv6RJjSNaP4GDxxaeT4xrxJbMOaPxvR1GI
+  Accept: */*
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+
+=== Fri Aug 22 18:22:48 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: */*
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 18:22:48 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: */*
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 18:26:11 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: */*
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}
+
+=== Fri Aug 22 18:26:11 2025 ===
+POST /token HttpVersion(major=1, minor=1)
+Headers:
+  Host: localhost:9000
+  Content-Type: application/x-www-form-urlencoded
+  Accept: */*
+  Accept-Encoding: gzip, deflate, br
+  User-Agent: Python/3.11 aiohttp/3.12.14
+  Authorization: Basic ZGVtby1jbGllbnQ6ZGVtby1zZWNyZXQ=
+  Content-Length: 102
+
+Body:
+{
+  "error": "Failed to log request: Expecting value: line 1 column 1 (char 0)"
+}

@@ -1,0 +1,749 @@
+# mcp_analyzer/mcp_client.py
+import asyncio
+import json
+import aiohttp
+import uuid
+import logging
+import base64
+import time
+from typing import Dict, Any, Optional, List, Union
+
+# Set up logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+class MCPClient:
+    """Client for interacting with an MCP server using JSON-RPC 2.0 over HTTP."""
+    
+    def __init__(
+        self,
+        transport: str,
+        reader=None,
+        writer=None,
+        url: Optional[str] = None,
+        headers: Optional[Dict[str, str]] = None,
+        **kwargs
+    ):
+        """Initialize the MCP client.
+        
+        Args:
+            transport: The transport protocol to use ('http' or 'sse')
+            reader: Optional reader for the transport
+            writer: Optional writer for the transport
+            url: Base URL of the MCP server
+            headers: Optional headers to include in requests
+            **kwargs: Additional keyword arguments
+        """
+        self.transport = transport
+        self.reader = reader
+        self.writer = writer
+        self.url = url.rstrip('/') if url else None
+        self.headers = headers or {}
+        self.session: Optional[aiohttp.ClientSession] = None
+        self._request_id = 0
+        self.logger = logging.getLogger(f"{__name__}.MCPClient")
+        self.logger.setLevel(logging.DEBUG)
+        self.auth_token = None  # Store the auth token for reuse
+        self.auth_config = None  # Store auth config for token refresh
+
+    async def _get_request_id(self) -> int:
+        """Generate a unique request ID for JSON-RPC."""
+        self._request_id += 1
+        return self._request_id
+        
+    async def _refresh_token_if_needed(self) -> bool:
+        """Refresh OAuth token if needed.
+        
+        Returns:
+            bool: True if token was refreshed, False otherwise
+        """
+        if not self.auth_config or not self.auth_token:
+            return False
+            
+        # Check if token is expired or about to expire
+        if hasattr(self, 'token_expires_at') and self.token_expires_at > time.time() - 60:  # 60s buffer
+            return False
+            
+        try:
+            refresh_url = self.auth_config.get('token_url') or self.auth_config.get('url')
+            if not refresh_url:
+                self.logger.warning("No token refresh URL available")
+                return False
+                
+            refresh_data = {
+                'grant_type': 'refresh_token',
+                'refresh_token': self.auth_token.get('refresh_token')
+            }
+            
+            headers = {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Accept': 'application/json'
+            }
+            
+            # Add basic auth if configured
+            basic_auth = self.auth_config.get('auth', {})
+            if isinstance(basic_auth, dict) and basic_auth.get('type') == 'basic':
+                username = basic_auth.get('username', '')
+                password = basic_auth.get('password', '')
+                if username and password:
+                    auth_str = f"{username}:{password}"
+                    auth_bytes = auth_str.encode('ascii')
+                    base64_auth = base64.b64encode(auth_bytes).decode('ascii')
+                    headers['Authorization'] = f"Basic {base64_auth}"
+            
+            async with aiohttp.ClientSession() as session:
+                async with session.post(
+                    refresh_url,
+                    data=refresh_data,
+                    headers=headers,
+                    ssl=False
+                ) as resp:
+                    if resp.status != 200:
+                        error_text = await resp.text()
+                        self.logger.error(f"Token refresh failed: {resp.status} - {error_text}")
+                        return False
+                        
+                    token_data = await resp.json()
+                    self._update_token(token_data)
+                    return True
+                    
+        except Exception as e:
+            self.logger.error(f"Error refreshing token: {e}", exc_info=True)
+            return False
+            
+    def _update_token(self, token_data: Dict[str, Any]) -> None:
+        """Update the stored token and set expiration."""
+        self.auth_token = token_data
+        if 'expires_in' in token_data:
+            self.token_expires_at = time.time() + int(token_data['expires_in'])
+            
+    async def _handle_sse_stream(self, response: aiohttp.ClientResponse) -> Dict[str, Any]:
+        """Handle Server-Sent Events (SSE) stream from any SSE server.
+        
+        Args:
+            response: The SSE response stream
+            
+        Returns:
+            The first valid JSON-RPC response from the SSE stream
+        """
+        self.logger.info("=== Starting SSE Stream Handling ===")
+        self.logger.info(f"URL: {response.url}")
+        self.logger.info(f"Status: {response.status}")
+        self.logger.info(f"Headers: {dict(response.headers)}")
+        self.logger.info(f"Content-Type: {response.content_type}")
+        
+        current_data = []
+        event_count = 0
+        
+        try:
+            # Set a read timeout
+            timeout = 30  # seconds
+            start_time = asyncio.get_event_loop().time()
+            
+            # Read the stream line by line
+            async for raw_line in response.content:
+                # Check if we've exceeded our timeout
+                current_time = asyncio.get_event_loop().time()
+                if (current_time - start_time) > timeout:
+                    error_msg = f"SSE read timeout after {timeout} seconds"
+                    self.logger.error(error_msg)
+                    raise asyncio.TimeoutError(error_msg)
+                
+                try:
+                    line = raw_line.decode('utf-8', errors='replace').strip()
+                    self.logger.debug(f"SSE Line: {line}")
+                    
+                    if not line:
+                        # Empty line indicates end of event
+                        event_count += 1
+                        self.logger.debug(f"=== End of Event {event_count} ===")
+                        
+                        if current_data:
+                            try:
+                                # Join all data lines and parse as JSON
+                                json_str = '\n'.join(current_data)
+                                self.logger.info(f"=== Parsing Event {event_count} ===")
+                                self.logger.debug(f"Raw JSON: {json_str}")
+                                
+                                data = json.loads(json_str)
+                                self.logger.info(f"Parsed JSON: {json.dumps(data, indent=2)}")
+                                
+                                # If it's a valid JSON-RPC response, return it
+                                if isinstance(data, dict) and 'jsonrpc' in data and 'id' in data:
+                                    self.logger.info("Found valid JSON-RPC response")
+                                    return data
+                                    
+                                # If it's just a regular JSON object, wrap it
+                                self.logger.info("Wrapping JSON in JSON-RPC response")
+                                return {
+                                    'jsonrpc': '2.0',
+                                    'id': str(uuid.uuid4()),
+                                    'result': data
+                                }
+                                    
+                            except json.JSONDecodeError as e:
+                                error_msg = f"Failed to parse SSE data as JSON: {e}"
+                                self.logger.error(error_msg)
+                                self.logger.debug(f"Problematic JSON: {json_str}")
+                        
+                        # Reset for next event
+                        current_data = []
+                        
+                    elif line.startswith('data: '):
+                        # Data line, strip the 'data: ' prefix
+                        data = line[6:].strip()
+                        self.logger.debug(f"Data chunk: {data}")
+                        current_data.append(data)
+                        
+                    elif line.startswith('event: '):
+                        # Event type line
+                        event_type = line[7:].strip()
+                        self.logger.info(f"SSE Event Type: {event_type}")
+                        
+                    # Handle other SSE fields
+                    elif line.startswith('id: '):
+                        event_id = line[4:].strip()
+                        self.logger.debug(f"Event ID: {event_id}")
+                    elif line.startswith('retry: '):
+                        retry_time = line[7:].strip()
+                        self.logger.debug(f"Retry time: {retry_time}ms")
+                    elif ':' in line:
+                        # Handle other colon-separated fields
+                        field, value = line.split(':', 1)
+                        self.logger.debug(f"SSE Field - {field}: {value.strip()}")
+                    
+                except Exception as line_error:
+                    error_msg = f"Error processing SSE line: {line_error}"
+                    self.logger.error(error_msg, exc_info=True)
+                    continue
+            
+            self.logger.info("=== End of SSE Stream Reached ===")
+            self.logger.info(f"Total events processed: {event_count}")
+            
+            # If we get here, we didn't find a valid response
+            error_msg = 'No valid JSON-RPC response received from SSE stream'
+            self.logger.error(error_msg)
+            return {
+                'jsonrpc': '2.0',
+                'id': str(uuid.uuid4()),
+                'error': {
+                    'code': -32603,
+                    'message': error_msg
+                }
+            }
+            
+        except Exception as e:
+            error_msg = f"Error in SSE stream handling: {str(e)}"
+            self.logger.error(error_msg, exc_info=True)
+            return {
+                'jsonrpc': '2.0',
+                'id': str(uuid.uuid4()),
+                'error': {
+                    'code': -32603,
+                    'message': error_msg
+                }
+            }
+                
+    async def _make_sse_request(self, payload: Dict[str, Any], headers: Dict[str, str]) -> Dict[str, Any]:
+        """Make a request using SSE transport.
+        
+        Args:
+            payload: The JSON-RPC payload to send
+            headers: Headers to include in the request
+            
+        Returns:
+            The parsed JSON-RPC response
+            
+        Raises:
+            aiohttp.ClientError: If the request fails
+            json.JSONDecodeError: If the response is not valid JSON
+        """
+        import urllib.parse
+        
+        # Encode the payload as a URL parameter
+        encoded_payload = urllib.parse.quote(json.dumps(payload))
+        
+        # Build the request URL with query parameter
+        separator = '&' if '?' in self.url else '?'
+        request_url = f"{self.url}{separator}request={encoded_payload}"
+        
+        self.logger.info(f"=== Making SSE Request ===")
+        self.logger.info(f"URL: {request_url}")
+        self.logger.info(f"Headers: {json.dumps(headers, indent=2)}")
+        
+        # Set a reasonable timeout
+        timeout = aiohttp.ClientTimeout(total=30, connect=10)
+        self.logger.info(f"Using timeout: {timeout.total}s total, {timeout.connect}s connect")
+        
+        try:
+            # Make the SSE request
+            async with self.session.get(
+                request_url,
+                headers=headers,
+                timeout=timeout
+            ) as response:
+                response.raise_for_status()
+                
+                # Process the SSE stream
+                return await self._handle_sse_stream(response)
+                
+        except Exception as e:
+            self.logger.error(f"SSE request failed: {str(e)}", exc_info=True)
+            raise
+
+    async def _make_jsonrpc_request(
+        self,
+        method: str,
+        params: Optional[Dict[str, Any]] = None,
+        max_retries: int = 2
+    ) -> Dict[str, Any]:
+        """Make a JSON-RPC 2.0 request to the MCP server with token refresh.
+        
+        Args:
+            method: The RPC method to call
+            params: Optional parameters for the method
+            max_retries: Maximum number of retries on auth failure
+            
+        Returns:
+            The parsed JSON response
+            
+        Raises:
+            RuntimeError: If the session is not initialized
+            aiohttp.ClientError: For HTTP request errors
+            json.JSONDecodeError: If the response is not valid JSON
+        """
+        if self.session is None:
+            raise RuntimeError("Session not initialized. Call connect() first.")
+            
+        # Refresh token if needed
+        if self.auth_token and self.auth_config:
+            await self._refresh_token_if_needed()
+            
+        request_id = self._get_request_id()
+        payload = {
+            "jsonrpc": "2.0",
+            "id": request_id,
+            "method": method,
+            "params": params or {}
+        }
+        
+        # Add auth token if available
+        headers = self.headers.copy()
+        if self.auth_token:
+            headers["Authorization"] = f"Bearer {self.auth_token}"
+            
+        if self.transport == 'sse':
+            # For SSE transport, we need to use a different approach
+            self.logger.info("=== Making SSE Request ===")
+            self.logger.info(f"Method: {method}")
+            self.logger.info(f"Transport: {self.transport}")
+            self.logger.info(f"URL: {self.url}")
+            self.logger.info(f"Request ID: {request_id}")
+            self.logger.info(f"Headers: {json.dumps(headers, indent=2)}")
+            self.logger.info(f"Payload: {json.dumps(payload, indent=2)}")
+            
+            try:
+                response = await self._make_sse_request(payload, headers)
+                self.logger.info("=== SSE Response ===")
+                self.logger.info(f"Response: {json.dumps(response, indent=2)}")
+                return response
+            except Exception as e:
+                self.logger.error(f"SSE request failed: {str(e)}", exc_info=True)
+                raise
+            
+        # For HTTP transport, make a normal request
+        url = f"{self.url}/jsonrpc"
+        self.logger.info(f"=== Making HTTP Request ===")
+        self.logger.info(f"URL: {url}")
+        self.logger.info(f"Method: {method}")
+        self.logger.info(f"Headers: {json.dumps(headers, indent=2)}")
+        self.logger.info(f"Payload: {json.dumps(payload, indent=2)}")
+        
+        try:
+            async with self.session.post(
+                url,
+                json=payload,
+                headers=headers,
+                timeout=aiohttp.ClientTimeout(total=30)
+            ) as response:
+                response_text = await response.text()
+                self.logger.info(f"=== HTTP Response ===")
+                self.logger.info(f"Status: {response.status}")
+                self.logger.info(f"Headers: {dict(response.headers)}")
+                self.logger.info(f"Response: {response_text}")
+                
+                response.raise_for_status()
+                return json.loads(response_text)
+                
+        except asyncio.TimeoutError as e:
+            error_msg = f"Timeout connecting to {self.url} after 30 seconds"
+            self.logger.error(error_msg)
+            raise RuntimeError(error_msg) from e
+                    self.logger.error(error_msg, exc_info=True)
+                    return {
+                        'error': {
+                            'code': -32000,
+                            'message': error_msg
+                        }
+                    }
+                except aiohttp.ClientError as e:
+                    error_msg = f"Client error connecting to {self.url}: {str(e)}"
+                    print(f"\n=== Client Error ===")
+                    print(error_msg)
+                    self.logger.error(error_msg, exc_info=True)
+                    return {
+                        'error': {
+                            'code': -32001,
+                            'message': error_msg
+                        }
+                    }
+                except Exception as e:
+                    error_msg = f"Unexpected error connecting to {self.url}: {str(e)}"
+                    print(f"\n=== Unexpected Error ===")
+                    print(error_msg)
+                    import traceback
+                    traceback.print_exc()
+                    self.logger.error(error_msg, exc_info=True)
+                    return {
+                        'error': {
+                            'code': -32002,
+                            'message': error_msg
+                        }
+                    }
+            else:
+                # Standard HTTP/HTTPS request
+                async with self.session.post(
+                    self.url,
+                    json=payload,
+                    ssl=False,
+                    timeout=aiohttp.ClientTimeout(total=30)
+                ) as response:
+                    # Handle 404 Not Found
+                    if response.status == 404:
+                        self.logger.debug("Endpoint not found (404) for %s: %s", method, self.url)
+                        return {'error': {'code': 404, 'message': 'Endpoint not found'}}
+                        
+                    # Handle 401 Unauthorized by refreshing token and retrying
+                    if response.status == 401 and max_retries > 0:
+                        self.logger.info("Received 401, attempting token refresh...")
+                        if await self._refresh_token_if_needed():
+                            return await self._make_jsonrpc_request(method, params, max_retries - 1)
+                    
+                    # For other error status codes
+                    if response.status >= 400:
+                        error_text = await response.text()
+                        self.logger.debug("HTTP %d response: %s", response.status, error_text)
+                        return {'error': {'code': response.status, 'message': f'HTTP {response.status}: {error_text[:200]}'}}
+                    
+                    # Handle JSON response
+                    try:
+                        result = await response.json()
+                        if isinstance(result, dict) and 'error' in result:
+                            self.logger.debug("RPC error in response: %s", result['error'])
+                        return result
+                    except json.JSONDecodeError:
+                        text = await response.text()
+                        self.logger.debug("Non-JSON response: %s", text[:200])
+                        return {'text': text}
+                
+        except aiohttp.ClientError as e:
+            self.logger.debug("HTTP request failed: %s", str(e))
+            return {'error': {'code': -32000, 'message': f'HTTP request failed: {str(e)}'}}
+        except asyncio.TimeoutError:
+            self.logger.debug("Request timed out")
+            return {'error': {'code': -32000, 'message': 'Request timed out'}}
+        except Exception as e:
+            self.logger.debug("Unexpected error: %s", str(e), exc_info=True)
+            return {'error': {'code': -32603, 'message': f'Internal error: {str(e)}'}}
+
+    async def connect(self, auth_config: Optional[Dict[str, Any]] = None) -> None:
+        """Connect to the MCP server and authenticate if needed.
+        
+        Args:
+            auth_config: Optional authentication configuration
+            
+        Raises:
+            ConnectionError: If unable to connect to the server
+            RuntimeError: If authentication fails or other errors occur
+        """
+        # Set up common headers
+        self.headers.update({
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive'
+        })
+        
+        # Initialize aiohttp ClientSession if not already done
+        if not self.session:
+            self.session = aiohttp.ClientSession(headers=self.headers)
+        
+        # Handle authentication if configured
+        if auth_config:
+            self.auth_config = auth_config
+            try:
+                if auth_config.get('method') == 'login':
+                    await self._handle_oauth_login(auth_config)
+                elif 'token' in auth_config:
+                    self.auth_token = auth_config['token']
+                    if 'access_token' in self.auth_token:
+                        self.headers['Authorization'] = f"Bearer {self.auth_token['access_token']}"
+            except ConnectionError as e:
+                # Re-raise connection errors with more context
+                server_url = auth_config.get('url', self.url or 'unknown server')
+                error_msg = f"Unable to connect to server at {server_url}. {str(e)}"
+                self.logger.error(error_msg)
+                if self.session:
+                    await self.session.close()
+                    self.session = None
+                raise ConnectionError(error_msg) from e
+            except Exception as e:
+                # Handle other authentication errors
+                error_msg = f"Authentication failed: {str(e)}"
+                self.logger.error(error_msg)
+                if self.session:
+                    await self.session.close()
+                    self.session = None
+                raise RuntimeError(error_msg) from e
+        
+        # Test connection by listing tools
+        try:
+            self.logger.info("Testing connection by listing tools...")
+            tools = await self.list_tools()
+            self.logger.info("Successfully connected to MCP server. Found %d tools.", len(tools))
+            if tools:
+                tool_names = [tool.get('name', 'unknown') for tool in tools]
+                self.logger.debug("Available tools: %s", ", ".join(tool_names))
+        except aiohttp.ClientConnectorError as e:
+            server_url = self.url or 'unknown server'
+            error_msg = f"Unable to connect to server at {server_url}. Please check if the server is running and accessible."
+            self.logger.error(error_msg)
+            if self.session:
+                await self.session.close()
+                self.session = None
+            raise ConnectionError(error_msg) from e
+        except aiohttp.ClientError as e:
+            error_msg = f"Error communicating with server: {str(e)}"
+            self.logger.error(error_msg)
+            if self.session:
+                await self.session.close()
+                self.session = None
+            raise RuntimeError(error_msg) from e
+        except Exception as e:
+            error_msg = f"Connection test failed: {str(e)}"
+            self.logger.error(error_msg, exc_info=True)
+            if self.session:
+                await self.session.close()
+                self.session = None
+            raise RuntimeError(error_msg) from e
+
+    async def _handle_oauth_login(self, auth_config: Dict[str, Any]) -> None:
+        """Handle OAuth2 login flow.
+        
+        Args:
+            auth_config: OAuth2 configuration
+            
+        Raises:
+            ValueError: If required configuration is missing
+            RuntimeError: If authentication fails
+        """
+        self.auth_config = auth_config  # Store for token refresh
+        login_url = auth_config.get('url')
+        if not login_url:
+            error_msg = "No login URL provided in auth config"
+            self.logger.error(error_msg)
+            raise ValueError(error_msg)
+            
+        login_payload = auth_config.get('credentials', {})
+        use_form_data = auth_config.get('use_form_data', True)
+        
+        # Prepare headers for token request
+        login_headers = {
+            'Content-Type': 'application/x-www-form-urlencoded' if use_form_data else 'application/json',
+            'Accept': 'application/json'
+        }
+        
+        # Add Basic Auth if configured
+        basic_auth = auth_config.get('auth', {})
+        if isinstance(basic_auth, dict) and basic_auth.get('type') == 'basic':
+            username = basic_auth.get('username', '')
+            password = basic_auth.get('password', '')
+            if username and password:
+                auth_str = f"{username}:{password}"
+                auth_bytes = auth_str.encode('ascii')
+                base64_auth = base64.b64encode(auth_bytes).decode('ascii')
+                login_headers['Authorization'] = f"Basic {base64_auth}"
+        
+        # Make the token request
+        try:
+            self.logger.debug(f"Initiating OAuth2 login to {login_url}")
+            self.logger.debug(f"Using headers: {login_headers}")
+            self.logger.debug(f"Payload: {login_payload}")
+            
+            async with aiohttp.ClientSession() as temp_session:
+                self.logger.debug(f"Making OAuth2 token request to {login_url}")
+                
+                if use_form_data:
+                    data = aiohttp.FormData()
+                    for key, value in login_payload.items():
+                        data.add_field(key, str(value))
+                    response = await temp_session.post(
+                        login_url,
+                        headers=login_headers,
+                        data=data,
+                        ssl=False
+                    )
+                else:
+                    response = await temp_session.post(
+                        login_url,
+                        headers=login_headers,
+                        json=login_payload,
+                        ssl=False
+                    )
+                
+                response_text = await response.text()
+                self.logger.debug(f"OAuth2 response status: {response.status}")
+                self.logger.debug(f"OAuth2 response: {response_text}")
+                
+                response.raise_for_status()
+                
+                try:
+                    token_data = await response.json()
+                    self.logger.debug("Successfully parsed token response")
+                except Exception as e:
+                    self.logger.error("Failed to parse token response as JSON: %s", str(e))
+                    raise RuntimeError("Invalid JSON in OAuth response") from e
+                
+                # Extract token using token_path if specified
+                token_path = auth_config.get('token_path', ['access_token'])
+                token = token_data
+                for key in token_path:
+                    if token is None or not isinstance(token, dict) or key not in token:
+                        raise ValueError(f"Failed to extract token from path {token_path}")
+                    token = token[key]
+                
+                # Store the token data and update session headers
+                self.auth_token = token_data
+                if 'expires_in' in token_data:
+                    self.token_expires_at = time.time() + int(token_data['expires_in'])
+                
+                # Update session headers with the new token
+                if self.session:
+                    self.session.headers.update({
+                        'Authorization': f"Bearer {token}"
+                    })
+                
+                # Update the session with the new token
+                if not self.session:
+                    self.session = aiohttp.ClientSession()
+                
+                # Update the Authorization header
+                self.session.headers.update({
+                    'Authorization': f"Bearer {token}"
+                })
+                
+                self.logger.info("Successfully authenticated with OAuth2")
+                
+        except aiohttp.ClientConnectorError as e:
+            error_msg = f"Unable to connect to server at {login_url}. Please check if the server is running and accessible."
+            self.logger.error(error_msg, exc_info=True)
+            raise ConnectionError(error_msg) from e
+            
+        except aiohttp.ClientError as e:
+            error_msg = f"HTTP error during OAuth2 authentication: {str(e)}"
+            self.logger.error(error_msg, exc_info=True)
+            raise RuntimeError(error_msg) from e
+            
+        except json.JSONDecodeError as e:
+            error_msg = f"Failed to parse OAuth2 token response: {str(e)}"
+            self.logger.error(error_msg, exc_info=True)
+            raise RuntimeError(error_msg) from e
+            
+        except Exception as e:
+            error_msg = f"Unexpected error during OAuth2 authentication: {str(e)}"
+            self.logger.error(error_msg, exc_info=True)
+            raise RuntimeError(error_msg) from e
+
+    async def close(self) -> None:
+        """Close the client session."""
+        if self.session:
+            await self.session.close()
+            self.session = None
+
+    async def list_tools(self) -> List[Dict[str, Any]]:
+        """List all available tools from the MCP server.
+        
+        Returns:
+            A list of available tools
+        """
+        try:
+            response = await self._make_jsonrpc_request("list_tools")
+            if isinstance(response, dict) and 'result' in response:
+                return response.get('result', {}).get('tools', [])
+            return []
+        except Exception as e:
+            self.logger.error("Failed to list tools: %s", str(e), exc_info=True)
+            return []
+
+    async def call_tool(
+        self,
+        name: str,
+        args: Optional[Dict[str, Any]] = None
+    ) -> Any:
+        """Call a tool on the MCP server.
+        
+        Args:
+            name: The name of the tool to call (e.g., 'file/read')
+            args: Dictionary of arguments to pass to the tool
+            
+        Returns:
+            The result of the tool execution or None if there was an error
+        """
+        if args is None:
+            args = {}
+            
+        self.logger.debug("Calling tool: %s with args: %s", name, args)
+        
+        try:
+            response = await self._make_jsonrpc_request(name, args)
+            
+            # Handle the response
+            if not response:
+                self.logger.debug("Empty response received for %s", name)
+                return None
+                
+            if isinstance(response, dict):
+                # Check for error response from _make_jsonrpc_request
+                if 'error' in response:
+                    error = response['error']
+                    if isinstance(error, dict):
+                        self.logger.debug("Tool error - Code: %s, Message: %s", 
+                                       error.get('code', 'unknown'), 
+                                       error.get('message', 'No error message'))
+                    return None
+                    
+                # Handle standard JSON-RPC response
+                if 'result' in response and 'jsonrpc' in response and 'id' in response:
+                    return response['result']
+                
+                # If we have a direct result, return it
+                if 'result' in response:
+                    return response['result']
+                    
+            # For non-JSON-RPC responses, return as-is
+            return response
+            
+        except Exception as e:
+            self.logger.debug("Error in call_tool for %s: %s", name, str(e), exc_info=True)
+            return None
+
+    async def __aenter__(self):
+        """Async context manager entry."""
+        return self
+        
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        """Async context manager exit."""
+        await self.close()

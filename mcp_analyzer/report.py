@@ -185,17 +185,67 @@ def fix_truncated_json(json_str: str) -> str:
 
 def get_complete_proof(finding: dict) -> str:
     """Extract the complete proof data from the finding."""
-    # First try to get the complete proof from probe_results.exec.proof
-    if (isinstance(finding, dict) and 
-        'probe_results' in finding and 
-        'exec' in finding['probe_results'] and 
-        'proof' in finding['probe_results']['exec'] and 
-        finding['probe_results']['exec']['proof']):
-        return finding['probe_results']['exec']['proof']
+    if not isinstance(finding, dict):
+        return None
     
-    # Fall back to the top-level proof field if available
+    # Try to get proof from probe_results first
+    if 'probe_results' in finding and finding['probe_results']:
+        for probe_type, probe_data in finding['probe_results'].items():
+            if not probe_data:
+                continue
+                
+            # Handle direct proof in probe_data
+            if 'proof' in probe_data and probe_data['proof']:
+                return json.dumps({
+                    'tool_name': finding.get('tool', ''),
+                    'server': finding.get('server', ''),
+                    'probe_type': probe_type,
+                    'proof': probe_data['proof'],
+                    'classification': 'suspicious_behavior' if finding.get('active_risk') != 'none' else 'normal_behavior'
+                }, indent=2)
+                
+            # Check attempts for response data
+            if 'attempts' in probe_data and probe_data['attempts']:
+                for attempt in probe_data['attempts']:
+                    if 'response' in attempt and attempt['response']:
+                        return json.dumps({
+                            'tool_name': finding.get('tool', ''),
+                            'server': finding.get('server', ''),
+                            'probe_type': probe_type,
+                            'payload': attempt.get('args', {}),
+                            'response': attempt['response'],
+                            'classification': 'suspicious_behavior' if finding.get('active_risk') != 'none' else 'normal_behavior'
+                        }, indent=2)
+                    elif 'proof' in attempt and attempt['proof']:
+                        return json.dumps({
+                            'tool_name': finding.get('tool', ''),
+                            'server': finding.get('server', ''),
+                            'probe_type': probe_type,
+                            'proof': attempt['proof'],
+                            'classification': 'suspicious_behavior' if finding.get('active_risk') != 'none' else 'normal_behavior'
+                        }, indent=2)
+    
+    # Fall back to direct proof field if available
     if 'proof' in finding and finding['proof']:
-        return finding['proof']
+        if isinstance(finding['proof'], str):
+            try:
+                # If it's already a JSON string, parse and re-format it
+                proof_data = json.loads(finding['proof'])
+                return json.dumps({
+                    'tool_name': finding.get('tool', ''),
+                    'server': finding.get('server', ''),
+                    'proof': proof_data,
+                    'classification': 'suspicious_behavior' if finding.get('active_risk') != 'none' else 'normal_behavior'
+                }, indent=2)
+            except json.JSONDecodeError:
+                # If not JSON, return as is
+                return finding['proof']
+        return json.dumps({
+            'tool_name': finding.get('tool', ''),
+            'server': finding.get('server', ''),
+            'proof': finding['proof'],
+            'classification': 'suspicious_behavior' if finding.get('active_risk') != 'none' else 'normal_behavior'
+        }, indent=2)
     
     return None
 
@@ -210,56 +260,88 @@ def generate_report(all_findings: List[Finding]) -> None:
     # Create console with appropriate width and settings
     console = Console(record=True, width=150)  # Increased width to 150 characters
     
-    # Print report header
-    console.print(f"[bold blue]MCP Security Scan - {VERSION}[/]\n")
-    
     if not all_findings:
         console.print("[green]No vulnerabilities found![/]")
         return
     
-    # Process each finding
-    for i, finding_dict in enumerate(findings_dicts, 1):
-        # Get the complete proof data
-        complete_proof = get_complete_proof(finding_dict)
+    # Group findings by server
+    findings_by_server = {}
+    for finding in findings_dicts:
+        server = finding['server']
+        if server not in findings_by_server:
+            findings_by_server[server] = []
+        findings_by_server[server].append(finding)
+    
+    # Print report for each server
+    for server, server_findings in findings_by_server.items():
+        console.rule(f"[bold]Server: {server}[/]")
         
-        # Print finding header
-        console.print(f"[bold cyan]\n[{'='*50}][/]")
-        console.print(f"[bold]Finding {i}: {finding_dict['tool']}[/]")
-        console.print(f"[dim]{'-'*60}[/]")
+        # Print server summary
+        total_findings = len(server_findings)
+        critical_findings = sum(1 for f in server_findings if f['active_risk'] in ['critical', 'high'])
+        medium_findings = sum(1 for f in server_findings if f['active_risk'] == 'medium')
+        low_findings = sum(1 for f in server_findings if f['active_risk'] == 'low')
         
-        # Print basic info
-        console.print(f"[bold]Server:[/] {finding_dict['server']}")
-        console.print(f"[bold]Tool:[/] {', '.join(finding_dict['tool']) if isinstance(finding_dict['tool'], list) else finding_dict['tool']}")
-        console.print(f"[bold]Unauthenticated:[/] {'[red]YES[/]' if finding_dict['unauthenticated'] else '[green]NO[/]'}")
-        console.print(f"[bold]Static Risk:[/] [yellow]{finding_dict['static_risk']}[/]")
-        console.print(f"[bold]Active Risk:[/] [{'red' if finding_dict['active_risk'] != 'none' else 'green'}]{finding_dict['active_risk'].upper() if finding_dict['active_risk'] != 'none' else 'NO FINDINGS'}[/]")
+        console.print(f"[bold]Total Tools:[/] {total_findings}")
+        if critical_findings > 0:
+            console.print(f"[bold red]Critical/High Risk Findings:[/] {critical_findings}")
+        if medium_findings > 0:
+            console.print(f"[bold yellow]Medium Risk Findings:[/] {medium_findings}")
+        if low_findings > 0:
+            console.print(f"[bold blue]Low Risk Findings:[/] {low_findings}")
         
-        # Print proof section if we have proof data
-        if complete_proof:
-            console.print("\n[bold green]Proof:[/]")
-            console.print("\n[bold cyan]Detailed Analysis:[/]")
-            proof_text = format_proof_text(complete_proof)
+        # Print tools list
+        console.print("\n[bold]Tools:[/]")
+        for finding in sorted(server_findings, key=lambda x: (x['active_risk'] != 'none', x['tool'])):
+            risk_color = {
+                'critical': 'red',
+                'high': 'red',
+                'medium': 'yellow',
+                'low': 'blue',
+                'none': 'green'
+            }.get(finding['active_risk'], 'white')
             
-            # Split the proof text into lines and print with proper formatting
-            for line in proof_text.split('\n'):
-                if line.startswith('Behavior'):
-                    console.print(f"\n[bold cyan]{line}[/]")
-                elif line.strip().startswith('Payload:'):
-                    console.print(f"  [bold green]Payload:[/]")
-                elif line.strip().startswith('Response:'):
-                    console.print(f"  [bold green]Response:[/]")
-                    console.print(f"    {line.replace('Response:', '').strip()}")
-                elif line.strip().startswith('Reason:'):
-                    console.print(f"  [bold red]Reason:[/] {line.replace('Reason:', '').strip()}")
-                elif line.strip() == '-' * 50:
-                    console.print("  [dim]" + "-" * 50 + "[/]")
-                elif line.strip():
-                    # Indent other lines for better readability
-                    console.print(f"    {line}")
+            risk_text = finding['active_risk'].upper() if finding['active_risk'] != 'none' else 'SAFE'
+            console.print(f"  - {finding['tool']} [{risk_color}]{risk_text}[/]")
         
-        # Add separator between findings
-        if i < len(all_findings):
-            console.print("\n[bold blue]" + "="*80 + "[/]\n")
+        # Print detailed findings for this server
+        console.print("\n[bold]Detailed Findings:[/]")
+        for i, finding in enumerate([f for f in server_findings if f['active_risk'] != 'none'], 1):
+            console.print(f"\n[bold]{i}. {finding['tool']}[/]")
+            console.print(f"   [dim]Description:[/] {finding['description']}")
+            
+            # Show risk level with color
+            risk_color = {
+                'critical': 'red',
+                'high': 'red',
+                'medium': 'yellow',
+                'low': 'blue'
+            }.get(finding['active_risk'], 'white')
+            
+            console.print(f"   [bold]Risk Level:[/] [{risk_color}]{finding['active_risk'].upper()}[/]")
+            
+            # Show proof if available
+            complete_proof = get_complete_proof(finding)
+            if complete_proof:
+                console.print("\n   [bold]Proof:[/]")
+                console.print(f"   [dim]{'-'*70}[/]")
+                proof_lines = format_proof(complete_proof).split('\n')
+                for line in proof_lines:
+                    console.print(f"   {line}")
+                console.print(f"   [dim]{'-'*70}[/]")
+            
+            # Show matches if any
+            if finding.get('matches'):
+                console.print("\n   [bold]Indicators:[/]")
+                for match in finding['matches']:
+                    console.print(f"     - {match}")
+        
+        console.print("\n" + "="*80 + "\n")
+    
+    # Print summary
+    console.print(f"\n[bold green]Scan completed![/]")
+    console.print(f"[cyan]Detailed results saved to: {os.path.abspath(OUT_JSON)}[/]")
+    console.print(f"[cyan]Logs saved to: {os.path.abspath(LOG_FILE)}[/]")
     
     # Print summary
     console.print(f"\n[bold green]Scan completed![/]")

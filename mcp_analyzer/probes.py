@@ -1,14 +1,193 @@
 from __future__ import annotations
 import os, re, json, logging
-from typing import Any, Dict
+from typing import Any, Dict, List, Optional, Callable, Awaitable, TypeVar
+from dataclasses import dataclass
+from enum import Enum
+import asyncio
 from . import call_tool_with_client
 from .llm_fuzzer import generate_payloads
-import logging
 from .utils import extract_result_text, looks_like_passwd
 from .constants import (
     COMMON_PATH_KEYS, COMMON_CMD_KEYS, COMMON_ARG_FOR_POSITIONAL,
     UNIX_SENSITIVE, WIN_SENSITIVE, BENIGN_CMD, BENIGN_CMD_ALT
 )
+
+# Type aliases
+T = TypeVar('T')
+ProbeFunction = Callable[[Any, Dict[str, Any], bool], Awaitable[Dict[str, Any]]]
+
+class ProbeType(str, Enum):
+    FILE_READ = "file_read"
+    COMMAND_EXEC = "command_exec"
+    API_ENDPOINT = "api_endpoint"
+    AUTHENTICATION = "authentication"
+    DATA_EXPOSURE = "data_exposure"
+
+@dataclass
+class ProbeResult:
+    success: bool = False
+    payload: Optional[Any] = None
+    proof: Optional[str] = None
+    response: Optional[Any] = None
+    attempts: List[Dict[str, Any]] = None
+    probe_type: Optional[ProbeType] = None
+    severity: str = "info"
+    confidence: float = 0.0
+    
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "success": self.success,
+            "probe_type": str(self.probe_type) if self.probe_type else None,
+            "severity": self.severity,
+            "confidence": self.confidence,
+            "payload": self.payload,
+            "proof": self.proof,
+            "response": self.response,
+            "attempts": self.attempts or []
+        }
+
+# Registry of available probes
+PROBE_REGISTRY: Dict[ProbeType, ProbeFunction] = {}
+
+def register_probe(probe_type: ProbeType) -> Callable[[ProbeFunction], ProbeFunction]:
+    """Decorator to register a probe function for a specific type."""
+    def decorator(func: ProbeFunction) -> ProbeFunction:
+        PROBE_REGISTRY[probe_type] = func
+        return func
+    return decorator
+
+async def get_relevant_probes(tool: Dict[str, Any]) -> List[ProbeType]:
+    """Determine which probes are relevant for a given tool based on its metadata."""
+    probes = []
+    tool_name = tool.get('name', '').lower()
+    tool_desc = tool.get('description', '').lower()
+    
+    # Check for file operations
+    if any(term in tool_name or term in tool_desc 
+           for term in ['file', 'read', 'write', 'open', 'load']):
+        probes.append(ProbeType.FILE_READ)
+    
+    # Check for command execution
+    if any(term in tool_name or term in tool_desc 
+           for term in ['exec', 'command', 'run', 'shell', 'terminal']):
+        probes.append(ProbeType.COMMAND_EXEC)
+    
+    # Check for API endpoints
+    if any(term in tool_name or term in tool_desc 
+           for term in ['api', 'endpoint', 'http', 'https']):
+        probes.append(ProbeType.API_ENDPOINT)
+    
+    # Check for authentication
+    if any(term in tool_name or term in tool_desc 
+           for term in ['auth', 'login', 'token', 'credential']):
+        probes.append(ProbeType.AUTHENTICATION)
+    
+    return list(set(probes))  # Remove duplicates
+
+async def execute_probes(tool: Dict[str, Any], mcp_client: Any, use_dynamic: bool = False) -> Dict[ProbeType, Dict[str, Any]]:
+    """Execute all relevant probes for a tool."""
+    results = {}
+    probe_types = await get_relevant_probes(tool)
+    
+    for probe_type in probe_types:
+        if probe_func := PROBE_REGISTRY.get(probe_type):
+            try:
+                result = await probe_func(mcp_client, tool, use_dynamic)
+                results[probe_type.value] = result
+            except Exception as e:
+                logging.error(f"Error executing {probe_type} probe: {e}")
+                results[probe_type.value] = {
+                    "error": str(e),
+                    "success": False
+                }
+    
+    return results
+
+@register_probe(ProbeType.FILE_READ)
+async def probe_file_read(mcp_client: Any, tool: Dict[str, Any], use_dynamic: bool = False) -> Dict[str, Any]:
+    """Probe for file read vulnerabilities."""
+    result = ProbeResult(probe_type=ProbeType.FILE_READ, severity="high")
+    result.attempts = []
+    
+    # Generate test files based on OS hints
+    test_files = [
+        "/etc/passwd", "/etc/hosts", "/etc/group",
+        "C:\\Windows\\System32\\drivers\\etc\\hosts"
+    ]
+    
+    # Try different parameter names
+    for test_file in test_files:
+        for param in ['path', 'file', 'filename', 'filepath', 'input']:
+            payload = {param: test_file}
+            attempt = {"args": payload, "classification": "pending"}
+            
+            try:
+                resp = await call_tool_with_client(mcp_client, tool['name'], payload)
+                attempt["response"] = resp
+                text = extract_result_text(resp) if resp else ""
+                
+                if looks_like_passwd(text):
+                    attempt["classification"] = "vulnerable"
+                    result.success = True
+                    result.payload = payload
+                    result.proof = f"Successfully read system file: {test_file}"
+                    result.confidence = 0.9
+                elif any(indicator in text for indicator in ['root:', '127.0.0.1', 'nobody:']):
+                    attempt["classification"] = "suspicious"
+                    result.success = True
+                    result.payload = payload
+                    result.proof = f"Suspicious file read detected: {text[:200]}..."
+                    result.confidence = 0.7
+                
+                result.attempts.append(attempt)
+                if result.success:
+                    return result.to_dict()
+                    
+            except Exception as e:
+                attempt["classification"] = "error"
+                attempt["error"] = str(e)
+                result.attempts.append(attempt)
+    
+    return result.to_dict()
+
+@register_probe(ProbeType.COMMAND_EXEC)
+async def probe_command_exec(mcp_client: Any, tool: Dict[str, Any], use_dynamic: bool = False) -> Dict[str, Any]:
+    """Probe for command execution vulnerabilities."""
+    result = ProbeResult(probe_type=ProbeType.COMMAND_EXEC, severity="critical")
+    result.attempts = []
+    
+    test_commands = [
+        {"command": "whoami"},
+        {"cmd": "id"},
+        {"exec": "echo test"},
+        {"run": "hostname"}
+    ]
+    
+    for cmd in test_commands:
+        attempt = {"args": cmd, "classification": "pending"}
+        try:
+            resp = await call_tool_with_client(mcp_client, tool['name'], cmd)
+            attempt["response"] = resp
+            text = extract_result_text(resp) if resp else ""
+            
+            # Check for command output patterns
+            if any(pattern in text.lower() for pattern in ["uid=", "windows", "linux", "unix"]):
+                attempt["classification"] = "vulnerable"
+                result.success = True
+                result.payload = cmd
+                result.proof = f"Command execution successful. Output: {text[:200]}..."
+                result.confidence = 0.9
+            
+            result.attempts.append(attempt)
+            if result.success:
+                return result.to_dict()
+                
+        except Exception as e:
+            attempt["classification"] = "error"
+            attempt["error"] = str(e)
+            result.attempts.append(attempt)
+    
+    return result.to_dict()
 
 def looks_like_passwd(text: str) -> bool:
     return bool(re.search(r"^root:.*:0:0:", text, flags=re.MULTILINE))
@@ -40,13 +219,14 @@ def extract_result_text(resp: dict) -> str:
     except Exception:
         return json.dumps(resp)
 
-async def probe_file_read(mcp_client, tool: Dict[str, Any]) -> Dict[str, Any]:
+async def probe_file_read(mcp_client, tool: Dict[str, Any], use_dynamic: bool = False) -> Dict[str, Any]:
     """
     Test a tool for file read vulnerabilities.
     
     Args:
         mcp_client: MCP client instance for making tool calls
         tool: Tool definition dictionary
+        use_dynamic: Whether to use dynamic LLM-based payload generation
         
     Returns:
         Dictionary with probe results
@@ -58,7 +238,8 @@ async def probe_file_read(mcp_client, tool: Dict[str, Any]) -> Dict[str, Any]:
         tool["name"],
         tool.get("description", ""),
         tool.get("raw", {}).get("inputSchema", {}),
-        mcp_client=mcp_client
+        mcp_client=mcp_client,
+        use_llm=use_dynamic
     )
     
     # Extract just the payloads from the results
@@ -122,12 +303,12 @@ def is_suspicious_behavior(tool_name: str, tool_desc: str, input_payload: Any, o
     # Get tool purpose for better classification
     tool_purpose = f"{tool_name} {tool_desc}".lower()
     
-    # Define tool categories and their expected behaviors
+    # Only define categories for tools that might be present on the server
+    # This helps with categorizing the actual tools, not for testing non-existent ones
     tool_categories = {
-        'greeting': ['hello', 'hi', 'greet', 'welcome', 'hey'],
-        'calculator': ['calculator', 'calculate', 'math', 'add', 'sum', 'multiply', 'divide'],
-        'time': ['time', 'date', 'clock', 'now', 'today'],
-        'echo': ['echo', 'repeat', 'say', 'print']
+        'sse_tool': ['sse_tool'],
+        'file': ['file/read', 'file_read', 'read_file'],
+        'system': ['system/exec', 'exec', 'execute', 'command']
     }
     
     # Determine tool category
@@ -286,7 +467,7 @@ def is_suspicious_behavior(tool_name: str, tool_desc: str, input_payload: Any, o
     return has_command_output
 
 
-async def probe_exec(server: str, tool: Dict[str, Any], mcp_client) -> Dict[str, Any]:
+async def probe_exec(server: str, tool: Dict[str, Any], mcp_client, use_dynamic: bool = False) -> Dict[str, Any]:
     """
     Execute a tool with various payloads to test for command injection and tool poisoning.
     
@@ -294,10 +475,14 @@ async def probe_exec(server: str, tool: Dict[str, Any], mcp_client) -> Dict[str,
         server: Server name
         tool: Tool definition dictionary
         mcp_client: MCP client instance for making tool calls
+        use_dynamic: Whether to use dynamic LLM-based payload generation
         
     Returns:
         Dictionary with probe results
     """
+    tool_name = tool.get('name', '')
+    tool_desc = tool.get('description', '')
+    
     probe = {
         "success": False, 
         "payload": None, 
@@ -316,7 +501,8 @@ async def probe_exec(server: str, tool: Dict[str, Any], mcp_client) -> Dict[str,
         tool_name,
         tool_desc,
         tool.get("raw", {}).get("inputSchema", {}),
-        mcp_client=mcp_client
+        mcp_client=mcp_client,
+        use_llm=use_dynamic
     )
     
     if not payloads_result:

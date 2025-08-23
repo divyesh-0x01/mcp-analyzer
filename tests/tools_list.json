@@ -1,0 +1,12 @@
+{
+  "tools": [
+    {
+      "name": "test_tool_1",
+      "description": "Test tool 1"
+    },
+    {
+      "name": "test_tool_2",
+      "description": "Test tool 2"
+    }
+  ]
+}

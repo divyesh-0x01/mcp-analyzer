@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import Dict, List, Tuple
-from .constants import DANGEROUS_PATTERNS, COMMON_CMD_KEYS
+from .constants import DANGEROUS_PATTERNS, COMMON_CMD_KEYS, PROMPT_INJECTION_PATTERNS
 
 def static_classify(name: str, description: str, raw_tool: Dict) -> Tuple[str, List[str]]:
     text = f"{name} {description}".lower()
@@ -26,3 +26,25 @@ def static_classify(name: str, description: str, raw_tool: Dict) -> Tuple[str, L
     if score >= 4:    return "dangerous", matches
     if score >= 2:    return "suspicious", matches
     return "safe", matches
+
+def detect_prompt_injection(description: str) -> Tuple[bool, List[str]]:
+    """
+    Detect prompt injection patterns in tool descriptions.
+    
+    Args:
+        description: The tool description to analyze
+        
+    Returns:
+        Tuple of (has_injection, detected_patterns)
+    """
+    if not description:
+        return False, []
+    
+    description_lower = description.lower()
+    detected_patterns = []
+    
+    for pattern in PROMPT_INJECTION_PATTERNS:
+        if pattern in description_lower:
+            detected_patterns.append(pattern)
+    
+    return len(detected_patterns) > 0, detected_patterns

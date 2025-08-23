@@ -17,7 +17,7 @@ from .rpc import send_jsonrpc, recv_json_until, next_id
 from .constants import VERSION, LIST_METHODS
 from .classify import static_classify
 from .findings import Finding
-from .probes import probe_file_read, probe_exec
+from .probes import execute_probes, ProbeType
 
 console = Console()
 logger = logging.getLogger(__name__)
@@ -144,13 +144,34 @@ async def _start_server_and_list(
         cmd_list = [cmd] + list(args)
         logger.info("Starting process for %s: %s", server_name, shlex.join(cmd_list))
 
-        proc = await asyncio.create_subprocess_exec(
-            *cmd_list,
-            stdin=asyncio.subprocess.PIPE,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-            env=proc_env,
-        )
+        try:
+            # Create process with timeout
+            proc = await asyncio.wait_for(
+                asyncio.create_subprocess_exec(
+                    *cmd_list,
+                    stdin=asyncio.subprocess.PIPE,
+                    stdout=asyncio.subprocess.PIPE,
+                    stderr=asyncio.subprocess.PIPE,
+                    env=proc_env,
+                ),
+                timeout=init_timeout
+            )
+            
+            # Check if process started successfully
+            if proc.returncode is not None:
+                stderr = await proc.stderr.read()
+                error_msg = f"Process for {server_name} failed to start with return code {proc.returncode}: {stderr.decode()}"
+                logger.error(error_msg)
+                return None, None, None, [], auth_present, {'error': error_msg, 'stderr': stderr_lines}
+                
+        except asyncio.TimeoutError:
+            error_msg = f"Timed out after {init_timeout}s while starting server process for {server_name}"
+            logger.error(error_msg)
+            return None, None, None, [], auth_present, {'error': error_msg, 'stderr': stderr_lines}
+        except Exception as e:
+            error_msg = f"Failed to start server process for {server_name}: {str(e)}"
+            logger.error(error_msg, exc_info=True)
+            return None, None, None, [], auth_present, {'error': error_msg, 'stderr': stderr_lines}
 
         reader = proc.stdout
         writer = proc.stdin
@@ -190,7 +211,7 @@ async def _start_server_and_list(
 
     else:
         logger.info(f"{server_name} using {transport} transport, skipping process spawn")
-        console.print(f"[cyan]{server_name}[/cyan] using [yellow]{transport}[/yellow] transport, no subprocess launched")
+        #console.print(f" {server_name} using [yellow]{transport}[/yellow] transport")
 
     # Try listing tools directly for stdio transport
     tools: List[Dict[str, Any]] = []
@@ -222,7 +243,6 @@ async def _start_server_and_list(
             n["_server_name"] = server_name
         tools = normalized
         logger.info("Enumerated %d tools from %s", len(tools), server_name)
-        console.print(f"[green]{server_name} tools:[/green] {', '.join([t['name'] for t in tools])}")
     else:
         if transport == "stdio":
             logger.warning("No tools response from %s", server_name)
@@ -237,6 +257,7 @@ async def scan_server(
     init_timeout: float = 3.0,
     list_timeout: float = 6.0,
     skip_active: bool = False,
+    use_dynamic: bool = False,
 ) -> List[Finding]:
     """
     Scan a single MCP server configuration.
@@ -247,7 +268,7 @@ async def scan_server(
     - handles stdio vs http/sse transports.
     """
     logger = logging.getLogger(__name__)
-    console.print(f"[cyan]Connecting to server:[/cyan] {server_name}")
+    console.print(f"\n Connecting to server: {server_name}")
 
     findings: List[Finding] = []
 
@@ -262,10 +283,33 @@ async def scan_server(
         method = str(auth_cfg.get("method", "")).lower()
         if method == "login":
             try:
-                headers = await _perform_login_and_inject_header(auth_cfg, headers)
+                headers = await asyncio.wait_for(
+                    _perform_login_and_inject_header(auth_cfg, headers),
+                    timeout=init_timeout
+                )
                 logger.info("Performed login token exchange and injected auth header for %s", server_name)
+            except asyncio.TimeoutError:
+                error_msg = f"Authentication timed out after {init_timeout}s for {server_name}"
+                logger.error(error_msg)
+                console.print(f"[yellow]{error_msg}[/yellow]")
+                return [Finding(
+                    server=server_name,
+                    unauthenticated=True,
+                    tool="auth",
+                    description=error_msg,
+                    static_risk="info",
+                    active_risk="none",
+                    matches=[error_msg],
+                    proof=json.dumps({
+                        'error_type': 'AuthTimeoutError',
+                        'error_message': error_msg,
+                        'server': server_name
+                    })
+                )]
             except Exception as e:
-                logger.error("Failed to perform login/token exchange for %s: %s", server_name, str(e), exc_info=True)
+                error_msg = f"Failed to perform login/token exchange for {server_name}: {str(e)}"
+                logger.error(error_msg, exc_info=True)
+                console.print(f"[yellow]{error_msg}[/yellow]")
                 # continue without auth header
 
     # --- Now headers contains the injected Authorization token if login worked ---
@@ -422,104 +466,215 @@ async def scan_server(
     # ---- If no tools from _start_server_and_list, try to enumerate using client or stdio fallback ----
     if not tools:
         logger.info("Attempting to list tools using client")
-        methods_to_try: List[Tuple[str, Dict[str, Any]]] = [
-            ('tools/list', {}),
-            ('list_tools', {}),
-            ('tools.list', {}),
-            ('listTools', {}),
-        ]
+        
+        # For the new MCPClient that uses official MCP library, tools are already listed during connect
+        if transport in ('http', 'sse') and mcp and hasattr(mcp, 'get_tools'):
+            tools = mcp.get_tools()
+            logger.info("Found %d tools via MCPClient.get_tools()", len(tools))
+        else:
+            # Fallback to old method for stdio or if MCPClient doesn't have get_tools
+            methods_to_try: List[Tuple[str, Dict[str, Any]]] = [
+                ('tools/list', {}),
+                ('list_tools', {}),
+                ('tools.list', {}),
+                ('listTools', {}),
+            ]
 
-        for method_name, payload in methods_to_try:
-            if tools:
-                break
-            try:
-                logger.info("Trying method: %s", method_name)
-                if transport in ('http', 'sse') and mcp:
-                    list_result = await mcp.call_tool(method_name, payload)
-                elif transport == 'stdio' and reader and writer:
-                    req_id = next_id()
-                    await send_jsonrpc(writer, {
-                        "jsonrpc": "2.0",
-                        "id": req_id,
-                        "method": method_name,
-                        "params": payload
-                    })
-                    list_result = await recv_json_until(reader, wanted_id=req_id, timeout=list_timeout, want_tools=True)
+            for method_name, payload in methods_to_try:
+                if tools:
+                    break
+                try:
+                    logger.info("Trying method: %s", method_name)
+                    if transport in ('http', 'sse') and mcp and hasattr(mcp, 'call_tool'):
+                        list_result = await mcp.call_tool(method_name, payload)
+                    elif transport == 'stdio' and reader and writer:
+                        req_id = next_id()
+                        await send_jsonrpc(writer, {
+                            "jsonrpc": "2.0",
+                            "id": req_id,
+                            "method": method_name,
+                            "params": payload
+                        })
+                        list_result = await recv_json_until(reader, wanted_id=req_id, timeout=list_timeout, want_tools=True)
 
-                else:
-                    list_result = None
+                    else:
+                        list_result = None
 
-                logger.debug("List tools (%s) result: %s", method_name, list_result)
+                    logger.debug("List tools (%s) result: %s", method_name, list_result)
 
-                if isinstance(list_result, dict):
-                    if 'result' in list_result:
-                        result = list_result['result']
-                        if isinstance(result, dict) and 'tools' in result:
-                            tools = result['tools']
-                            logger.info("Found %d tools via '%s' (nested tools key)", len(tools), method_name)
-                        elif isinstance(result, list):
-                            tools = result
-                            logger.info("Found %d tools via '%s' (direct list result)", len(tools), method_name)
-                    elif 'error' in list_result:
-                        err_msg = list_result.get('error', {}).get('message', 'Unknown error')
-                        logger.warning("Error from %s: %s", method_name, err_msg)
-            except Exception as e:
-                logger.warning("Failed to list tools with method '%s': %s", method_name, str(e), exc_info=True)
+                    if isinstance(list_result, dict):
+                        if 'result' in list_result:
+                            result = list_result['result']
+                            if isinstance(result, dict) and 'tools' in result:
+                                tools = result['tools']
+                                logger.info("Found %d tools via '%s' (nested tools key)", len(tools), method_name)
+                            elif isinstance(result, list):
+                                tools = result
+                                logger.info("Found %d tools via '%s' (direct list result)", len(tools), method_name)
+                        elif 'error' in list_result:
+                            err_msg = list_result.get('error', {}).get('message', 'Unknown error')
+                            logger.warning("Error from %s: %s", method_name, err_msg)
+                except Exception as e:
+                    logger.warning("Failed to list tools with method '%s': %s", method_name, str(e), exc_info=True)
 
-        # Direct HTTP GET fallback to /tools/list
-        if not tools and transport == 'http' and url:
-            logger.info("No tools found with RPC methods, trying direct HTTP GET to /tools/list")
-            try:
-                timeout = aiohttp.ClientTimeout(total=10)
-                async with aiohttp.ClientSession(timeout=timeout) as session:
-                    async with session.get(f"{url.rstrip('/')}/tools/list", headers=headers, ssl=False) as resp:
-                        resp_text = await resp.text()
-                        logger.debug("Direct GET response status: %s", resp.status)
-                        logger.debug("Direct GET response body: %s", resp_text[:1000])
-                        if resp.status == 200:
-                            try:
-                                response_data = await resp.json()
-                            except Exception:
-                                response_data = {}
-                            if isinstance(response_data, dict) and 'tools' in response_data:
-                                tools = response_data['tools']
-                                logger.info("Found %d tools via direct HTTP GET (nested tools key)", len(tools))
-                            elif isinstance(response_data, list):
-                                tools = response_data
-                                logger.info("Found %d tools via direct HTTP GET (direct list)", len(tools))
-                        elif resp.status in (401, 403):
-                            logger.warning("Unauthorized when calling /tools/list directly")
-                        else:
-                            logger.warning("Unexpected status %s from /tools/list", resp.status)
-            except Exception as e:
-                logger.error("Error making direct HTTP request to /tools/list: %s", exc_info=True)
+    # ---- Get resources if available ----
+    resources = []
+    if transport in ('http', 'sse') and mcp and hasattr(mcp, 'get_resources'):
+        resources = mcp.get_resources()
+        logger.info("Found %d resources via MCPClient.get_resources()", len(resources))
+    elif transport == 'stdio' and reader and writer:
+        # Try to list resources for stdio transport
+        try:
+            req_id = next_id()
+            await send_jsonrpc(writer, {
+                "jsonrpc": "2.0",
+                "id": req_id,
+                "method": "resources/list",
+                "params": {}
+            })
+            resources_result = await recv_json_until(reader, wanted_id=req_id, timeout=list_timeout, want_resources=True)
+            if isinstance(resources_result, dict) and 'result' in resources_result:
+                result = resources_result['result']
+                if isinstance(result, dict) and 'resources' in result:
+                    resources = result['resources']
+                    logger.info("Found %d resources via stdio", len(resources))
+        except Exception as e:
+            logger.warning("Failed to list resources via stdio: %s", str(e))
 
     # ---- If we expected a subprocess for stdio but proc missing => failed to start ----
     if transport == "stdio" and not proc:
         console.print(f"[red]{server_name}: failed to start[/red]")
         return findings
 
-    # ---- Determine unauthenticated proof (used for reporting) ----
-    unauthenticated = (not auth_present) and bool(tools)
-
-    if unauthenticated:
-        console.print(f"[red]Unauthenticated access: YES for {server_name}[/red] "
-                      f"(tools/list succeeded and no auth env keys supplied)")
-        logger.info("[PROOF] %s unauthenticated → tools/list OK, server_env auth keys: %s",
-                    server_name, debug_info.get("auth_keys_in_server_env"))
-    else:
-        logger.info("[PROOF] %s authenticated or unavailable → server_env auth keys: %s",
-                    server_name, debug_info.get("auth_keys_in_server_env"))
-
-    console.print(f"  Unauthenticated: {'YES' if unauthenticated else 'NO'}")
-    if tools:
-        tool_names = []
+    # Initialize client variable for SSE transport
+    client = None
+    if transport == "sse" and not tools:
         try:
-            tool_names = [t['name'] if isinstance(t, dict) else str(t) for t in tools]
-        except Exception:
-            tool_names = []
-        if tool_names:
-            console.print(f"  Tools: {', '.join(tool_names)}")
+            from mcp_analyzer.mcp_client import MCPClient
+            client = MCPClient(transport="sse", url=url, headers=headers)
+            await client.connect()
+            # Tools are already listed during connect with the new MCPClient
+            tools = client.get_tools()
+            logger.info("Listed %d tools from SSE server", len(tools) if tools else 0)
+        except Exception as e:
+            logger.warning("Failed to initialize SSE client: %s", str(e))
+            client = None
+
+    # ---- Determine authentication status ----
+    unauthenticated = False
+    auth_type = "none"
+    
+    # Check if this is an OAuth server based on config
+    is_oauth = 'auth' in params and params['auth'].get('method') == 'login' and 'token_path' in params['auth']
+    
+    if tools:
+        if is_oauth:
+            # For OAuth, if we got tools, it means authentication was successful
+            auth_type = "OAuth"
+            #console.print(f"  Authenticated via OAuth)
+            logger.info("[PROOF] %s authenticated via OAuth → tools/list succeeded", server_name)
+        elif not auth_present:
+            # No auth configured and we got tools
+            auth_type = "none"
+            unauthenticated = True
+            #console.print(f"[red]Unauthenticated access: YES for {server_name}[/red] (no auth configured)")
+            logger.info("[PROOF] %s unauthenticated → tools/list OK, no auth configured", server_name)
+        else:
+            # Other auth types (token, basic, etc.)
+            auth_type = params.get('auth', {}).get('method', 'unknown')
+            #console.print(f"[green]Authenticated via {auth_type}: YES for {server_name}[/green]")
+            logger.info("[PROOF] %s authenticated via %s → tools/list OK", server_name, auth_type)
+    else:
+        # No tools listed - could be auth failure or no tools available
+        if is_oauth:
+            console.print(f"[yellow]OAuth authentication may have failed for {server_name} - no tools listed[/yellow]")
+        logger.info("[PROOF] %s no tools listed → auth_type: %s, server_env auth keys: %s",
+                   server_name, auth_type, debug_info.get("auth_keys_in_server_env"))
+
+    # Print authentication status and tools
+    if is_oauth or (tools and not unauthenticated):
+        console.print("  [green]Authenticated[/green]")
+    else:
+        console.print("  [red]Unauthenticated[/red]")
+        
+    # Display tools and resources in mcp-scan style format
+    from .classify import detect_prompt_injection
+    
+    # Display resources first
+    if resources:
+        console.print("  Resources:")
+        for r in resources:
+            if isinstance(r, dict):
+                name = r.get('name') or r.get('id') or r.get('uri') or "<unknown>"
+                desc = r.get('description') or ""
+                uri = r.get('uri') or ""
+                
+                # Debug: Log the resource data
+                logger.debug(f"Resource data: {r}")
+                
+                # Check for prompt injection in resource description
+                has_injection, injection_patterns = detect_prompt_injection(desc)
+                
+                # Also try to read the resource content and check for prompt injection there
+                resource_content = ""
+                if uri and transport in ('http', 'sse') and mcp and hasattr(mcp, 'read_resource'):
+                    # Check if content was already read during connection
+                    if 'content' in r and r.get('content'):
+                        resource_content = r.get('content')
+                        logger.debug(f"Using pre-read resource content for {name}: {resource_content[:200]}...")
+                    else:
+                        # Fallback: try to read now (may fail if session is closed)
+                        try:
+                            resource_result = await mcp.read_resource(str(uri))
+                            if hasattr(resource_result, 'contents'):
+                                resource_content = resource_result.contents[0].text if resource_result.contents else ""
+                            elif isinstance(resource_result, str):
+                                resource_content = resource_result
+                            logger.debug(f"Resource content for {name}: {resource_content[:200]}...")
+                        except Exception as e:
+                            logger.debug(f"Failed to read resource {name}: {str(e)}", exc_info=True)
+                    
+                    # Check for prompt injection in resource content
+                    if resource_content:
+                        content_has_injection, content_patterns = detect_prompt_injection(resource_content)
+                        if content_has_injection:
+                            has_injection = True
+                            injection_patterns.extend(content_patterns)
+                
+                if has_injection:
+                    console.print(f"    [red]❌ [E001]: Prompt injection detected in the resource.[/red]")
+                    if desc:
+                        console.print(f"    [yellow]Description:[/yellow] {desc}")
+                    if resource_content:
+                        console.print(f"    [yellow]Content:[/yellow] {resource_content[:200]}...")
+                    console.print(f"    [yellow]Detected patterns:[/yellow] {', '.join(set(injection_patterns))}")
+                else:
+                    console.print(f"    [green]✅[/green] {name}")
+            else:
+                console.print(f"    [green]✅[/green] {str(r)}")
+    else:
+        console.print("  [yellow]No resources found[/yellow]")
+    
+    # Display tools
+    if tools:
+        console.print("  Tools:")
+        for t in tools:
+            if isinstance(t, dict):
+                name = t.get('name') or t.get('id') or t.get('tool') or "<unknown>"
+                desc = t.get('description') or t.get('desc') or t.get('summary') or ""
+                
+                # Check for prompt injection in tool description
+                has_injection, injection_patterns = detect_prompt_injection(desc)
+                
+                if has_injection:
+                    console.print(f"    [red]❌ [E001]: Prompt injection detected in the tool description.[/red]")
+                    console.print(f"    [yellow]Current description:[/yellow]")
+                    console.print(f"    {desc}")
+                    console.print(f"    [yellow]Detected patterns:[/yellow] {', '.join(injection_patterns)}")
+                else:
+                    console.print(f"    [green]✅[/green] {name}")
+            else:
+                console.print(f"    [green]✅[/green] {str(t)}")
     else:
         console.print(f"[yellow]  No tools enumerated[/yellow]")
 
@@ -577,30 +732,30 @@ async def scan_server(
                 mcp_client = SimpleMCPClient(reader, writer, headers)
 
             try:
-                pr_file = await probe_file_read(mcp_client, t)
-                finding.probe_results["file_read"] = pr_file
-
-                if pr_file and isinstance(pr_file, Finding) and pr_file.proof:
-                    finding.active_risk = "high"
-                    finding.proof = (pr_file.proof or "")[:160]
-                    finding.matches.append("tool_poisoning:file_read")
-                elif isinstance(pr_file, dict) and pr_file.get("proof"):
-                    finding.active_risk = "high"
-                    finding.proof = (pr_file.get("proof") or "")[:160]
-                    finding.matches.append("tool_poisoning:file_read")
-
-                pr_exec = await probe_exec(server_name, t, mcp_client)
-                finding.probe_results["exec"] = pr_exec
-
+                # Execute relevant probes for this tool
+                probe_results = await execute_probes(t, mcp_client, use_dynamic=use_dynamic)
+                
+                # Update finding with probe results
+                if probe_results:
+                    finding.probe_results = probe_results
+                    
+                    # Update active risk based on probe results
+                    for probe_type, result in probe_results.items():
+                        if result.get('success'):
+                            if probe_type == ProbeType.FILE_READ.value:
+                                active_risk = max(active_risk, "high" if result.get('confidence', 0) > 0.8 else "medium")
+                            elif probe_type == ProbeType.COMMAND_EXEC.value:
+                                active_risk = max(active_risk, "critical" if result.get('confidence', 0) > 0.8 else "high")
+                            
+                            # Store proof if available
+                            if 'proof' in result and result['proof']:
+                                finding.proof = result['proof']
             except Exception as e:
                 logger.error("Error during probe execution for %s on %s: %s", tname, server_name, str(e), exc_info=True)
-                finding.proof = f"Error during probe execution: {str(e)}"
+                error_proof = f"Error during probe execution: {str(e)}"
+                finding.proof = error_proof
 
-            # normalize exec proof
-            pr_exec = finding.probe_results.get("exec")
-            if isinstance(pr_exec, dict) and pr_exec.get("success"):
-                proof = pr_exec.get("proof")
-                if isinstance(proof, str) and proof.startswith('{') and proof.endswith('}'):
+                if isinstance(error_proof, str) and error_proof.startswith('{') and error_proof.endswith('}'):
                     try:
                         json.loads(proof)
                         finding.proof = proof
@@ -684,7 +839,14 @@ if __name__ == "__main__":
         all_findings: List[Finding] = []
         for name, conf in servers.items():
             try:
-                f = await scan_server(name, conf, init_timeout=args.init_timeout, list_timeout=args.list_timeout, skip_active=args.skip_active_probes)
+                f = await scan_server(
+                    name, 
+                    conf, 
+                    init_timeout=args.init_timeout, 
+                    list_timeout=args.list_timeout, 
+                    skip_active=args.skip_active_probes,
+                    use_dynamic=getattr(args, 'use_dynamic', False)
+                )
                 all_findings.extend(f)
             except Exception as e:
                 logger.error("Error scanning %s: %s", name, str(e), exc_info=True)

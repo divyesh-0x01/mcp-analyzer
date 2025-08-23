@@ -1,46 +1,26 @@
 {
-   "mcpServers":{
-      "myserver":{
+   "mcpServers": {
+      "challenge-1-server": {
+         "url": "http://9.30.25.150:9001/sse",
+         "transport": "sse",
+         "description": "Remote Challenge 1 Server",
+         "timeout": 30,
+         "verify_ssl": false,
+         "headers": {
+            "Accept": "text/event-stream",
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive"
+         },
+         "auth": {
+            "method": "none"
+         }
+      },
+      "test-server" : {
          "command":"npx",
          "args":[
             "-y",
             "github:divyesh-0x01/mcp-minimal"
          ]
-      },
-      "sse-server": {
-         "command": "/Library/Frameworks/Python.framework/Versions/3.11/bin/python3",
-         "args": [
-            "/Users/divyeshprajapati-ibm/Documents/dp/mcp/sse/server.py"
-         ],
-         "url": "http://localhost:8005/events",
-         "transport": "sse"
-      },
-      "everything": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-everything"]
-    }
-   },
-   "local-oauth-mcp": {
-      "url": "http://localhost:9000",
-      "transport": "http",
-      "headers": { "Content-Type": "application/json" },
-      "auth": {
-        "method": "login",
-        "url": "http://localhost:9001/token",
-        "use_form_data": true,
-        "credentials": {
-          "grant_type": "client_credentials",
-          "client_id": "demo-client",
-          "client_secret": "demo-secret"
-        },
-        "auth": {
-          "type": "basic",
-          "username": "demo-client",
-          "password": "demo-secret"
-        },
-        "token_path": ["access_token"],
-        "header": "Authorization",
-        "prefix": "Bearer "
       }
    }
 }
