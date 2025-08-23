@@ -1,6 +1,6 @@
 {
   "version": "mcpx-local-scan-2.0-active-probes-proof",
-  "timestamp": "2025-08-23T10:57:53.970075",
+  "timestamp": "2025-08-23T13:23:57.273403",
   "findings": [
     {
       "server": "challenge-1-server",
@@ -14,7 +14,7 @@
       "proof": null
     },
     {
-      "server": "test-server",
+      "server": "stdio-server",
       "unauthenticated": true,
       "tool": "hello",
       "description": "A simple hello tool that returns a greeting message",
@@ -25,7 +25,7 @@
       "proof": null
     },
     {
-      "server": "test-server",
+      "server": "stdio-server",
       "unauthenticated": true,
       "tool": "add_numbers",
       "description": "Addition of the numbers",

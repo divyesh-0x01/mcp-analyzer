@@ -1,8 +1,8 @@
 {
   "servers": {
-    "dvmcp_9001": {
+    "dvmcp_9004": {
       "type": "sse",
-      "url": "http://9.30.25.150:9001/sse"
+      "url": "http://9.30.25.150:9004/sse"
     },
     "dvmcp_9002": {
       "type": "sse",

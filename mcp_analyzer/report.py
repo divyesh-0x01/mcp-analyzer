@@ -340,10 +340,5 @@ def generate_report(all_findings: List[Finding]) -> None:
     
     # Print summary
     console.print(f"\n[bold green]Scan completed![/]")
-    console.print(f"[cyan]Detailed results saved to: {os.path.abspath(OUT_JSON)}[/]")
-    console.print(f"[cyan]Logs saved to: {os.path.abspath(LOG_FILE)}[/]")
-    
-    # Print summary
-    console.print(f"\n[bold green]Scan completed![/]")
-    console.print(f"[cyan]Detailed results saved to: {os.path.abspath(OUT_JSON)}[/]")
-    console.print(f"[cyan]Logs saved to: {os.path.abspath(LOG_FILE)}[/]")
+    console.print(f"[cyan]Results saved to: {os.path.abspath(OUT_JSON)}[/]")
+    console.print(f"[cyan]Debug logs: {os.path.abspath(LOG_FILE)}[/]")

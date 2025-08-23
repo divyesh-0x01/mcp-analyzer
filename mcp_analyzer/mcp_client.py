@@ -46,7 +46,7 @@ class MCPClient:
         self.tools = []
         self.resources = []
         
-    async def connect(self, auth_config: Optional[Dict[str, Any]] = None) -> None:
+    async def connect(self, auth_config: Optional[Dict[str, Any]] = None, **kwargs) -> None:
         """Connect to the MCP server using the official MCP library."""
         self.logger.info("Connecting to MCP server...")
         
@@ -131,7 +131,7 @@ class MCPClient:
                     # Store the results
                     self.tools = tools
                     self.resources = resources
-                    
+            
         except Exception as e:
             self.logger.error("Failed to connect to MCP server: %s", str(e))
             raise RuntimeError(f"Failed to connect to MCP server: {str(e)}")
@@ -153,7 +153,7 @@ class MCPClient:
         except Exception as e:
             self.logger.error("Failed to call tool %s: %s", tool_name, str(e))
             raise
-    
+        
     async def read_resource(self, uri: str) -> Any:
         """Read a resource using the official MCP library."""
         if not self.session:

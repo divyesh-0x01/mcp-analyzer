@@ -1,9 +1,9 @@
 {
    "mcpServers": {
-      "challenge-1-server": {
-         "url": "http://9.30.25.150:9001/sse",
+      "local-sse-server": {
+         "url": "http://localhost:9001/sse",
          "transport": "sse",
-         "description": "Remote Challenge 1 Server",
+         "description": "Local SSE Server",
          "timeout": 30,
          "verify_ssl": false,
          "headers": {
@@ -15,7 +15,7 @@
             "method": "none"
          }
       },
-      "test-server" : {
+      "stdio-server": {
          "command":"npx",
          "args":[
             "-y",

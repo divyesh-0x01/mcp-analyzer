@@ -1,0 +1,55 @@
+2025-08-23 19:13:32,214 - root - INFO - Starting MCP Analyzer vmcpx-local-scan-2.0-active-probes-proof
+2025-08-23 19:13:32,215 - root - INFO - 
+==================================================
+Scanning server: local-sse-server
+==================================================
+2025-08-23 19:13:32,215 - root - INFO - Dynamic fuzzing is DISABLED - only static analysis will be performed
+2025-08-23 19:13:32,218 - mcp_analyzer.server - INFO - Starting server: local-sse-server
+2025-08-23 19:13:32,218 - mcp_analyzer.server - INFO - local-sse-server using sse transport, skipping process spawn
+2025-08-23 19:13:33,038 - mcp_analyzer.server - INFO - Initializing MCP client for local-sse-server
+2025-08-23 19:13:33,038 - mcp_analyzer.server - INFO - No authentication configured, proceeding without auth
+2025-08-23 19:13:33,038 - mcp_analyzer.mcp_client - INFO - Connecting to MCP server...
+2025-08-23 19:13:33,038 - mcp_analyzer.mcp_client - INFO - Using SSE transport
+2025-08-23 19:13:33,186 - httpx - INFO - HTTP Request: GET http://localhost:9001/sse "HTTP/1.1 200 OK"
+2025-08-23 19:13:43,190 - mcp.client.sse - ERROR - Error parsing server message
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/mcp/client/sse.py", line 95, in sse_reader
+    message = types.JSONRPCMessage.model_validate_json(  # noqa: E501
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/pydantic/main.py", line 746, in model_validate_json
+    return cls.__pydantic_validator__.validate_json(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pydantic_core._pydantic_core.ValidationError: 11 validation errors for JSONRPCMessage
+JSONRPCRequest.method
+  Field required [type=missing, input_value={'type': 'ping'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.11/v/missing
+JSONRPCRequest.jsonrpc
+  Field required [type=missing, input_value={'type': 'ping'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.11/v/missing
+JSONRPCRequest.id
+  Field required [type=missing, input_value={'type': 'ping'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.11/v/missing
+JSONRPCNotification.method
+  Field required [type=missing, input_value={'type': 'ping'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.11/v/missing
+JSONRPCNotification.jsonrpc
+  Field required [type=missing, input_value={'type': 'ping'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.11/v/missing
+JSONRPCResponse.jsonrpc
+  Field required [type=missing, input_value={'type': 'ping'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.11/v/missing
+JSONRPCResponse.id
+  Field required [type=missing, input_value={'type': 'ping'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.11/v/missing
+JSONRPCResponse.result
+  Field required [type=missing, input_value={'type': 'ping'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.11/v/missing
+JSONRPCError.jsonrpc
+  Field required [type=missing, input_value={'type': 'ping'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.11/v/missing
+JSONRPCError.id
+  Field required [type=missing, input_value={'type': 'ping'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.11/v/missing
+JSONRPCError.error
+  Field required [type=missing, input_value={'type': 'ping'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.11/v/missing

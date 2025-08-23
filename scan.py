@@ -2,35 +2,43 @@
 import asyncio
 import json
 import logging
+import os
+import sys
 from argparse import ArgumentParser
 from mcp_analyzer.config import load_config
 from mcp_analyzer.server import scan_server
 from mcp_analyzer.report import generate_report
-from mcp_analyzer.constants import VERSION
+from mcp_analyzer.constants import VERSION, LOG_FILE, OUT_JSON
 from mcp_analyzer.findings import Finding
 
-# Completely disable logging for all modules
-logging.disable(logging.CRITICAL)
-
-# Only enable critical errors for the root logger
-logging.basicConfig(level=logging.CRITICAL, handlers=[])
-
-# Disable propagation for all loggers
-for name in logging.root.manager.loggerDict:
-    logging.getLogger(name).setLevel(logging.CRITICAL)
-    logging.getLogger(name).propagate = False
-
-# Create a null handler
-null_handler = logging.NullHandler()
-null_handler.setLevel(logging.CRITICAL)
-
-# Apply null handler to all loggers
-for name in logging.root.manager.loggerDict:
-    logging.getLogger(name).addHandler(null_handler)
-
-# Get logger for this module
-logger = logging.getLogger(__name__)
-logger.addHandler(null_handler)
+def setup_logging(debug: bool = False):
+    """Configure logging with file handler only (no console output)."""
+    # Clear any existing handlers
+    root_logger = logging.getLogger()
+    for handler in root_logger.handlers[:]:
+        root_logger.removeHandler(handler)
+    
+    # Configure the root logger
+    log_level = logging.DEBUG if debug else logging.INFO
+    root_logger.setLevel(log_level)
+    
+    # Create formatter
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    
+    # File handler for debug log
+    file_handler = logging.FileHandler(LOG_FILE, mode='w')
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(formatter)
+    
+    # Add file handler to root logger (no console handler added)
+    root_logger.addHandler(file_handler)
+    
+    # Set specific log levels for noisy libraries
+    logging.getLogger('asyncio').setLevel(logging.WARNING)
+    logging.getLogger('urllib3').setLevel(logging.WARNING)
+    logging.getLogger('aiohttp').setLevel(logging.WARNING)
+    
+    return root_logger
 
 async def _amain():
     parser = ArgumentParser(description="MCP active probe scanner (shows proof)")
@@ -41,11 +49,11 @@ async def _amain():
     parser.add_argument("--dynamic", action="store_true", help="Enable dynamic fuzzing of identified tools (disabled by default)")
     parser.add_argument("--debug", action="store_true", help="Enable debug logging")
     args = parser.parse_args()
-    #print(args)
     
-    if args.debug:
-        logging.getLogger().setLevel(logging.DEBUG)
-        logger.debug("Debug logging enabled")
+    # Setup logging based on debug flag
+    logger = setup_logging(debug=args.debug)
+    logger.info("Starting MCP Analyzer v%s", VERSION)
+    logger.debug("Debug logging enabled")
 
     servers = load_config(args.config)
     #print(servers)
