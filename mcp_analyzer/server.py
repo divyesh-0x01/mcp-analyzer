@@ -260,57 +260,43 @@ async def scan_server(
     use_dynamic: bool = False,
 ) -> List[Finding]:
     """
-    Scan a single MCP server configuration.
+    Scan a single MCP server configuration using UniversalScanner.
 
     - supports auth.method == "token" (env/value),
     - supports auth.method == "login" (POST to url + token_path),
     - supports no auth,
-    - handles stdio vs http/sse transports.
+    - handles both MCP and SSE transports.
     """
     logger = logging.getLogger(__name__)
     console.print(f"\n Connecting to server: {server_name}")
 
     findings: List[Finding] = []
+    transport = params.get("transport", "stdio")
+    url = params.get("url")
+    headers = params.get("headers", {})
+    auth = params.get("auth")
+    server_type = "mcp" if transport in ["http", "stdio"] else "sse"
 
-    transport = params.get('transport', 'stdio')
-    url = params.get('url')
-    headers: Dict[str, str] = dict(params.get('headers', {}) or {})
-    auth_cfg: Dict[str, Any] = params.get('auth', {}) 
-    #print(auth_cfg) # auth config from JSON
+    # Prepare scanner configuration
+    scanner_config = {
+        "transport": transport,
+        "url": url,
+        "headers": headers.copy(),
+        "verify_ssl": params.get("verify_ssl", True),
+        "timeout": int(list_timeout)
+    }
 
-    # ---- Authentication handling ----
-    if isinstance(auth_cfg, dict):
-        method = str(auth_cfg.get("method", "")).lower()
-        if method == "login":
-            try:
-                headers = await asyncio.wait_for(
-                    _perform_login_and_inject_header(auth_cfg, headers),
-                    timeout=init_timeout
-                )
-                logger.info("Performed login token exchange and injected auth header for %s", server_name)
-            except asyncio.TimeoutError:
-                error_msg = f"Authentication timed out after {init_timeout}s for {server_name}"
-                logger.error(error_msg)
-                console.print(f"[yellow]{error_msg}[/yellow]")
-                return [Finding(
-                    server=server_name,
-                    unauthenticated=True,
-                    tool="auth",
-                    description=error_msg,
-                    static_risk="info",
-                    active_risk="none",
-                    matches=[error_msg],
-                    proof=json.dumps({
-                        'error_type': 'AuthTimeoutError',
-                        'error_message': error_msg,
-                        'server': server_name
-                    })
-                )]
-            except Exception as e:
-                error_msg = f"Failed to perform login/token exchange for {server_name}: {str(e)}"
-                logger.error(error_msg, exc_info=True)
-                console.print(f"[yellow]{error_msg}[/yellow]")
-                # continue without auth header
+    # Handle authentication if configured
+    auth_present = False
+    if auth:
+        try:
+            headers = await _perform_login_and_inject_header(auth, headers)
+            auth_present = True
+        except Exception as e:
+            error_msg = f"Failed to perform login/token exchange for {server_name}: {str(e)}"
+            logger.error(error_msg, exc_info=True)
+            console.print(f"[yellow]{error_msg}[/yellow]")
+            # continue without auth header
 
     # --- Now headers contains the injected Authorization token if login worked ---
     #print("Final headers to use:", headers)

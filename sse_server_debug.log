@@ -1,0 +1,15 @@
+2025-08-23 19:59:54,626 - sse_server - INFO - Starting SSE server on 0.0.0.0:9001
+2025-08-23 20:00:33,054 - sse_server - INFO - Starting SSE server on 0.0.0.0:9001
+2025-08-23 20:00:39,662 - sse_server - INFO - New SSE connection: 60410e71-8f93-4d67-baa4-9de66ab56327
+2025-08-23 20:00:39,663 - aiohttp.access - INFO - 127.0.0.1 [23/Aug/2025:20:00:39 +0530] "GET /sse HTTP/1.1" 200 334 "-" "python-httpx/0.28.1"
+2025-08-23 20:01:17,509 - sse_server - INFO - Starting SSE server on 0.0.0.0:9001
+2025-08-23 20:01:22,998 - sse_server - INFO - New SSE connection: 8a806da8-a9b4-408b-83e2-bd6c06803f09
+2025-08-23 20:01:22,999 - aiohttp.access - INFO - 127.0.0.1 [23/Aug/2025:20:01:22 +0530] "GET /sse HTTP/1.1" 200 334 "-" "python-httpx/0.28.1"
+2025-08-23 20:04:44,308 - sse_server - INFO - New SSE connection: a4498571-f764-4c9c-a93b-c0a8c6ff1026
+2025-08-23 20:04:44,308 - aiohttp.access - INFO - 127.0.0.1 [23/Aug/2025:20:04:44 +0530] "GET /sse HTTP/1.1" 200 334 "-" "python-httpx/0.28.1"
+2025-08-23 20:07:56,263 - sse_server - INFO - New SSE connection: c8b7b720-08c7-474d-ab8d-09ac51ef50ef
+2025-08-23 20:07:56,264 - aiohttp.access - INFO - 127.0.0.1 [23/Aug/2025:20:07:56 +0530] "GET /sse HTTP/1.1" 200 334 "-" "python-httpx/0.28.1"
+2025-08-23 20:12:01,183 - sse_server - INFO - New SSE connection: b34cbfd9-3f08-46ba-a689-1fddce1e396f
+2025-08-23 20:12:01,183 - aiohttp.access - INFO - 127.0.0.1 [23/Aug/2025:20:12:01 +0530] "GET /sse HTTP/1.1" 200 334 "-" "python-httpx/0.28.1"
+2025-08-23 20:13:39,527 - sse_server - INFO - New SSE connection: 4cb4c9a8-149c-4020-bbba-b9be118bb184
+2025-08-23 20:13:39,527 - aiohttp.access - INFO - 127.0.0.1 [23/Aug/2025:20:13:39 +0530] "GET /sse HTTP/1.1" 200 334 "-" "python-httpx/0.28.1"

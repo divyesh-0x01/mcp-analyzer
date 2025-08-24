@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/Users/divyeshprajapati-ibm/Downloads/mcp-analyzer/tests/sse_server.py", line 349, in <module>
+    main()
+  File "/Users/divyeshprajapati-ibm/Downloads/mcp-analyzer/tests/sse_server.py", line 320, in main
+    app.router.add_route('OPTIONS', '/sse', server.handle_options)
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/aiohttp/web_urldispatcher.py", line 1182, in add_route
+    return resource.add_route(method, handler, expect_handler=expect_handler)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/aiohttp/web_urldispatcher.py", line 367, in add_route
+    raise RuntimeError(
+RuntimeError: Added route will never be executed, method * is already registered

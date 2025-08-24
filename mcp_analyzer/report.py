@@ -250,7 +250,7 @@ def get_complete_proof(finding: dict) -> str:
     return None
 
 def generate_report(all_findings: List[Finding]) -> None:
-    """Generate and display a report of findings."""
+    """Generate and display a report of findings with improved formatting and organization."""
     # Convert findings to dicts for easier manipulation
     findings_dicts = [asdict(f) for f in all_findings]
     
@@ -258,85 +258,127 @@ def generate_report(all_findings: List[Finding]) -> None:
     save_findings_to_file(all_findings, OUT_JSON)
     
     # Create console with appropriate width and settings
-    console = Console(record=True, width=150)  # Increased width to 150 characters
+    console = Console(record=True, width=120)
     
     if not all_findings:
         console.print("[green]No vulnerabilities found![/]")
         return
     
-    # Group findings by server
+    # Group findings by server and risk level
     findings_by_server = {}
     for finding in findings_dicts:
         server = finding['server']
         if server not in findings_by_server:
-            findings_by_server[server] = []
-        findings_by_server[server].append(finding)
+            findings_by_server[server] = {
+                'findings': [],
+                'risk_counts': {'critical': 0, 'high': 0, 'medium': 0, 'low': 0, 'safe': 0},
+                'tools': set()
+            }
+        findings_by_server[server]['findings'].append(finding)
+        
+        # Categorize by risk level
+        risk = finding['active_risk']
+        if risk in ['critical', 'high']:
+            findings_by_server[server]['risk_counts']['critical'] += 1
+            findings_by_server[server]['risk_counts']['high'] += 1
+        elif risk in findings_by_server[server]['risk_counts']:
+            findings_by_server[server]['risk_counts'][risk] += 1
+        else:
+            findings_by_server[server]['risk_counts']['safe'] += 1
+        
+        # Track unique tools
+        findings_by_server[server]['tools'].add(finding['tool'])
     
     # Print report for each server
-    for server, server_findings in findings_by_server.items():
+    for server, data in findings_by_server.items():
+        server_findings = data['findings']
+        risk_counts = data['risk_counts']
+        
+        # Server header with risk summary
         console.rule(f"[bold]Server: {server}[/]")
         
-        # Print server summary
-        total_findings = len(server_findings)
-        critical_findings = sum(1 for f in server_findings if f['active_risk'] in ['critical', 'high'])
-        medium_findings = sum(1 for f in server_findings if f['active_risk'] == 'medium')
-        low_findings = sum(1 for f in server_findings if f['active_risk'] == 'low')
+        # Print risk summary
+        console.print(f"\n[bold]Risk Summary:[/]")
+        console.print(f"  • [bold]Total Tools:[/] {len(data['tools'])}")
         
-        console.print(f"[bold]Total Tools:[/] {total_findings}")
-        if critical_findings > 0:
-            console.print(f"[bold red]Critical/High Risk Findings:[/] {critical_findings}")
-        if medium_findings > 0:
-            console.print(f"[bold yellow]Medium Risk Findings:[/] {medium_findings}")
-        if low_findings > 0:
-            console.print(f"[bold blue]Low Risk Findings:[/] {low_findings}")
+        if risk_counts['critical'] > 0:
+            console.print(f"  • [bold red]Critical/High Risk:[/] {risk_counts['critical']}")
+        if risk_counts['medium'] > 0:
+            console.print(f"  • [bold yellow]Medium Risk:[/] {risk_counts['medium']}")
+        if risk_counts['low'] > 0:
+            console.print(f"  • [bold blue]Low Risk:[/] {risk_counts['low']}")
+        if risk_counts['safe'] > 0:
+            console.print(f"  • [bold green]Safe:[/] {risk_counts['safe']}")
         
-        # Print tools list
-        console.print("\n[bold]Tools:[/]")
-        for finding in sorted(server_findings, key=lambda x: (x['active_risk'] != 'none', x['tool'])):
-            risk_color = {
-                'critical': 'red',
-                'high': 'red',
-                'medium': 'yellow',
-                'low': 'blue',
-                'none': 'green'
-            }.get(finding['active_risk'], 'white')
-            
-            risk_text = finding['active_risk'].upper() if finding['active_risk'] != 'none' else 'SAFE'
-            console.print(f"  - {finding['tool']} [{risk_color}]{risk_text}[/]")
+        # Group findings by risk level
+        findings_by_risk = {
+            'critical': [],
+            'high': [],
+            'medium': [],
+            'low': [],
+            'safe': []
+        }
         
-        # Print detailed findings for this server
-        console.print("\n[bold]Detailed Findings:[/]")
-        for i, finding in enumerate([f for f in server_findings if f['active_risk'] != 'none'], 1):
-            console.print(f"\n[bold]{i}. {finding['tool']}[/]")
-            console.print(f"   [dim]Description:[/] {finding['description']}")
-            
-            # Show risk level with color
-            risk_color = {
-                'critical': 'red',
-                'high': 'red',
-                'medium': 'yellow',
-                'low': 'blue'
-            }.get(finding['active_risk'], 'white')
-            
-            console.print(f"   [bold]Risk Level:[/] [{risk_color}]{finding['active_risk'].upper()}[/]")
-            
-            # Show proof if available
-            complete_proof = get_complete_proof(finding)
-            if complete_proof:
-                console.print("\n   [bold]Proof:[/]")
-                console.print(f"   [dim]{'-'*70}[/]")
-                proof_lines = format_proof(complete_proof).split('\n')
-                for line in proof_lines:
-                    console.print(f"   {line}")
-                console.print(f"   [dim]{'-'*70}[/]")
-            
-            # Show matches if any
-            if finding.get('matches'):
-                console.print("\n   [bold]Indicators:[/]")
-                for match in finding['matches']:
-                    console.print(f"     - {match}")
+        for finding in server_findings:
+            risk = finding['active_risk']
+            if risk in ['critical', 'high']:
+                findings_by_risk['critical'].append(finding)
+            elif risk in findings_by_risk:
+                findings_by_risk[risk].append(finding)
+            else:
+                findings_by_risk['safe'].append(finding)
         
-        console.print("\n" + "="*80 + "\n")
+        # Check if there are any security findings (not safe)
+        has_security_issues = any(risk_counts[level] > 0 for level in ['critical', 'high', 'medium', 'low'])
+        
+        # Only show safe findings if there are no security issues
+        if not has_security_issues:
+            console.print("\n[green]✓ No security vulnerabilities found[/]")
+            console.print("All tools are safe to use.")
+        else:
+            # Print detailed findings by risk level (skip 'safe' if no security issues)
+            risk_levels = ['critical', 'high', 'medium', 'low']
+            if has_security_issues or risk_counts['safe'] > 0:
+                risk_levels.append('safe')
+                
+            for risk_level in risk_levels:
+                findings = findings_by_risk[risk_level]
+                if not findings:
+                    continue
+                    
+                risk_color = {
+                    'critical': 'red',
+                    'high': 'red',
+                    'medium': 'yellow',
+                    'low': 'blue',
+                    'safe': 'green'
+                }[risk_level]
+                
+                console.print(f"\n[bold {risk_color}]{risk_level.upper() if risk_level != 'safe' else 'SAFE'} FINDINGS[/]")
+                console.print("-" * 80)
+                
+                for i, finding in enumerate(findings, 1):
+                    console.print(f"\n[bold]{i}. {finding['tool']}[/]")
+                    if finding.get('description'):
+                        console.print(f"   [dim]Description:[/] {finding['description']}")
+                    
+                    console.print(f"   [bold]Risk Level:[/] [{risk_color}]{risk_level.upper() if risk_level != 'safe' else 'SAFE'}[/]")
+                    
+                    if finding.get('matches'):
+                        console.print("\n   [bold]Indicators:[/]")
+                        for match in finding['matches']:
+                            console.print(f"     • {match}")
+                    
+                    complete_proof = get_complete_proof(finding)
+                    if complete_proof:
+                        console.print("\n   [bold]Proof:[/]")
+                        console.print(f"   [dim]{'─'*70}[/]")
+                        proof_lines = format_proof(complete_proof).split('\n')
+                        for line in proof_lines:
+                            console.print(f"   {line}")
+                        console.print(f"   [dim]{'─'*70}[/]")
+        
+        console.print("\n" + "="*120 + "\n")
     
     # Print summary
     console.print(f"\n[bold green]Scan completed![/]")

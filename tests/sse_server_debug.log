@@ -1,0 +1,250 @@
+2025-08-23 19:33:23,800 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-08-23 19:33:26,702 - sse_server - INFO - Received POST request to /sse
+2025-08-23 19:33:26,702 - sse_server - INFO - Headers: {'Host': 'localhost:9001', 'User-Agent': 'curl/8.7.1', 'Accept': '*/*', 'Content-Type': 'application/json', 'Content-Length': '58'}
+2025-08-23 19:33:26,702 - sse_server - INFO - Reading POST request body...
+2025-08-23 19:33:26,702 - sse_server - INFO - Raw POST body: b'{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}'
+2025-08-23 19:33:26,702 - sse_server - INFO - Parsed JSON-RPC request via POST: {'jsonrpc': '2.0', 'id': 1, 'method': 'initialize', 'params': {}}
+2025-08-23 19:33:26,703 - sse_server - INFO - New SSE connection: 4de5ba84-4f30-4ce1-a6e3-b72483fabaf5
+2025-08-23 19:33:26,703 - sse_server - INFO - [DEBUG] Received request: {
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "initialize",
+  "params": {}
+}
+2025-08-23 19:33:26,703 - sse_server - INFO - [DEBUG] Processing method: initialize (ID: 1)
+2025-08-23 19:33:26,703 - sse_server - INFO - [DEBUG] Params: {}
+2025-08-23 19:33:26,703 - sse_server - INFO - [DEBUG] Sending response: {
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": {
+    "capabilities": {
+      "textDocumentSync": 1,
+      "completionProvider": {},
+      "executeCommandProvider": {
+        "commands": [
+          "get_user_info",
+          "list_users",
+          "get_server_status"
+        ]
+      }
+    },
+    "serverInfo": {
+      "name": "Test SSE Server",
+      "version": "1.0.0"
+    }
+  }
+}
+2025-08-23 19:33:26,703 - sse_server - INFO - [DEBUG] Response sent successfully
+2025-08-23 19:34:06,706 - sse_server - INFO - SSE connection closed: 4de5ba84-4f30-4ce1-a6e3-b72483fabaf5
+2025-08-23 19:34:06,706 - aiohttp.server - ERROR - Error handling request from 127.0.0.1
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/aiohttp/web_protocol.py", line 510, in _handle_request
+    resp = await request_handler(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/aiohttp/web_app.py", line 569, in _handle
+    return await handler(request)
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/aiohttp/web_middlewares.py", line 117, in impl
+    return await handler(request)
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/divyeshprajapati-ibm/Downloads/mcp-analyzer/tests/sse_server.py", line 302, in cors_middleware
+    response = await handler(request)
+               ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/divyeshprajapati-ibm/Downloads/mcp-analyzer/tests/sse_server.py", line 224, in sse_handler
+    await response.write_eof()
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/aiohttp/web_response.py", line 582, in write_eof
+    await self._payload_writer.write_eof(data)
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/aiohttp/http_writer.py", line 330, in write_eof
+    self._write(b"0\r\n\r\n")
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/aiohttp/http_writer.py", line 95, in _write
+    raise ClientConnectionResetError("Cannot write to closing transport")
+aiohttp.client_exceptions.ClientConnectionResetError: Cannot write to closing transport
+2025-08-23 19:34:55,401 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-08-23 19:35:03,482 - sse_server - INFO - Received GET request to /sse
+2025-08-23 19:35:03,482 - sse_server - INFO - Headers: {'Host': 'localhost:9001', 'Accept-Encoding': 'gzip, deflate, br, zstd', 'Connection': 'keep-alive', 'User-Agent': 'python-httpx/0.28.1', 'Accept': 'text/event-stream', 'Cache-Control': 'no-store'}
+2025-08-23 19:35:03,482 - sse_server - INFO - Query params: <MultiDictProxy()>
+2025-08-23 19:35:03,482 - sse_server - INFO - New SSE connection: a4b5b511-9b23-43e7-ac2d-e8234b5fd5e3
+2025-08-23 19:35:53,487 - sse_server - INFO - SSE connection closed: a4b5b511-9b23-43e7-ac2d-e8234b5fd5e3
+2025-08-23 19:35:53,487 - aiohttp.server - ERROR - Error handling request from 127.0.0.1
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/aiohttp/web_protocol.py", line 510, in _handle_request
+    resp = await request_handler(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/aiohttp/web_app.py", line 569, in _handle
+    return await handler(request)
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/aiohttp/web_middlewares.py", line 117, in impl
+    return await handler(request)
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/divyeshprajapati-ibm/Downloads/mcp-analyzer/tests/sse_server.py", line 302, in cors_middleware
+    response = await handler(request)
+               ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/divyeshprajapati-ibm/Downloads/mcp-analyzer/tests/sse_server.py", line 224, in sse_handler
+    await response.write_eof()
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/aiohttp/web_response.py", line 582, in write_eof
+    await self._payload_writer.write_eof(data)
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/aiohttp/http_writer.py", line 330, in write_eof
+    self._write(b"0\r\n\r\n")
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/aiohttp/http_writer.py", line 95, in _write
+    raise ClientConnectionResetError("Cannot write to closing transport")
+aiohttp.client_exceptions.ClientConnectionResetError: Cannot write to closing transport
+2025-08-23 19:36:00,684 - sse_server - INFO - Received POST request to /sse
+2025-08-23 19:36:00,684 - sse_server - INFO - Headers: {'Host': 'localhost:9001', 'User-Agent': 'curl/8.7.1', 'Accept': '*/*', 'Content-Type': 'application/json', 'Content-Length': '58'}
+2025-08-23 19:36:00,684 - sse_server - INFO - Reading POST request body...
+2025-08-23 19:36:00,684 - sse_server - INFO - Raw POST body: b'{"jsonrpc":"2.0","id":2,"method":"list_tools","params":{}}'
+2025-08-23 19:36:00,684 - sse_server - INFO - Parsed JSON-RPC request via POST: {'jsonrpc': '2.0', 'id': 2, 'method': 'list_tools', 'params': {}}
+2025-08-23 19:36:00,685 - sse_server - INFO - New SSE connection: 124b2677-fab6-491f-8624-4d3b676762ae
+2025-08-23 19:36:00,685 - sse_server - INFO - [DEBUG] Received request: {
+  "jsonrpc": "2.0",
+  "id": 2,
+  "method": "list_tools",
+  "params": {}
+}
+2025-08-23 19:36:00,685 - sse_server - INFO - [DEBUG] Processing method: list_tools (ID: 2)
+2025-08-23 19:36:00,685 - sse_server - INFO - [DEBUG] Params: {}
+2025-08-23 19:36:00,685 - sse_server - INFO - [DEBUG] Handling list_tools request (ID: 2)
+2025-08-23 19:36:00,685 - sse_server - INFO - [DEBUG] Available tools: [{'name': 'get_user_info', 'description': 'Get information about a user'}, {'name': 'list_users', 'description': 'List all available users'}, {'name': 'get_server_status', 'description': 'Get current server status'}]
+2025-08-23 19:36:00,685 - sse_server - INFO - [DEBUG] List tools response: {
+  "jsonrpc": "2.0",
+  "id": 2,
+  "result": {
+    "tools": [
+      {
+        "name": "get_user_info",
+        "description": "Get information about a user"
+      },
+      {
+        "name": "list_users",
+        "description": "List all available users"
+      },
+      {
+        "name": "get_server_status",
+        "description": "Get current server status"
+      }
+    ]
+  }
+}
+2025-08-23 19:36:00,685 - sse_server - INFO - [DEBUG] Sending response: {
+  "jsonrpc": "2.0",
+  "id": 2,
+  "result": {
+    "tools": [
+      {
+        "name": "get_user_info",
+        "description": "Get information about a user"
+      },
+      {
+        "name": "list_users",
+        "description": "List all available users"
+      },
+      {
+        "name": "get_server_status",
+        "description": "Get current server status"
+      }
+    ]
+  }
+}
+2025-08-23 19:36:00,685 - sse_server - INFO - [DEBUG] Response sent successfully
+2025-08-23 19:36:20,688 - sse_server - INFO - SSE connection closed: 124b2677-fab6-491f-8624-4d3b676762ae
+2025-08-23 19:36:20,689 - aiohttp.server - ERROR - Error handling request from 127.0.0.1
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/aiohttp/web_protocol.py", line 510, in _handle_request
+    resp = await request_handler(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/aiohttp/web_app.py", line 569, in _handle
+    return await handler(request)
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/aiohttp/web_middlewares.py", line 117, in impl
+    return await handler(request)
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/divyeshprajapati-ibm/Downloads/mcp-analyzer/tests/sse_server.py", line 302, in cors_middleware
+    response = await handler(request)
+               ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/divyeshprajapati-ibm/Downloads/mcp-analyzer/tests/sse_server.py", line 224, in sse_handler
+    await response.write_eof()
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/aiohttp/web_response.py", line 582, in write_eof
+    await self._payload_writer.write_eof(data)
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/aiohttp/http_writer.py", line 330, in write_eof
+    self._write(b"0\r\n\r\n")
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/aiohttp/http_writer.py", line 95, in _write
+    raise ClientConnectionResetError("Cannot write to closing transport")
+aiohttp.client_exceptions.ClientConnectionResetError: Cannot write to closing transport
+2025-08-23 19:36:41,404 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-08-23 19:36:46,824 - sse_server - INFO - Received GET request to /sse
+2025-08-23 19:36:46,824 - sse_server - INFO - Headers: {'Host': 'localhost:9001', 'Accept-Encoding': 'gzip, deflate, br, zstd', 'Connection': 'keep-alive', 'User-Agent': 'python-httpx/0.28.1', 'Accept': 'text/event-stream', 'Cache-Control': 'no-store'}
+2025-08-23 19:36:46,824 - sse_server - INFO - Query params: <MultiDictProxy()>
+2025-08-23 19:36:46,825 - sse_server - INFO - New SSE connection: 4fe249df-c155-40f0-88cd-e03b35a8d61f
+2025-08-23 19:37:36,862 - sse_server - INFO - SSE connection closed: 4fe249df-c155-40f0-88cd-e03b35a8d61f
+2025-08-23 19:37:36,862 - aiohttp.server - ERROR - Error handling request from 127.0.0.1
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/aiohttp/web_protocol.py", line 510, in _handle_request
+    resp = await request_handler(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/aiohttp/web_app.py", line 569, in _handle
+    return await handler(request)
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/aiohttp/web_middlewares.py", line 117, in impl
+    return await handler(request)
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/divyeshprajapati-ibm/Downloads/mcp-analyzer/tests/sse_server.py", line 302, in cors_middleware
+    response = await handler(request)
+               ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/divyeshprajapati-ibm/Downloads/mcp-analyzer/tests/sse_server.py", line 224, in sse_handler
+    await response.write_eof()
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/aiohttp/web_response.py", line 582, in write_eof
+    await self._payload_writer.write_eof(data)
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/aiohttp/http_writer.py", line 330, in write_eof
+    self._write(b"0\r\n\r\n")
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/aiohttp/http_writer.py", line 95, in _write
+    raise ClientConnectionResetError("Cannot write to closing transport")
+aiohttp.client_exceptions.ClientConnectionResetError: Cannot write to closing transport
+2025-08-23 19:38:33,985 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-08-23 19:39:00,980 - sse_server - INFO - Received GET request to /sse
+2025-08-23 19:39:00,980 - sse_server - INFO - Headers: {'Host': 'localhost:9001', 'Accept-Encoding': 'gzip, deflate', 'User-Agent': 'python-httpx/0.28.1', 'Connection': 'keep-alive', 'Accept': 'text/event-stream', 'Cache-Control': 'no-store'}
+2025-08-23 19:39:00,981 - sse_server - INFO - New SSE connection: 94a67a75-9cb9-4ead-b934-11d44437fdaa
+2025-08-23 19:39:10,982 - sse_server - INFO - SSE connection closed: 94a67a75-9cb9-4ead-b934-11d44437fdaa
+2025-08-23 19:39:10,982 - aiohttp.access - INFO - 127.0.0.1 [23/Aug/2025:19:39:00 +0530] "GET /sse HTTP/1.1" 200 0 "-" "python-httpx/0.28.1"
+2025-08-23 19:45:51,194 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-08-23 19:47:26,987 - sse_server - INFO - Received GET request to /sse
+2025-08-23 19:47:26,988 - sse_server - INFO - Headers: {'Host': 'localhost:9001', 'Accept-Encoding': 'gzip, deflate, br, zstd', 'Connection': 'keep-alive', 'User-Agent': 'python-httpx/0.28.1', 'Accept': 'text/event-stream', 'Cache-Control': 'no-store'}
+2025-08-23 19:47:26,988 - sse_server - INFO - Query params: <MultiDictProxy()>
+2025-08-23 19:47:26,988 - sse_server - INFO - New SSE connection: 93330d57-d7a0-445c-bfa3-0040209b6c6f
+2025-08-23 19:48:37,012 - sse_server - INFO - SSE connection closed: 93330d57-d7a0-445c-bfa3-0040209b6c6f
+2025-08-23 19:48:37,012 - aiohttp.server - ERROR - Error handling request from 127.0.0.1
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/aiohttp/web_protocol.py", line 510, in _handle_request
+    resp = await request_handler(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/aiohttp/web_app.py", line 569, in _handle
+    return await handler(request)
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/aiohttp/web_middlewares.py", line 117, in impl
+    return await handler(request)
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/divyeshprajapati-ibm/Downloads/mcp-analyzer/tests/sse_server.py", line 302, in cors_middleware
+    response = await handler(request)
+               ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/divyeshprajapati-ibm/Downloads/mcp-analyzer/tests/sse_server.py", line 224, in sse_handler
+    await response.write_eof()
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/aiohttp/web_response.py", line 582, in write_eof
+    await self._payload_writer.write_eof(data)
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/aiohttp/http_writer.py", line 330, in write_eof
+    self._write(b"0\r\n\r\n")
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/aiohttp/http_writer.py", line 95, in _write
+    raise ClientConnectionResetError("Cannot write to closing transport")
+aiohttp.client_exceptions.ClientConnectionResetError: Cannot write to closing transport
+2025-08-23 19:51:13,243 - sse_server - INFO - Starting SSE server on 0.0.0.0:9001
+2025-08-23 19:51:25,600 - sse_server - INFO - New SSE connection: 4531441040
+2025-08-23 19:51:25,600 - sse_server - INFO - Received request: list_tools (ID: 1)
+2025-08-23 19:51:25,600 - sse_server - INFO - Listing available tools (ID: 1)
+2025-08-23 19:51:25,601 - aiohttp.access - INFO - 127.0.0.1 [23/Aug/2025:19:51:25 +0530] "POST /sse HTTP/1.1" 200 697 "-" "curl/8.7.1"
+2025-08-23 19:51:43,440 - sse_server - INFO - New SSE connection: 4531439760
+2025-08-23 19:51:43,440 - sse_server - INFO - Received request: add_numbers (ID: 2)
+2025-08-23 19:51:43,440 - sse_server - INFO - Adding numbers: 5 + 3 = 8
+2025-08-23 19:51:43,441 - aiohttp.access - INFO - 127.0.0.1 [23/Aug/2025:19:51:43 +0530] "POST /sse HTTP/1.1" 200 462 "-" "curl/8.7.1"
+2025-08-23 19:52:57,323 - sse_server - INFO - New SSE connection: 4531440016
+2025-08-23 19:52:57,324 - aiohttp.access - INFO - 127.0.0.1 [23/Aug/2025:19:52:57 +0530] "GET /sse HTTP/1.1" 200 362 "-" "python-httpx/0.28.1"
+2025-08-23 19:53:10,910 - sse_server - INFO - New SSE connection: 4531440208
+2025-08-23 19:53:10,911 - aiohttp.access - INFO - 127.0.0.1 [23/Aug/2025:19:53:10 +0530] "GET /sse HTTP/1.1" 200 362 "-" "python-httpx/0.28.1"
+2025-08-23 19:54:24,674 - sse_server - INFO - New SSE connection: 4531440592
+2025-08-23 19:54:24,674 - aiohttp.access - INFO - 127.0.0.1 [23/Aug/2025:19:54:24 +0530] "GET /sse HTTP/1.1" 200 362 "-" "python-httpx/0.28.1"

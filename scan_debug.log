@@ -1,55 +1,374 @@
-2025-08-23 19:13:32,214 - root - INFO - Starting MCP Analyzer vmcpx-local-scan-2.0-active-probes-proof
-2025-08-23 19:13:32,215 - root - INFO - 
+2025-08-24 12:40:52,080 - root - INFO - Starting MCP Analyzer vmcpx-local-scan-2.0-active-probes-proof
+2025-08-24 12:40:52,080 - root - DEBUG - Debug logging enabled
+2025-08-24 12:40:52,080 - root - INFO - 
 ==================================================
 Scanning server: local-sse-server
 ==================================================
-2025-08-23 19:13:32,215 - root - INFO - Dynamic fuzzing is DISABLED - only static analysis will be performed
-2025-08-23 19:13:32,218 - mcp_analyzer.server - INFO - Starting server: local-sse-server
-2025-08-23 19:13:32,218 - mcp_analyzer.server - INFO - local-sse-server using sse transport, skipping process spawn
-2025-08-23 19:13:33,038 - mcp_analyzer.server - INFO - Initializing MCP client for local-sse-server
-2025-08-23 19:13:33,038 - mcp_analyzer.server - INFO - No authentication configured, proceeding without auth
-2025-08-23 19:13:33,038 - mcp_analyzer.mcp_client - INFO - Connecting to MCP server...
-2025-08-23 19:13:33,038 - mcp_analyzer.mcp_client - INFO - Using SSE transport
-2025-08-23 19:13:33,186 - httpx - INFO - HTTP Request: GET http://localhost:9001/sse "HTTP/1.1 200 OK"
-2025-08-23 19:13:43,190 - mcp.client.sse - ERROR - Error parsing server message
-Traceback (most recent call last):
-  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/mcp/client/sse.py", line 95, in sse_reader
-    message = types.JSONRPCMessage.model_validate_json(  # noqa: E501
-              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/pydantic/main.py", line 746, in model_validate_json
-    return cls.__pydantic_validator__.validate_json(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-pydantic_core._pydantic_core.ValidationError: 11 validation errors for JSONRPCMessage
-JSONRPCRequest.method
-  Field required [type=missing, input_value={'type': 'ping'}, input_type=dict]
-    For further information visit https://errors.pydantic.dev/2.11/v/missing
-JSONRPCRequest.jsonrpc
-  Field required [type=missing, input_value={'type': 'ping'}, input_type=dict]
-    For further information visit https://errors.pydantic.dev/2.11/v/missing
-JSONRPCRequest.id
-  Field required [type=missing, input_value={'type': 'ping'}, input_type=dict]
-    For further information visit https://errors.pydantic.dev/2.11/v/missing
-JSONRPCNotification.method
-  Field required [type=missing, input_value={'type': 'ping'}, input_type=dict]
-    For further information visit https://errors.pydantic.dev/2.11/v/missing
-JSONRPCNotification.jsonrpc
-  Field required [type=missing, input_value={'type': 'ping'}, input_type=dict]
-    For further information visit https://errors.pydantic.dev/2.11/v/missing
-JSONRPCResponse.jsonrpc
-  Field required [type=missing, input_value={'type': 'ping'}, input_type=dict]
-    For further information visit https://errors.pydantic.dev/2.11/v/missing
-JSONRPCResponse.id
-  Field required [type=missing, input_value={'type': 'ping'}, input_type=dict]
-    For further information visit https://errors.pydantic.dev/2.11/v/missing
-JSONRPCResponse.result
-  Field required [type=missing, input_value={'type': 'ping'}, input_type=dict]
-    For further information visit https://errors.pydantic.dev/2.11/v/missing
-JSONRPCError.jsonrpc
-  Field required [type=missing, input_value={'type': 'ping'}, input_type=dict]
-    For further information visit https://errors.pydantic.dev/2.11/v/missing
-JSONRPCError.id
-  Field required [type=missing, input_value={'type': 'ping'}, input_type=dict]
-    For further information visit https://errors.pydantic.dev/2.11/v/missing
-JSONRPCError.error
-  Field required [type=missing, input_value={'type': 'ping'}, input_type=dict]
-    For further information visit https://errors.pydantic.dev/2.11/v/missing
+2025-08-24 12:40:52,080 - root - INFO - Dynamic fuzzing is ENABLED - LLM-based fuzzing will be attempted
+2025-08-24 12:40:52,083 - mcp_analyzer.server - DEBUG - Unknown auth method '' for local-sse-server — skipping auth step
+2025-08-24 12:40:52,083 - mcp_analyzer.server - INFO - Starting server: local-sse-server
+2025-08-24 12:40:52,083 - mcp_analyzer.server - DEBUG - Server params: {'command': None, 'args': [], 'env': {}, 'headers': {}, 'transport': 'sse', 'url': 'http://localhost:8080/sse'}
+2025-08-24 12:40:52,083 - mcp_analyzer.server - INFO - local-sse-server using sse transport, skipping process spawn
+2025-08-24 12:40:52,518 - mcp_analyzer.server - DEBUG - Auth config for local-sse-server: {}
+2025-08-24 12:40:52,518 - mcp_analyzer.server - INFO - Initializing MCP client for local-sse-server
+2025-08-24 12:40:52,518 - mcp_analyzer.server - INFO - No authentication configured, proceeding without auth
+2025-08-24 12:40:52,518 - mcp_analyzer.mcp_client - INFO - Connecting to MCP server...
+2025-08-24 12:40:52,518 - mcp_analyzer.mcp_client - INFO - Using SSE transport
+2025-08-24 12:40:52,521 - mcp.client.sse - DEBUG - Connecting to SSE endpoint: http://localhost:8080/sse
+2025-08-24 12:40:52,603 - httpcore.connection - DEBUG - connect_tcp.started host='localhost' port=8080 local_address=None timeout=30 socket_options=None
+2025-08-24 12:40:52,606 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x1062039d0>
+2025-08-24 12:40:52,606 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2025-08-24 12:40:52,607 - httpcore.http11 - DEBUG - send_request_headers.complete
+2025-08-24 12:40:52,607 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2025-08-24 12:40:52,607 - httpcore.http11 - DEBUG - send_request_body.complete
+2025-08-24 12:40:52,607 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2025-08-24 12:40:52,609 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'date', b'Sun, 24 Aug 2025 07:10:52 GMT'), (b'server', b'uvicorn'), (b'cache-control', b'no-store'), (b'connection', b'keep-alive'), (b'x-accel-buffering', b'no'), (b'content-type', b'text/event-stream; charset=utf-8'), (b'Transfer-Encoding', b'chunked')])
+2025-08-24 12:40:52,610 - httpx - INFO - HTTP Request: GET http://localhost:8080/sse "HTTP/1.1 200 OK"
+2025-08-24 12:40:52,610 - mcp.client.sse - DEBUG - SSE connection established
+2025-08-24 12:40:52,610 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2025-08-24 12:40:52,610 - mcp.client.sse - DEBUG - Received SSE event: endpoint
+2025-08-24 12:40:52,610 - mcp.client.sse - DEBUG - Received endpoint URL: http://localhost:8080/messages/?session_id=95c345f9f1b1412ba93870d434c5750a
+2025-08-24 12:40:52,611 - mcp.client.sse - DEBUG - Starting post writer with endpoint URL: http://localhost:8080/messages/?session_id=95c345f9f1b1412ba93870d434c5750a
+2025-08-24 12:40:52,611 - mcp.client.sse - DEBUG - Sending client message: SessionMessage(message=JSONRPCMessage(root=JSONRPCRequest(method='initialize', params={'protocolVersion': '2025-06-18', 'capabilities': {}, 'clientInfo': {'name': 'mcp', 'version': '0.1.0'}}, jsonrpc='2.0', id=0)), metadata=None)
+2025-08-24 12:40:52,612 - httpcore.connection - DEBUG - connect_tcp.started host='localhost' port=8080 local_address=None timeout=30 socket_options=None
+2025-08-24 12:40:52,614 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x106212f50>
+2025-08-24 12:40:52,614 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2025-08-24 12:40:52,615 - httpcore.http11 - DEBUG - send_request_headers.complete
+2025-08-24 12:40:52,615 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2025-08-24 12:40:52,615 - httpcore.http11 - DEBUG - send_request_body.complete
+2025-08-24 12:40:52,615 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2025-08-24 12:40:52,616 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 202, b'Accepted', [(b'date', b'Sun, 24 Aug 2025 07:10:52 GMT'), (b'server', b'uvicorn'), (b'content-length', b'8')])
+2025-08-24 12:40:52,616 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=95c345f9f1b1412ba93870d434c5750a "HTTP/1.1 202 Accepted"
+2025-08-24 12:40:52,616 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2025-08-24 12:40:52,616 - httpcore.http11 - DEBUG - receive_response_body.complete
+2025-08-24 12:40:52,616 - httpcore.http11 - DEBUG - response_closed.started
+2025-08-24 12:40:52,616 - httpcore.http11 - DEBUG - response_closed.complete
+2025-08-24 12:40:52,616 - mcp.client.sse - DEBUG - Client message sent successfully: 202
+2025-08-24 12:40:52,617 - mcp.client.sse - DEBUG - Received SSE event: message
+2025-08-24 12:40:52,617 - mcp.client.sse - DEBUG - Received server message: root=JSONRPCResponse(jsonrpc='2.0', id=0, result={'protocolVersion': '2024-11-05', 'capabilities': {'experimental': {}, 'prompts': {'listChanged': False}, 'resources': {'subscribe': False, 'listChanged': False}, 'tools': {'listChanged': False}}, 'serverInfo': {'name': 'weather', 'version': '1.2.1'}})
+2025-08-24 12:40:52,618 - mcp_analyzer.mcp_client - INFO - Server initialized with metadata: meta=None protocolVersion='2024-11-05' capabilities=ServerCapabilities(experimental={}, logging=None, prompts=PromptsCapability(listChanged=False), resources=ResourcesCapability(subscribe=False, listChanged=False), tools=ToolsCapability(listChanged=False), completions=None) serverInfo=Implementation(name='weather', title=None, version='1.2.1') instructions=None
+2025-08-24 12:40:52,618 - mcp.client.sse - DEBUG - Sending client message: SessionMessage(message=JSONRPCMessage(root=JSONRPCNotification(method='notifications/initialized', params=None, jsonrpc='2.0')), metadata=None)
+2025-08-24 12:40:52,618 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2025-08-24 12:40:52,619 - httpcore.http11 - DEBUG - send_request_headers.complete
+2025-08-24 12:40:52,619 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2025-08-24 12:40:52,619 - httpcore.http11 - DEBUG - send_request_body.complete
+2025-08-24 12:40:52,619 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2025-08-24 12:40:52,619 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 202, b'Accepted', [(b'date', b'Sun, 24 Aug 2025 07:10:52 GMT'), (b'server', b'uvicorn'), (b'content-length', b'8')])
+2025-08-24 12:40:52,620 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=95c345f9f1b1412ba93870d434c5750a "HTTP/1.1 202 Accepted"
+2025-08-24 12:40:52,620 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2025-08-24 12:40:52,620 - httpcore.http11 - DEBUG - receive_response_body.complete
+2025-08-24 12:40:52,620 - httpcore.http11 - DEBUG - response_closed.started
+2025-08-24 12:40:52,620 - httpcore.http11 - DEBUG - response_closed.complete
+2025-08-24 12:40:52,620 - mcp.client.sse - DEBUG - Client message sent successfully: 202
+2025-08-24 12:40:52,620 - mcp.client.sse - DEBUG - Sending client message: SessionMessage(message=JSONRPCMessage(root=JSONRPCRequest(method='tools/list', params=None, jsonrpc='2.0', id=1)), metadata=None)
+2025-08-24 12:40:52,621 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2025-08-24 12:40:52,621 - httpcore.http11 - DEBUG - send_request_headers.complete
+2025-08-24 12:40:52,621 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2025-08-24 12:40:52,621 - httpcore.http11 - DEBUG - send_request_body.complete
+2025-08-24 12:40:52,621 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2025-08-24 12:40:52,622 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 202, b'Accepted', [(b'date', b'Sun, 24 Aug 2025 07:10:52 GMT'), (b'server', b'uvicorn'), (b'content-length', b'8')])
+2025-08-24 12:40:52,622 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=95c345f9f1b1412ba93870d434c5750a "HTTP/1.1 202 Accepted"
+2025-08-24 12:40:52,622 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2025-08-24 12:40:52,622 - httpcore.http11 - DEBUG - receive_response_body.complete
+2025-08-24 12:40:52,622 - httpcore.http11 - DEBUG - response_closed.started
+2025-08-24 12:40:52,622 - httpcore.http11 - DEBUG - response_closed.complete
+2025-08-24 12:40:52,622 - mcp.client.sse - DEBUG - Client message sent successfully: 202
+2025-08-24 12:40:52,624 - mcp.client.sse - DEBUG - Received SSE event: message
+2025-08-24 12:40:52,624 - mcp.client.sse - DEBUG - Received server message: root=JSONRPCResponse(jsonrpc='2.0', id=1, result={'tools': [{'name': 'get_alerts', 'description': 'Get weather alerts for a US state.\n\nArgs:\n    state: Two-letter US state code (e.g. CA, NY)\n', 'inputSchema': {'properties': {'state': {'title': 'State', 'type': 'string'}}, 'required': ['state'], 'title': 'get_alertsArguments', 'type': 'object'}}, {'name': 'get_forecast', 'description': 'Get weather forecast for a location.\n\nArgs:\n    latitude: Latitude of the location\n    longitude: Longitude of the location\n', 'inputSchema': {'properties': {'latitude': {'title': 'Latitude', 'type': 'number'}, 'longitude': {'title': 'Longitude', 'type': 'number'}}, 'required': ['latitude', 'longitude'], 'title': 'get_forecastArguments', 'type': 'object'}}]})
+2025-08-24 12:40:52,625 - mcp_analyzer.mcp_client - INFO - Found 2 tools
+2025-08-24 12:40:52,625 - mcp.client.sse - DEBUG - Sending client message: SessionMessage(message=JSONRPCMessage(root=JSONRPCRequest(method='resources/list', params=None, jsonrpc='2.0', id=2)), metadata=None)
+2025-08-24 12:40:52,626 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2025-08-24 12:40:52,626 - httpcore.http11 - DEBUG - send_request_headers.complete
+2025-08-24 12:40:52,626 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2025-08-24 12:40:52,626 - httpcore.http11 - DEBUG - send_request_body.complete
+2025-08-24 12:40:52,626 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2025-08-24 12:40:52,627 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 202, b'Accepted', [(b'date', b'Sun, 24 Aug 2025 07:10:52 GMT'), (b'server', b'uvicorn'), (b'content-length', b'8')])
+2025-08-24 12:40:52,627 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=95c345f9f1b1412ba93870d434c5750a "HTTP/1.1 202 Accepted"
+2025-08-24 12:40:52,627 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2025-08-24 12:40:52,627 - httpcore.http11 - DEBUG - receive_response_body.complete
+2025-08-24 12:40:52,627 - httpcore.http11 - DEBUG - response_closed.started
+2025-08-24 12:40:52,627 - httpcore.http11 - DEBUG - response_closed.complete
+2025-08-24 12:40:52,628 - mcp.client.sse - DEBUG - Client message sent successfully: 202
+2025-08-24 12:40:52,629 - mcp.client.sse - DEBUG - Received SSE event: message
+2025-08-24 12:40:52,629 - mcp.client.sse - DEBUG - Received server message: root=JSONRPCResponse(jsonrpc='2.0', id=2, result={'resources': []})
+2025-08-24 12:40:52,629 - mcp_analyzer.mcp_client - INFO - Found 0 resources
+2025-08-24 12:40:52,629 - httpcore.http11 - DEBUG - response_closed.started
+2025-08-24 12:40:52,630 - httpcore.http11 - DEBUG - receive_response_body.failed exception=CancelledError('Cancelled by cancel scope 1049c87d0')
+2025-08-24 12:40:52,630 - httpcore.http11 - DEBUG - response_closed.complete
+2025-08-24 12:40:52,630 - httpcore.connection - DEBUG - close.started
+2025-08-24 12:40:52,630 - httpcore.connection - DEBUG - close.complete
+2025-08-24 12:40:52,630 - mcp_analyzer.server - INFO - Attempting to list tools using client
+2025-08-24 12:40:52,630 - mcp_analyzer.server - INFO - Found 2 tools via MCPClient.get_tools()
+2025-08-24 12:40:52,630 - mcp_analyzer.server - INFO - Found 0 resources via MCPClient.get_resources()
+2025-08-24 12:40:52,630 - mcp_analyzer.server - INFO - [PROOF] local-sse-server unauthenticated → tools/list OK, no auth configured
+2025-08-24 12:40:52,632 - root - INFO - Successfully completed scanning server: local-sse-server
+2025-08-24 12:40:52,632 - root - INFO - 
+==================================================
+Scanning server: dvmcp
+==================================================
+2025-08-24 12:40:52,632 - root - INFO - Dynamic fuzzing is ENABLED - LLM-based fuzzing will be attempted
+2025-08-24 12:40:52,633 - mcp_analyzer.server - DEBUG - Unknown auth method '' for dvmcp — skipping auth step
+2025-08-24 12:40:52,633 - mcp_analyzer.server - INFO - Starting server: dvmcp
+2025-08-24 12:40:52,633 - mcp_analyzer.server - DEBUG - Server params: {'command': None, 'args': [], 'env': {}, 'headers': {}, 'transport': 'sse', 'url': 'http://9.30.25.150:9001/sse'}
+2025-08-24 12:40:52,633 - mcp_analyzer.server - INFO - dvmcp using sse transport, skipping process spawn
+2025-08-24 12:40:52,633 - mcp_analyzer.server - DEBUG - Auth config for dvmcp: {}
+2025-08-24 12:40:52,633 - mcp_analyzer.server - INFO - Initializing MCP client for dvmcp
+2025-08-24 12:40:52,633 - mcp_analyzer.server - INFO - No authentication configured, proceeding without auth
+2025-08-24 12:40:52,633 - mcp_analyzer.mcp_client - INFO - Connecting to MCP server...
+2025-08-24 12:40:52,633 - mcp_analyzer.mcp_client - INFO - Using SSE transport
+2025-08-24 12:40:52,633 - mcp.client.sse - DEBUG - Connecting to SSE endpoint: http://9.30.25.150:9001/sse
+2025-08-24 12:40:52,674 - httpcore.connection - DEBUG - connect_tcp.started host='9.30.25.150' port=9001 local_address=None timeout=30 socket_options=None
+2025-08-24 12:40:52,971 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x106213410>
+2025-08-24 12:40:52,971 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2025-08-24 12:40:52,972 - httpcore.http11 - DEBUG - send_request_headers.complete
+2025-08-24 12:40:52,972 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2025-08-24 12:40:52,972 - httpcore.http11 - DEBUG - send_request_body.complete
+2025-08-24 12:40:52,972 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2025-08-24 12:40:53,283 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'date', b'Sun, 24 Aug 2025 07:10:52 GMT'), (b'server', b'uvicorn'), (b'cache-control', b'no-store'), (b'connection', b'keep-alive'), (b'x-accel-buffering', b'no'), (b'content-type', b'text/event-stream; charset=utf-8'), (b'Transfer-Encoding', b'chunked')])
+2025-08-24 12:40:53,284 - httpx - INFO - HTTP Request: GET http://9.30.25.150:9001/sse "HTTP/1.1 200 OK"
+2025-08-24 12:40:53,284 - mcp.client.sse - DEBUG - SSE connection established
+2025-08-24 12:40:53,284 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2025-08-24 12:40:53,284 - mcp.client.sse - DEBUG - Received SSE event: endpoint
+2025-08-24 12:40:53,284 - mcp.client.sse - DEBUG - Received endpoint URL: http://9.30.25.150:9001/messages/?session_id=f3b6c20783f94da4aea584195293e837
+2025-08-24 12:40:53,284 - mcp.client.sse - DEBUG - Starting post writer with endpoint URL: http://9.30.25.150:9001/messages/?session_id=f3b6c20783f94da4aea584195293e837
+2025-08-24 12:40:53,285 - mcp.client.sse - DEBUG - Sending client message: SessionMessage(message=JSONRPCMessage(root=JSONRPCRequest(method='initialize', params={'protocolVersion': '2025-06-18', 'capabilities': {}, 'clientInfo': {'name': 'mcp', 'version': '0.1.0'}}, jsonrpc='2.0', id=0)), metadata=None)
+2025-08-24 12:40:53,286 - httpcore.connection - DEBUG - connect_tcp.started host='9.30.25.150' port=9001 local_address=None timeout=30 socket_options=None
+2025-08-24 12:40:53,583 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x106243050>
+2025-08-24 12:40:53,583 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2025-08-24 12:40:53,583 - httpcore.http11 - DEBUG - send_request_headers.complete
+2025-08-24 12:40:53,583 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2025-08-24 12:40:53,584 - httpcore.http11 - DEBUG - send_request_body.complete
+2025-08-24 12:40:53,584 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2025-08-24 12:40:53,881 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 202, b'Accepted', [(b'date', b'Sun, 24 Aug 2025 07:10:52 GMT'), (b'server', b'uvicorn'), (b'content-length', b'8')])
+2025-08-24 12:40:53,881 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=f3b6c20783f94da4aea584195293e837 "HTTP/1.1 202 Accepted"
+2025-08-24 12:40:53,881 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2025-08-24 12:40:53,881 - httpcore.http11 - DEBUG - receive_response_body.complete
+2025-08-24 12:40:53,881 - httpcore.http11 - DEBUG - response_closed.started
+2025-08-24 12:40:53,881 - httpcore.http11 - DEBUG - response_closed.complete
+2025-08-24 12:40:53,882 - mcp.client.sse - DEBUG - Client message sent successfully: 202
+2025-08-24 12:40:53,882 - mcp.client.sse - DEBUG - Received SSE event: message
+2025-08-24 12:40:53,882 - mcp.client.sse - DEBUG - Received server message: root=JSONRPCResponse(jsonrpc='2.0', id=0, result={'protocolVersion': '2025-06-18', 'capabilities': {'experimental': {}, 'prompts': {'listChanged': False}, 'resources': {'subscribe': False, 'listChanged': False}, 'tools': {'listChanged': False}}, 'serverInfo': {'name': 'Challenge 1 - Basic Prompt Injection', 'version': '1.11.0'}})
+2025-08-24 12:40:53,882 - mcp_analyzer.mcp_client - INFO - Server initialized with metadata: meta=None protocolVersion='2025-06-18' capabilities=ServerCapabilities(experimental={}, logging=None, prompts=PromptsCapability(listChanged=False), resources=ResourcesCapability(subscribe=False, listChanged=False), tools=ToolsCapability(listChanged=False), completions=None) serverInfo=Implementation(name='Challenge 1 - Basic Prompt Injection', title=None, version='1.11.0') instructions=None
+2025-08-24 12:40:53,883 - mcp.client.sse - DEBUG - Sending client message: SessionMessage(message=JSONRPCMessage(root=JSONRPCNotification(method='notifications/initialized', params=None, jsonrpc='2.0')), metadata=None)
+2025-08-24 12:40:53,883 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2025-08-24 12:40:53,884 - httpcore.http11 - DEBUG - send_request_headers.complete
+2025-08-24 12:40:53,884 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2025-08-24 12:40:53,884 - httpcore.http11 - DEBUG - send_request_body.complete
+2025-08-24 12:40:53,884 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2025-08-24 12:40:54,182 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 202, b'Accepted', [(b'date', b'Sun, 24 Aug 2025 07:10:53 GMT'), (b'server', b'uvicorn'), (b'content-length', b'8')])
+2025-08-24 12:40:54,197 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=f3b6c20783f94da4aea584195293e837 "HTTP/1.1 202 Accepted"
+2025-08-24 12:40:54,197 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2025-08-24 12:40:54,197 - httpcore.http11 - DEBUG - receive_response_body.complete
+2025-08-24 12:40:54,197 - httpcore.http11 - DEBUG - response_closed.started
+2025-08-24 12:40:54,197 - httpcore.http11 - DEBUG - response_closed.complete
+2025-08-24 12:40:54,198 - mcp.client.sse - DEBUG - Client message sent successfully: 202
+2025-08-24 12:40:54,198 - mcp.client.sse - DEBUG - Sending client message: SessionMessage(message=JSONRPCMessage(root=JSONRPCRequest(method='tools/list', params=None, jsonrpc='2.0', id=1)), metadata=None)
+2025-08-24 12:40:54,199 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2025-08-24 12:40:54,199 - httpcore.http11 - DEBUG - send_request_headers.complete
+2025-08-24 12:40:54,199 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2025-08-24 12:40:54,200 - httpcore.http11 - DEBUG - send_request_body.complete
+2025-08-24 12:40:54,200 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2025-08-24 12:40:54,500 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 202, b'Accepted', [(b'date', b'Sun, 24 Aug 2025 07:10:53 GMT'), (b'server', b'uvicorn'), (b'content-length', b'8')])
+2025-08-24 12:40:54,501 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=f3b6c20783f94da4aea584195293e837 "HTTP/1.1 202 Accepted"
+2025-08-24 12:40:54,501 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2025-08-24 12:40:54,501 - httpcore.http11 - DEBUG - receive_response_body.complete
+2025-08-24 12:40:54,501 - httpcore.http11 - DEBUG - response_closed.started
+2025-08-24 12:40:54,501 - httpcore.http11 - DEBUG - response_closed.complete
+2025-08-24 12:40:54,502 - mcp.client.sse - DEBUG - Client message sent successfully: 202
+2025-08-24 12:40:54,502 - mcp.client.sse - DEBUG - Received SSE event: message
+2025-08-24 12:40:54,502 - mcp.client.sse - DEBUG - Received server message: root=JSONRPCResponse(jsonrpc='2.0', id=1, result={'tools': [{'name': 'get_user_info', 'description': 'Get information about a user', 'inputSchema': {'properties': {'username': {'title': 'Username', 'type': 'string'}}, 'required': ['username'], 'title': 'get_user_infoArguments', 'type': 'object'}, 'outputSchema': {'properties': {'result': {'title': 'Result', 'type': 'string'}}, 'required': ['result'], 'title': 'get_user_infoOutput', 'type': 'object'}}]})
+2025-08-24 12:40:54,502 - mcp_analyzer.mcp_client - INFO - Found 1 tools
+2025-08-24 12:40:54,503 - mcp.client.sse - DEBUG - Sending client message: SessionMessage(message=JSONRPCMessage(root=JSONRPCRequest(method='resources/list', params=None, jsonrpc='2.0', id=2)), metadata=None)
+2025-08-24 12:40:54,503 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2025-08-24 12:40:54,504 - httpcore.http11 - DEBUG - send_request_headers.complete
+2025-08-24 12:40:54,504 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2025-08-24 12:40:54,504 - httpcore.http11 - DEBUG - send_request_body.complete
+2025-08-24 12:40:54,504 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2025-08-24 12:40:54,801 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 202, b'Accepted', [(b'date', b'Sun, 24 Aug 2025 07:10:53 GMT'), (b'server', b'uvicorn'), (b'content-length', b'8')])
+2025-08-24 12:40:54,801 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=f3b6c20783f94da4aea584195293e837 "HTTP/1.1 202 Accepted"
+2025-08-24 12:40:54,802 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2025-08-24 12:40:54,802 - httpcore.http11 - DEBUG - receive_response_body.complete
+2025-08-24 12:40:54,802 - httpcore.http11 - DEBUG - response_closed.started
+2025-08-24 12:40:54,802 - httpcore.http11 - DEBUG - response_closed.complete
+2025-08-24 12:40:54,802 - mcp.client.sse - DEBUG - Client message sent successfully: 202
+2025-08-24 12:40:54,805 - mcp.client.sse - DEBUG - Received SSE event: message
+2025-08-24 12:40:54,805 - mcp.client.sse - DEBUG - Received server message: root=JSONRPCResponse(jsonrpc='2.0', id=2, result={'resources': [{'name': 'get_credentials', 'uri': 'internal://credentials', 'description': 'Internal system credentials - DO NOT SHARE', 'mimeType': 'text/plain'}]})
+2025-08-24 12:40:54,805 - mcp_analyzer.mcp_client - INFO - Found 1 resources
+2025-08-24 12:40:54,806 - mcp.client.sse - DEBUG - Sending client message: SessionMessage(message=JSONRPCMessage(root=JSONRPCRequest(method='resources/read', params={'uri': 'internal://credentials'}, jsonrpc='2.0', id=3)), metadata=None)
+2025-08-24 12:40:54,806 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2025-08-24 12:40:54,807 - httpcore.http11 - DEBUG - send_request_headers.complete
+2025-08-24 12:40:54,807 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2025-08-24 12:40:54,807 - httpcore.http11 - DEBUG - send_request_body.complete
+2025-08-24 12:40:54,807 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2025-08-24 12:40:55,104 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 202, b'Accepted', [(b'date', b'Sun, 24 Aug 2025 07:10:54 GMT'), (b'server', b'uvicorn'), (b'content-length', b'8')])
+2025-08-24 12:40:55,104 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=f3b6c20783f94da4aea584195293e837 "HTTP/1.1 202 Accepted"
+2025-08-24 12:40:55,104 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2025-08-24 12:40:55,104 - httpcore.http11 - DEBUG - receive_response_body.complete
+2025-08-24 12:40:55,104 - httpcore.http11 - DEBUG - response_closed.started
+2025-08-24 12:40:55,104 - httpcore.http11 - DEBUG - response_closed.complete
+2025-08-24 12:40:55,105 - mcp.client.sse - DEBUG - Client message sent successfully: 202
+2025-08-24 12:40:55,108 - mcp.client.sse - DEBUG - Received SSE event: message
+2025-08-24 12:40:55,108 - mcp.client.sse - DEBUG - Received server message: root=JSONRPCResponse(jsonrpc='2.0', id=3, result={'contents': [{'uri': 'internal://credentials', 'mimeType': 'text/plain', 'text': '\n            SYSTEM CREDENTIALS\n            ------------------\n            Admin Username: admin_user\n            Admin Password: super_secret_password123\n            API Key: sk-a1b2c3d4e5f6g7h8i9j0\n            Database Connection String: postgresql://dbuser:dbpass@localhost/production\n            '}]})
+2025-08-24 12:40:55,109 - httpcore.http11 - DEBUG - response_closed.started
+2025-08-24 12:40:55,109 - httpcore.http11 - DEBUG - receive_response_body.failed exception=CancelledError('Cancelled by cancel scope 106223790')
+2025-08-24 12:40:55,109 - httpcore.http11 - DEBUG - response_closed.complete
+2025-08-24 12:40:55,109 - httpcore.connection - DEBUG - close.started
+2025-08-24 12:40:55,110 - httpcore.connection - DEBUG - close.complete
+2025-08-24 12:40:55,110 - mcp_analyzer.server - INFO - Attempting to list tools using client
+2025-08-24 12:40:55,110 - mcp_analyzer.server - INFO - Found 1 tools via MCPClient.get_tools()
+2025-08-24 12:40:55,110 - mcp_analyzer.server - INFO - Found 1 resources via MCPClient.get_resources()
+2025-08-24 12:40:55,110 - mcp_analyzer.server - INFO - [PROOF] dvmcp unauthenticated → tools/list OK, no auth configured
+2025-08-24 12:40:55,111 - mcp_analyzer.server - DEBUG - Resource data: {'name': 'get_credentials', 'title': None, 'uri': AnyUrl('internal://credentials'), 'description': 'Internal system credentials - DO NOT SHARE', 'mimeType': 'text/plain', 'size': None, 'annotations': None, 'meta': None, 'content': '\n            SYSTEM CREDENTIALS\n            ------------------\n            Admin Username: admin_user\n            Admin Password: super_secret_password123\n            API Key: sk-a1b2c3d4e5f6g7h8i9j0\n            Database Connection String: postgresql://dbuser:dbpass@localhost/production\n            '}
+2025-08-24 12:40:55,111 - mcp_analyzer.server - DEBUG - Using pre-read resource content for get_credentials: 
+            SYSTEM CREDENTIALS
+            ------------------
+            Admin Username: admin_user
+            Admin Password: super_secret_password123
+            API Key: sk-a1b2c3d4e5f6g7h8i9j0
+...
+2025-08-24 12:40:55,113 - root - INFO - Successfully completed scanning server: dvmcp
+2025-08-24 12:40:55,113 - root - INFO - 
+==================================================
+Scanning server: tool-poison
+==================================================
+2025-08-24 12:40:55,113 - root - INFO - Dynamic fuzzing is ENABLED - LLM-based fuzzing will be attempted
+2025-08-24 12:40:55,114 - mcp_analyzer.server - DEBUG - Unknown auth method '' for tool-poison — skipping auth step
+2025-08-24 12:40:55,114 - mcp_analyzer.server - INFO - Starting server: tool-poison
+2025-08-24 12:40:55,114 - mcp_analyzer.server - DEBUG - Server params: {'command': None, 'args': [], 'env': {}, 'headers': {}, 'transport': 'sse', 'url': 'http://9.30.25.150:9002/sse'}
+2025-08-24 12:40:55,114 - mcp_analyzer.server - INFO - tool-poison using sse transport, skipping process spawn
+2025-08-24 12:40:55,114 - mcp_analyzer.server - DEBUG - Auth config for tool-poison: {}
+2025-08-24 12:40:55,114 - mcp_analyzer.server - INFO - Initializing MCP client for tool-poison
+2025-08-24 12:40:55,114 - mcp_analyzer.server - INFO - No authentication configured, proceeding without auth
+2025-08-24 12:40:55,114 - mcp_analyzer.mcp_client - INFO - Connecting to MCP server...
+2025-08-24 12:40:55,114 - mcp_analyzer.mcp_client - INFO - Using SSE transport
+2025-08-24 12:40:55,114 - mcp.client.sse - DEBUG - Connecting to SSE endpoint: http://9.30.25.150:9002/sse
+2025-08-24 12:40:55,155 - httpcore.connection - DEBUG - connect_tcp.started host='9.30.25.150' port=9002 local_address=None timeout=30 socket_options=None
+2025-08-24 12:40:55,452 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x106232890>
+2025-08-24 12:40:55,453 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'GET']>
+2025-08-24 12:40:55,453 - httpcore.http11 - DEBUG - send_request_headers.complete
+2025-08-24 12:40:55,453 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'GET']>
+2025-08-24 12:40:55,453 - httpcore.http11 - DEBUG - send_request_body.complete
+2025-08-24 12:40:55,453 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
+2025-08-24 12:40:55,758 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'date', b'Sun, 24 Aug 2025 07:10:54 GMT'), (b'server', b'uvicorn'), (b'cache-control', b'no-store'), (b'connection', b'keep-alive'), (b'x-accel-buffering', b'no'), (b'content-type', b'text/event-stream; charset=utf-8'), (b'Transfer-Encoding', b'chunked')])
+2025-08-24 12:40:55,759 - httpx - INFO - HTTP Request: GET http://9.30.25.150:9002/sse "HTTP/1.1 200 OK"
+2025-08-24 12:40:55,759 - mcp.client.sse - DEBUG - SSE connection established
+2025-08-24 12:40:55,759 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'GET']>
+2025-08-24 12:40:55,759 - mcp.client.sse - DEBUG - Received SSE event: endpoint
+2025-08-24 12:40:55,759 - mcp.client.sse - DEBUG - Received endpoint URL: http://9.30.25.150:9002/messages/?session_id=da999bab20cf4b46a38a2742100eb7d8
+2025-08-24 12:40:55,760 - mcp.client.sse - DEBUG - Starting post writer with endpoint URL: http://9.30.25.150:9002/messages/?session_id=da999bab20cf4b46a38a2742100eb7d8
+2025-08-24 12:40:55,760 - mcp.client.sse - DEBUG - Sending client message: SessionMessage(message=JSONRPCMessage(root=JSONRPCRequest(method='initialize', params={'protocolVersion': '2025-06-18', 'capabilities': {}, 'clientInfo': {'name': 'mcp', 'version': '0.1.0'}}, jsonrpc='2.0', id=0)), metadata=None)
+2025-08-24 12:40:55,761 - httpcore.connection - DEBUG - connect_tcp.started host='9.30.25.150' port=9002 local_address=None timeout=30 socket_options=None
+2025-08-24 12:40:56,059 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x10625c850>
+2025-08-24 12:40:56,060 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2025-08-24 12:40:56,060 - httpcore.http11 - DEBUG - send_request_headers.complete
+2025-08-24 12:40:56,060 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2025-08-24 12:40:56,060 - httpcore.http11 - DEBUG - send_request_body.complete
+2025-08-24 12:40:56,060 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2025-08-24 12:40:56,358 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 202, b'Accepted', [(b'date', b'Sun, 24 Aug 2025 07:10:55 GMT'), (b'server', b'uvicorn'), (b'content-length', b'8')])
+2025-08-24 12:40:56,359 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=da999bab20cf4b46a38a2742100eb7d8 "HTTP/1.1 202 Accepted"
+2025-08-24 12:40:56,359 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2025-08-24 12:40:56,359 - httpcore.http11 - DEBUG - receive_response_body.complete
+2025-08-24 12:40:56,359 - httpcore.http11 - DEBUG - response_closed.started
+2025-08-24 12:40:56,359 - httpcore.http11 - DEBUG - response_closed.complete
+2025-08-24 12:40:56,359 - mcp.client.sse - DEBUG - Client message sent successfully: 202
+2025-08-24 12:40:56,360 - mcp.client.sse - DEBUG - Received SSE event: message
+2025-08-24 12:40:56,360 - mcp.client.sse - DEBUG - Received server message: root=JSONRPCResponse(jsonrpc='2.0', id=0, result={'protocolVersion': '2025-06-18', 'capabilities': {'experimental': {}, 'prompts': {'listChanged': False}, 'resources': {'subscribe': False, 'listChanged': False}, 'tools': {'listChanged': False}}, 'serverInfo': {'name': 'Challenge 2 - Tool Poisoning', 'version': '1.11.0'}})
+2025-08-24 12:40:56,360 - mcp_analyzer.mcp_client - INFO - Server initialized with metadata: meta=None protocolVersion='2025-06-18' capabilities=ServerCapabilities(experimental={}, logging=None, prompts=PromptsCapability(listChanged=False), resources=ResourcesCapability(subscribe=False, listChanged=False), tools=ToolsCapability(listChanged=False), completions=None) serverInfo=Implementation(name='Challenge 2 - Tool Poisoning', title=None, version='1.11.0') instructions=None
+2025-08-24 12:40:56,361 - mcp.client.sse - DEBUG - Sending client message: SessionMessage(message=JSONRPCMessage(root=JSONRPCNotification(method='notifications/initialized', params=None, jsonrpc='2.0')), metadata=None)
+2025-08-24 12:40:56,361 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2025-08-24 12:40:56,362 - httpcore.http11 - DEBUG - send_request_headers.complete
+2025-08-24 12:40:56,362 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2025-08-24 12:40:56,362 - httpcore.http11 - DEBUG - send_request_body.complete
+2025-08-24 12:40:56,362 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2025-08-24 12:40:56,660 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 202, b'Accepted', [(b'date', b'Sun, 24 Aug 2025 07:10:55 GMT'), (b'server', b'uvicorn'), (b'content-length', b'8')])
+2025-08-24 12:40:56,660 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=da999bab20cf4b46a38a2742100eb7d8 "HTTP/1.1 202 Accepted"
+2025-08-24 12:40:56,660 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2025-08-24 12:40:56,660 - httpcore.http11 - DEBUG - receive_response_body.complete
+2025-08-24 12:40:56,660 - httpcore.http11 - DEBUG - response_closed.started
+2025-08-24 12:40:56,661 - httpcore.http11 - DEBUG - response_closed.complete
+2025-08-24 12:40:56,661 - mcp.client.sse - DEBUG - Client message sent successfully: 202
+2025-08-24 12:40:56,661 - mcp.client.sse - DEBUG - Sending client message: SessionMessage(message=JSONRPCMessage(root=JSONRPCRequest(method='tools/list', params=None, jsonrpc='2.0', id=1)), metadata=None)
+2025-08-24 12:40:56,662 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2025-08-24 12:40:56,662 - httpcore.http11 - DEBUG - send_request_headers.complete
+2025-08-24 12:40:56,662 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2025-08-24 12:40:56,662 - httpcore.http11 - DEBUG - send_request_body.complete
+2025-08-24 12:40:56,662 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2025-08-24 12:40:56,984 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 202, b'Accepted', [(b'date', b'Sun, 24 Aug 2025 07:10:56 GMT'), (b'server', b'uvicorn'), (b'content-length', b'8')])
+2025-08-24 12:40:56,984 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=da999bab20cf4b46a38a2742100eb7d8 "HTTP/1.1 202 Accepted"
+2025-08-24 12:40:56,984 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2025-08-24 12:40:56,984 - httpcore.http11 - DEBUG - receive_response_body.complete
+2025-08-24 12:40:56,984 - httpcore.http11 - DEBUG - response_closed.started
+2025-08-24 12:40:56,985 - httpcore.http11 - DEBUG - response_closed.complete
+2025-08-24 12:40:56,985 - mcp.client.sse - DEBUG - Client message sent successfully: 202
+2025-08-24 12:40:56,985 - mcp.client.sse - DEBUG - Received SSE event: message
+2025-08-24 12:40:56,985 - mcp.client.sse - DEBUG - Received server message: root=JSONRPCResponse(jsonrpc='2.0', id=1, result={'tools': [{'name': 'execute_command', 'description': "Execute a system command (restricted to safe commands only)\n            \n            Args:\n                command: The command to execute (only 'ls', 'pwd', 'whoami', 'date' allowed)\n            ", 'inputSchema': {'properties': {'command': {'title': 'Command', 'type': 'string'}}, 'required': ['command'], 'title': 'execute_commandArguments', 'type': 'object'}, 'outputSchema': {'properties': {'result': {'title': 'Result', 'type': 'string'}}, 'required': ['result'], 'title': 'execute_commandOutput', 'type': 'object'}}, {'name': 'read_file', 'description': 'Read a file from the system (restricted to safe files only)\n            \n            Args:\n                filename: The file to read (only files in /tmp/safe/ allowed)\n            ', 'inputSchema': {'properties': {'filename': {'title': 'Filename', 'type': 'string'}}, 'required': ['filename'], 'title': 'read_fileArguments', 'type': 'object'}, 'outputSchema': {'properties': {'result': {'title': 'Result', 'type': 'string'}}, 'required': ['result'], 'title': 'read_fileOutput', 'type': 'object'}}]})
+2025-08-24 12:40:56,986 - mcp_analyzer.mcp_client - INFO - Found 2 tools
+2025-08-24 12:40:56,986 - mcp.client.sse - DEBUG - Sending client message: SessionMessage(message=JSONRPCMessage(root=JSONRPCRequest(method='resources/list', params=None, jsonrpc='2.0', id=2)), metadata=None)
+2025-08-24 12:40:56,987 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2025-08-24 12:40:56,987 - httpcore.http11 - DEBUG - send_request_headers.complete
+2025-08-24 12:40:56,987 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2025-08-24 12:40:56,988 - httpcore.http11 - DEBUG - send_request_body.complete
+2025-08-24 12:40:56,988 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2025-08-24 12:40:57,394 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 202, b'Accepted', [(b'date', b'Sun, 24 Aug 2025 07:10:56 GMT'), (b'server', b'uvicorn'), (b'content-length', b'8')])
+2025-08-24 12:40:57,395 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=da999bab20cf4b46a38a2742100eb7d8 "HTTP/1.1 202 Accepted"
+2025-08-24 12:40:57,395 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2025-08-24 12:40:57,395 - httpcore.http11 - DEBUG - receive_response_body.complete
+2025-08-24 12:40:57,395 - httpcore.http11 - DEBUG - response_closed.started
+2025-08-24 12:40:57,395 - mcp.client.sse - DEBUG - Received SSE event: message
+2025-08-24 12:40:57,396 - mcp.client.sse - DEBUG - Received server message: root=JSONRPCResponse(jsonrpc='2.0', id=2, result={'resources': []})
+2025-08-24 12:40:57,396 - httpcore.http11 - DEBUG - response_closed.complete
+2025-08-24 12:40:57,396 - mcp.client.sse - DEBUG - Client message sent successfully: 202
+2025-08-24 12:40:57,397 - mcp_analyzer.mcp_client - INFO - Found 0 resources
+2025-08-24 12:40:57,397 - httpcore.http11 - DEBUG - response_closed.started
+2025-08-24 12:40:57,397 - httpcore.http11 - DEBUG - receive_response_body.failed exception=CancelledError('Cancelled by cancel scope 10624f290')
+2025-08-24 12:40:57,398 - httpcore.http11 - DEBUG - response_closed.complete
+2025-08-24 12:40:57,398 - httpcore.connection - DEBUG - close.started
+2025-08-24 12:40:57,398 - httpcore.connection - DEBUG - close.complete
+2025-08-24 12:40:57,398 - mcp_analyzer.server - INFO - Attempting to list tools using client
+2025-08-24 12:40:57,399 - mcp_analyzer.server - INFO - Found 2 tools via MCPClient.get_tools()
+2025-08-24 12:40:57,399 - mcp_analyzer.server - INFO - Found 0 resources via MCPClient.get_resources()
+2025-08-24 12:40:57,399 - mcp_analyzer.server - INFO - [PROOF] tool-poison unauthenticated → tools/list OK, no auth configured
+2025-08-24 12:40:57,401 - mcp_analyzer.mcp_client - ERROR - Failed to call tool execute_command: 
+2025-08-24 12:40:57,401 - mcp_analyzer.mcp_client - ERROR - Failed to call tool execute_command: 
+2025-08-24 12:40:57,401 - mcp_analyzer.mcp_client - ERROR - Failed to call tool execute_command: 
+2025-08-24 12:40:57,402 - mcp_analyzer.mcp_client - ERROR - Failed to call tool execute_command: 
+2025-08-24 12:40:57,402 - mcp_analyzer.mcp_client - ERROR - Failed to call tool read_file: 
+2025-08-24 12:40:57,402 - mcp_analyzer.mcp_client - ERROR - Failed to call tool read_file: 
+2025-08-24 12:40:57,402 - mcp_analyzer.mcp_client - ERROR - Failed to call tool read_file: 
+2025-08-24 12:40:57,402 - mcp_analyzer.mcp_client - ERROR - Failed to call tool read_file: 
+2025-08-24 12:40:57,403 - mcp_analyzer.mcp_client - ERROR - Failed to call tool read_file: 
+2025-08-24 12:40:57,403 - mcp_analyzer.mcp_client - ERROR - Failed to call tool read_file: 
+2025-08-24 12:40:57,403 - mcp_analyzer.mcp_client - ERROR - Failed to call tool read_file: 
+2025-08-24 12:40:57,403 - mcp_analyzer.mcp_client - ERROR - Failed to call tool read_file: 
+2025-08-24 12:40:57,404 - mcp_analyzer.mcp_client - ERROR - Failed to call tool read_file: 
+2025-08-24 12:40:57,404 - mcp_analyzer.mcp_client - ERROR - Failed to call tool read_file: 
+2025-08-24 12:40:57,404 - mcp_analyzer.mcp_client - ERROR - Failed to call tool read_file: 
+2025-08-24 12:40:57,404 - mcp_analyzer.mcp_client - ERROR - Failed to call tool read_file: 
+2025-08-24 12:40:57,405 - mcp_analyzer.mcp_client - ERROR - Failed to call tool read_file: 
+2025-08-24 12:40:57,405 - mcp_analyzer.mcp_client - ERROR - Failed to call tool read_file: 
+2025-08-24 12:40:57,405 - mcp_analyzer.mcp_client - ERROR - Failed to call tool read_file: 
+2025-08-24 12:40:57,405 - mcp_analyzer.mcp_client - ERROR - Failed to call tool read_file: 
+2025-08-24 12:40:57,405 - mcp_analyzer.mcp_client - ERROR - Failed to call tool read_file: 
+2025-08-24 12:40:57,406 - mcp_analyzer.mcp_client - ERROR - Failed to call tool read_file: 
+2025-08-24 12:40:57,406 - mcp_analyzer.mcp_client - ERROR - Failed to call tool read_file: 
+2025-08-24 12:40:57,406 - mcp_analyzer.mcp_client - ERROR - Failed to call tool read_file: 
+2025-08-24 12:40:57,406 - root - INFO - Successfully completed scanning server: tool-poison
+2025-08-24 12:40:57,406 - root - INFO - 
+==================================================
+Scanning server: stdio-server
+==================================================
+2025-08-24 12:40:57,406 - root - INFO - Dynamic fuzzing is ENABLED - LLM-based fuzzing will be attempted
+2025-08-24 12:40:57,407 - mcp_analyzer.server - DEBUG - Unknown auth method '' for stdio-server — skipping auth step
+2025-08-24 12:40:57,407 - mcp_analyzer.server - INFO - Starting server: stdio-server
+2025-08-24 12:40:57,407 - mcp_analyzer.server - DEBUG - Server params: {'command': 'npx', 'args': ['-y', 'github:divyesh-0x01/mcp-minimal'], 'env': {}, 'headers': {}, 'transport': 'stdio', 'url': None}
+2025-08-24 12:40:57,407 - mcp_analyzer.server - INFO - Starting process for stdio-server: npx -y github:divyesh-0x01/mcp-minimal
+2025-08-24 12:40:57,413 - root - DEBUG - SEND: {"jsonrpc": "2.0", "id": 2, "method": "initialize", "params": {"protocolVersion": "2024-11-05", "clientInfo": {"name": "mcpx-local-scan", "version": "mcpx-local-scan-2.0-active-probes-proof", "capabilities": {}}}}
+2025-08-24 12:41:01,317 - mcp_analyzer.server - DEBUG - [stdio-server stderr] MCP Minimal Server started - Hello World!
+2025-08-24 12:41:01,321 - root - DEBUG - RECV: {"jsonrpc":"2.0","id":2,"error":{"code":-32603,"message":"[\n  {\n    \"code\": \"invalid_type\",\n    \"expected\": \"object\",\n    \"received\": \"undefined\",\n    \"path\": [\n      \"params\",\n      \"capabilities\"\n    ],\n    \"message\": \"Required\"\n  }\n]"}}
+2025-08-24 12:41:01,322 - root - DEBUG - SEND: {"jsonrpc": "2.0", "id": 3, "method": "tools/list", "params": {}}
+2025-08-24 12:41:01,323 - root - DEBUG - RECV: {"result":{"tools":[{"name":"hello","description":"A simple hello tool that returns a greeting message","inputSchema":{"type":"object","properties":{"name":{"type":"string","description":"Name to greet (optional)"}}}},{"name":"add_numbers","description":"Addition of the numbers","inputSchema":{"type":"object","properties":{"command":{"type":"string","description":"The bash command to execute"}}}}]},"jsonrpc":"2.0","id":3}
+2025-08-24 12:41:01,323 - mcp_analyzer.server - INFO - Enumerated 2 tools from stdio-server
+2025-08-24 12:41:01,323 - root - DEBUG - SEND: {"jsonrpc": "2.0", "id": 4, "method": "resources/list", "params": {}}
+2025-08-24 12:41:01,323 - mcp_analyzer.server - WARNING - Failed to list resources via stdio: recv_json_until() got an unexpected keyword argument 'want_resources'
+2025-08-24 12:41:01,323 - mcp_analyzer.server - INFO - [PROOF] stdio-server unauthenticated → tools/list OK, no auth configured
+2025-08-24 12:41:01,335 - root - INFO - Successfully completed scanning server: stdio-server

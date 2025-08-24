@@ -1,259 +1,349 @@
-from aiohttp import web
 import asyncio
 import json
 import logging
 import uuid
-from urllib.parse import parse_qs
+import time
+from dataclasses import dataclass
+from typing import Dict, Any, Optional, List, AsyncGenerator, Callable, Awaitable
+from aiohttp import web, web_request
 
-# Set up logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger('sse_server')
+# Configure logging
+logging.basicConfig(
+    level=logging.DEBUG,  # More verbose logging for debugging
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler('mcp_sse_server_debug.log')
+    ]
+)
+logger = logging.getLogger('mcp_sse_server')
 
-# In-memory storage for tools
-tools = [
-    {"name": "get_user_info", "description": "Get information about a user"},
-    {"name": "list_users", "description": "List all available users"},
-    {"name": "get_server_status", "description": "Get current server status"}
+# MCP Protocol Constants
+MCP_JSONRPC_VERSION = "2.0"
+MCP_PROTOCOL_VERSION = "0.1.0"
+
+@dataclass
+class MCPRequest:
+    jsonrpc: str
+    id: str
+    method: str
+    params: Optional[Dict[str, Any]] = None
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'MCPRequest':
+        return cls(
+            jsonrpc=data.get('jsonrpc', ''),
+            id=data.get('id', ''),
+            method=data.get('method', ''),
+            params=data.get('params', {})
+        )
+
+class MCPServerError(Exception):
+    def __init__(self, code: int, message: str, data: Any = None):
+        self.code = code
+        self.message = message
+        self.data = data
+        super().__init__(f"MCP Error {code}: {message}")
+
+# MCP Tool Definitions
+TOOLS = [
+    {
+        "name": "add_numbers",
+        "description": "Add two numbers together",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "a": {"type": "number", "description": "First number"},
+                "b": {"type": "number", "description": "Second number"}
+            },
+            "required": ["a", "b"]
+        },
+        "outputSchema": {
+            "type": "object",
+            "properties": {
+                "sum": {"type": "number"},
+                "operation": {"type": "string"}
+            },
+            "required": ["sum", "operation"]
+        }
+    }
 ]
 
-# Dictionary to store active SSE connections
-active_connections = {}
-
-# Simulated user database
-USERS = {
-    "user1": "Regular user with basic access",
-    "user2": "Project manager with elevated access",
-    "admin": "System administrator with full access"
+# Server Capabilities
+SERVER_CAPABILITIES = {
+    "capabilities": {
+        "tools": True,
+        "resources": False,
+        "authentication": {
+            "methods": ["none"]
+        },
+        "mcpVersion": MCP_PROTOCOL_VERSION
+    }
 }
 
-# Simulated notes database
-NOTES = {
-    "user1": "Meeting notes from yesterday's call",
-    "user2": "Remember to finish the project proposal",
-    "admin": "Reminder: Update all system passwords next week"
-}
+class MCPServer:
+    def __init__(self):
+        self.connections = {}
+        self.tools = TOOLS
+        self.logger = logging.getLogger('mcp_sse_server')
+        self.sessions = {}
 
-# System credentials
-CREDENTIALS = """
-SYSTEM CREDENTIALS
-------------------
-Admin Username: admin_user
-Admin Password: super_secret_password123
-API Key: sk-a1b2c3d4e5f6g7h8i9j0
-Database Connection String: postgresql://dbuser:dbpass@localhost/production
-"""
-
-async def handle_list_tools(request_id):
-    """Handle list_tools JSON-RPC request."""
-    logger.info(f"[DEBUG] Handling list_tools request (ID: {request_id})")
-    logger.info(f"[DEBUG] Available tools: {tools}")
-    return {
-        "jsonrpc": "2.0",
-        "id": request_id,
-        "result": {
-            "tools": tools
+    async def handle_initialize(self, request_id: str, params: Dict[str, Any]) -> Dict[str, Any]:
+        """Handle MCP initialization request."""
+        self.logger.info(f"Handling initialize request: {request_id}")
+        
+        # Create a new session
+        session_id = str(uuid.uuid4())
+        self.sessions[session_id] = {
+            'created_at': time.time(),
+            'capabilities': SERVER_CAPABILITIES['capabilities'].copy()
         }
-    }
-
-async def handle_echo(request_id, params):
-    """Handle echo command for testing."""
-    return {
-        "jsonrpc": "2.0",
-        "id": request_id,
-        "result": {
-            "message": f"Echo: {params.get('message', '')}"
-        }
-    }
-
-async def handle_get_user_info(request_id, params):
-    """Handle get_user_info tool call."""
-    username = params.get('username', '')
-    if username in USERS:
+        
         return {
-            "jsonrpc": "2.0",
+            "jsonrpc": MCP_JSONRPC_VERSION,
             "id": request_id,
             "result": {
-                "information": f"User information for {username}: {USERS[username]}"
+                "sessionId": session_id,
+                **SERVER_CAPABILITIES
             }
         }
-    else:
+
+    async def handle_list_tools(self, request_id: str, params: Dict[str, Any]) -> Dict[str, Any]:
+        """Handle list_tools request."""
+        self.logger.info(f"Listing tools for request: {request_id}")
+        
+        # Verify session if required
+        if 'sessionId' not in params:
+            raise MCPServerError(-32602, "Missing required parameter: sessionId")
+            
         return {
-            "jsonrpc": "2.0",
+            "jsonrpc": MCP_JSONRPC_VERSION,
             "id": request_id,
-            "error": {
-                "code": 404,
-                "message": f"User not found: {username}"
+            "result": {
+                "tools": self.tools
             }
         }
 
-async def handle_list_users(request_id):
-    """Handle list_users tool call."""
-    return {
-        "jsonrpc": "2.0",
-        "id": request_id,
-        "result": {
-            "users": list(USERS.keys())
-        }
-    }
-
-async def handle_get_server_status(request_id):
-    """Handle get_server_status tool call."""
-    return {
-        "jsonrpc": "2.0",
-        "id": request_id,
-        "result": {
-            "status": "running",
-            "version": "1.0.0",
-            "uptime": "1h 23m"
-        }
-    }
-
-async def handle_get_credentials():
-    """Handle internal credentials request."""
-    return CREDENTIALS
-
-async def handle_get_user_notes(user_id):
-    """Handle get_user_notes request."""
-    if user_id in NOTES:
-        return f"Notes for {user_id}: {NOTES[user_id]}"
-    else:
-        return f"No notes found for user: {user_id}"
-
-async def sse_handler(request):
-    """Handle SSE connections and process JSON-RPC requests."""
-    # Parse query parameters
-    query = request.query
-    request_data = None
-    
-    # Check for JSON-RPC request in query parameters
-    if 'request' in query:
+    async def handle_add_numbers(self, request_id: str, params: Dict[str, Any]) -> Dict[str, Any]:
+        """Handle add_numbers tool call."""
         try:
-            request_data = json.loads(query['request'])
-            logger.info(f"Received JSON-RPC request: {request_data}")
-        except json.JSONDecodeError as e:
-            logger.error(f"Invalid JSON in request: {e}")
-            return web.json_response({
-                "jsonrpc": "2.0",
-                "id": None,
-                "error": {"code": -32700, "message": "Parse error: Invalid JSON"}
-            }, status=400)
-    
-    # Set up SSE response
-    response = web.StreamResponse()
-    response.headers['Content-Type'] = 'text/event-stream'
-    response.headers['Cache-Control'] = 'no-cache'
-    response.headers['Connection'] = 'keep-alive'
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    await response.prepare(request)
-    
-    # Generate a unique ID for this connection
-    client_id = str(uuid.uuid4())
-    active_connections[client_id] = response
-    logger.info(f"New SSE connection: {client_id}")
-    
-    try:
-        # If we have a request, process it
-        if request_data:
-            await process_jsonrpc_request(response, request_data)
-        
-        # Keep the connection open
-        while True:
-            await asyncio.sleep(10)  # Keep connection alive
-            await response.write(f"data: {{\"type\":\"ping\"}}\n\n".encode('utf-8'))
-            await response.drain()
-    except (asyncio.CancelledError, ConnectionResetError):
-        logger.info(f"SSE connection closed: {client_id}")
-    except Exception as e:
-        logger.error(f"Error in SSE handler: {e}")
-    finally:
-        # Clean up
-        active_connections.pop(client_id, None)
-        await response.write_eof()
-    
-    return response
-
-async def process_jsonrpc_request(stream, request_data):
-    """Process a JSON-RPC request and send the response."""
-    logger.info(f"[DEBUG] Received request: {json.dumps(request_data, indent=2)}")
-    try:
-        # Extract request ID and method
-        request_id = request_data.get('id')
-        method = request_data.get('method')
-        params = request_data.get('params', {})
-        logger.info(f"[DEBUG] Processing method: {method} (ID: {request_id})")
-        logger.info(f"[DEBUG] Params: {params}")
-        
-        # Route the request to the appropriate handler
-        if method == 'list_tools':
-            response = await handle_list_tools(request_id)
-            logger.info(f"[DEBUG] List tools response: {json.dumps(response, indent=2)}")
-        elif method == 'echo':
-            response = await handle_echo(request_id, params)
-        elif method == 'get_user_info':
-            response = await handle_get_user_info(request_id, params)
-        elif method == 'list_users':
-            response = await handle_list_users(request_id)
-        elif method == 'get_server_status':
-            response = await handle_get_server_status(request_id)
-        else:
-            response = {
+            # Extract parameters
+            a = float(params.get('a', 0))
+            b = float(params.get('b', 0))
+            
+            # Perform the calculation
+            result = a + b
+            
+            self.logger.info(f"Added {a} + {b} = {result} for request: {request_id}")
+            
+            # Return the result in MCP format
+            return {
+                "jsonrpc": MCP_JSONRPC_VERSION,
+                "id": request_id,
+                "result": {
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": f"{a} + {b} = {result}"
+                        }
+                    ],
+                    "data": {
+                        "sum": result,
+                        "operation": f"{a} + {b}"
+                    }
+                }
+            }
+        except Exception as e:
+            self.logger.error(f"Error in add_numbers: {str(e)}", exc_info=True)
+            return {
                 "jsonrpc": "2.0",
                 "id": request_id,
                 "error": {
-                    "code": -32601,
-                    "message": f"Method not found: {method}"
+                    "code": -32603,
+                    "message": f"Internal error: {str(e)}"
                 }
             }
-        
-        # Send the response
-        logger.info(f"[DEBUG] Sending response: {json.dumps(response, indent=2)}")
-        response_str = f"data: {json.dumps(response)}\n\n"
-        await stream.write(response_str.encode('utf-8'))
-        await stream.drain()
-        logger.info("[DEBUG] Response sent successfully")
-        
-    except Exception as e:
-        logger.error(f"Error processing request: {e}")
-        error_response = {
-            "jsonrpc": "2.0",
-            "id": request_data.get('id') if isinstance(request_data, dict) else None,
-            "error": {
-                "code": -32603,
-                "message": f"Internal error: {str(e)}"
+
+    async def handle_request(self, request: web_request.Request) -> web.StreamResponse:
+        """Handle incoming SSE requests with MCP protocol support."""
+        # Create SSE response with proper headers
+        response = web.StreamResponse(
+            status=200,
+            reason='OK',
+            headers={
+                'Content-Type': 'text/event-stream; charset=utf-8',
+                'Cache-Control': 'no-cache',
+                'Connection': 'keep-alive',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+                'Access-Control-Allow-Credentials': 'true',
             }
+        )
+        
+        await response.prepare(request)
+        
+        # Generate a unique ID for this connection
+        conn_id = str(uuid.uuid4())
+        self.connections[conn_id] = response
+        self.logger.info(f"New connection established: {conn_id}")
+        
+        # Send initial ping to satisfy SSE connection requirements
+        await response.write(b'event: ping\ndata: {}\n\n')
+        
+        try:
+            # Process incoming messages
+            async for line in request.content:
+                try:
+                    # Skip empty lines (SSE keep-alive)
+                    line = line.strip()
+                    if not line:
+                        continue
+                        
+                    self.logger.debug(f"Received raw message: {line}")
+                    
+                    # Parse the JSON-RPC request
+                    try:
+                        request_data = json.loads(line)
+                        mcp_request = MCPRequest.from_dict(request_data)
+                    except json.JSONDecodeError as e:
+                        self.logger.error(f"Invalid JSON: {line}")
+                        await self._send_error(response, None, -32700, "Parse error: Invalid JSON")
+                        continue
+                        
+                    self.logger.info(f"Processing MCP request: {mcp_request.method} (ID: {mcp_request.id})")
+                    
+                    # Route the request to the appropriate handler
+                    try:
+                        if mcp_request.method == 'initialize':
+                            result = await self.handle_initialize(mcp_request.id, mcp_request.params or {})
+                        elif mcp_request.method == 'list_tools':
+                            result = await self.handle_list_tools(mcp_request.id, mcp_request.params or {})
+                        elif mcp_request.method == 'add_numbers':
+                            result = await self.handle_add_numbers(mcp_request.id, mcp_request.params or {})
+                        else:
+                            raise MCPServerError(-32601, f"Method not found: {mcp_request.method}")
+                            
+                        # Send the successful response
+                        await self._send_response(response, mcp_request.id, result)
+                        
+                    except MCPServerError as e:
+                        self.logger.error(f"MCP Error: {e}")
+                        await self._send_error(response, mcp_request.id, e.code, e.message, e.data)
+                    except Exception as e:
+                        self.logger.exception(f"Unexpected error handling {mcp_request.method}")
+                        await self._send_error(
+                            response, 
+                            mcp_request.id, 
+                            -32603, 
+                            f"Internal error: {str(e)}"
+                        )
+                        
+                except Exception as e:
+                    self.logger.exception("Error processing message")
+                    # Continue processing other messages even if one fails
+                    continue
+                    
+        except asyncio.CancelledError:
+            self.logger.info(f"Connection closed by client: {conn_id}")
+        except Exception as e:
+            self.logger.exception("Fatal error in connection handler")
+        finally:
+            # Clean up the connection
+            self.connections.pop(conn_id, None)
+            try:
+                await response.write_eof()
+            except Exception:
+                pass
+        
+        return response
+        
+    async def _send_response(self, response: web.StreamResponse, request_id: str, result: Any) -> None:
+        """Send a successful JSON-RPC response."""
+        response_data = {
+            "jsonrpc": MCP_JSONRPC_VERSION,
+            "id": request_id,
+            **result
         }
-        await stream.write(f"data: {json.dumps(error_response)}\n\n".encode('utf-8'))
-        await stream.drain()
+        await self._send_sse(response, response_data)
+        
+    async def _send_error(self, response: web.StreamResponse, request_id: Optional[str], 
+                         code: int, message: str, data: Any = None) -> None:
+        """Send a JSON-RPC error response."""
+        error_data = {
+            "code": code,
+            "message": message
+        }
+        if data is not None:
+            error_data["data"] = data
+            
+        response_data = {
+            "jsonrpc": MCP_JSONRPC_VERSION,
+            "id": request_id,
+            "error": error_data
+        }
+        await self._send_sse(response, response_data)
+        
+    async def _send_sse(self, response: web.StreamResponse, data: Dict[str, Any]) -> None:
+        """Send an SSE message."""
+        try:
+            message = f"data: {json.dumps(data)}\n\n"
+            self.logger.debug(f"Sending SSE: {message.strip()}")
+            await response.write(message.encode('utf-8'))
+            # Ensure the message is sent immediately
+            await response.drain()
+        except Exception as e:
+            self.logger.error(f"Error sending SSE message: {e}", exc_info=True)
+            raise
 
-# Set up CORS middleware
-@web.middleware
-async def cors_middleware(request, handler):
-    response = await handler(request)
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
-    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
-    response.headers['Access-Control-Max-Age'] = '3600'
-    return response
+    async def handle_options(self, request: web_request.Request) -> web.Response:
+        """Handle CORS preflight requests with proper MCP headers."""
+        return web.Response(
+            status=200,
+            headers={
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+                'Access-Control-Allow-Credentials': 'true',
+                'Access-Control-Max-Age': '3600',
+            }
+        )
 
-# Create application with CORS middleware
-app = web.Application(middlewares=[cors_middleware])
-app.router.add_get('/sse', sse_handler)
-app.router.add_options('/sse', lambda _: web.Response(status=204))
-
-# Add API endpoints
-app.router.add_get('/api/credentials', lambda _: web.Response(text=CREDENTIALS))
-app.router.add_get('/api/notes/{user_id}', lambda request: 
-    web.Response(text=asyncio.get_event_loop().run_until_complete(
-        handle_get_user_notes(request.match_info['user_id'])
-    ))
-)
+def main():
+    """Start the MCP-compatible SSE server with enhanced configuration."""
+    # Configure application with middleware
+    app = web.Application(client_max_size=10*1024*1024)  # 10MB max request size
+    server = MCPServer()
+    
+    # Add routes
+    app.router.add_route('*', '/sse', server.handle_request)
+    app.router.add_route('OPTIONS', '/sse', server.handle_options)
+    
+    # Configure server settings
+    host = '0.0.0.0'
+    port = 9001
+    
+    # Configure logging
+    logging.basicConfig(level=logging.INFO)
+    
+    # Log startup information
+    logger.info("""
+    ==================================================
+    MCP-Compatible SSE Server
+    ==================================================
+    Server starting on: http://%s:%d/sse
+    Available tools: %s
+    ==================================================
+    """, host, port, [tool['name'] for tool in server.tools])
+    
+    # Start the server with enhanced configuration
+    web.run_app(
+        app,
+        host=host,
+        port=port,
+        access_log_format='%a %t "%r" %s %b "%{Referer}i" "%{User-Agent}i" %Tf',
+        handle_signals=True
+    )
 
 if __name__ == '__main__':
-    # Configure logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    
-    # Start the server
-    web.run_app(app, host='0.0.0.0', port=9001)
+    main()

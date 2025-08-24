@@ -1,9 +1,33 @@
 {
   "version": "mcpx-local-scan-2.0-active-probes-proof",
-  "timestamp": "2025-08-23T13:23:57.273403",
+  "timestamp": "2025-08-24T07:11:01.336734",
   "findings": [
     {
-      "server": "challenge-1-server",
+      "server": "local-sse-server",
+      "unauthenticated": true,
+      "tool": "get_alerts",
+      "description": "Get weather alerts for a US state.\n\nArgs:\n    state: Two-letter US state code (e.g. CA, NY)\n",
+      "static_risk": "safe",
+      "active_risk": "none",
+      "matches": [],
+      "probe_results": {},
+      "proof": null
+    },
+    {
+      "server": "local-sse-server",
+      "unauthenticated": true,
+      "tool": "get_forecast",
+      "description": "Get weather forecast for a location.\n\nArgs:\n    latitude: Latitude of the location\n    longitude: Longitude of the location\n",
+      "static_risk": "suspicious",
+      "active_risk": "none",
+      "matches": [
+        "file_ops:cat"
+      ],
+      "probe_results": {},
+      "proof": null
+    },
+    {
+      "server": "dvmcp",
       "unauthenticated": true,
       "tool": "get_user_info",
       "description": "Get information about a user",
@@ -11,6 +35,233 @@
       "active_risk": "none",
       "matches": [],
       "probe_results": {},
+      "proof": null
+    },
+    {
+      "server": "tool-poison",
+      "unauthenticated": true,
+      "tool": "execute_command",
+      "description": "Execute a system command (restricted to safe commands only)\n            \n            Args:\n                command: The command to execute (only 'ls', 'pwd', 'whoami', 'date' allowed)\n            ",
+      "static_risk": "dangerous",
+      "active_risk": "medium",
+      "matches": [
+        "exec:exec",
+        "exec:system",
+        "exec:command",
+        "exec:parameter",
+        "exec:desc"
+      ],
+      "probe_results": {
+        "command_exec": {
+          "success": false,
+          "probe_type": "ProbeType.COMMAND_EXEC",
+          "severity": "critical",
+          "confidence": 0.0,
+          "payload": null,
+          "proof": null,
+          "response": null,
+          "attempts": [
+            {
+              "args": {
+                "command": "whoami"
+              },
+              "classification": "error",
+              "error": "name 'logging' is not defined"
+            },
+            {
+              "args": {
+                "cmd": "id"
+              },
+              "classification": "error",
+              "error": "name 'logging' is not defined"
+            },
+            {
+              "args": {
+                "exec": "echo test"
+              },
+              "classification": "error",
+              "error": "name 'logging' is not defined"
+            },
+            {
+              "args": {
+                "run": "hostname"
+              },
+              "classification": "error",
+              "error": "name 'logging' is not defined"
+            }
+          ]
+        }
+      },
+      "proof": null
+    },
+    {
+      "server": "tool-poison",
+      "unauthenticated": true,
+      "tool": "read_file",
+      "description": "Read a file from the system (restricted to safe files only)\n            \n            Args:\n                filename: The file to read (only files in /tmp/safe/ allowed)\n            ",
+      "static_risk": "dangerous",
+      "active_risk": "medium",
+      "matches": [
+        "file_ops:read_file",
+        "file_ops:read",
+        "file_ops:file",
+        "exec:system",
+        "file_ops:parameter",
+        "file_ops:desc"
+      ],
+      "probe_results": {
+        "file_read": {
+          "success": false,
+          "probe_type": "ProbeType.FILE_READ",
+          "severity": "high",
+          "confidence": 0.0,
+          "payload": null,
+          "proof": null,
+          "response": null,
+          "attempts": [
+            {
+              "args": {
+                "path": "/etc/passwd"
+              },
+              "classification": "error",
+              "error": "name 'logging' is not defined"
+            },
+            {
+              "args": {
+                "file": "/etc/passwd"
+              },
+              "classification": "error",
+              "error": "name 'logging' is not defined"
+            },
+            {
+              "args": {
+                "filename": "/etc/passwd"
+              },
+              "classification": "error",
+              "error": "name 'logging' is not defined"
+            },
+            {
+              "args": {
+                "filepath": "/etc/passwd"
+              },
+              "classification": "error",
+              "error": "name 'logging' is not defined"
+            },
+            {
+              "args": {
+                "input": "/etc/passwd"
+              },
+              "classification": "error",
+              "error": "name 'logging' is not defined"
+            },
+            {
+              "args": {
+                "path": "/etc/hosts"
+              },
+              "classification": "error",
+              "error": "name 'logging' is not defined"
+            },
+            {
+              "args": {
+                "file": "/etc/hosts"
+              },
+              "classification": "error",
+              "error": "name 'logging' is not defined"
+            },
+            {
+              "args": {
+                "filename": "/etc/hosts"
+              },
+              "classification": "error",
+              "error": "name 'logging' is not defined"
+            },
+            {
+              "args": {
+                "filepath": "/etc/hosts"
+              },
+              "classification": "error",
+              "error": "name 'logging' is not defined"
+            },
+            {
+              "args": {
+                "input": "/etc/hosts"
+              },
+              "classification": "error",
+              "error": "name 'logging' is not defined"
+            },
+            {
+              "args": {
+                "path": "/etc/group"
+              },
+              "classification": "error",
+              "error": "name 'logging' is not defined"
+            },
+            {
+              "args": {
+                "file": "/etc/group"
+              },
+              "classification": "error",
+              "error": "name 'logging' is not defined"
+            },
+            {
+              "args": {
+                "filename": "/etc/group"
+              },
+              "classification": "error",
+              "error": "name 'logging' is not defined"
+            },
+            {
+              "args": {
+                "filepath": "/etc/group"
+              },
+              "classification": "error",
+              "error": "name 'logging' is not defined"
+            },
+            {
+              "args": {
+                "input": "/etc/group"
+              },
+              "classification": "error",
+              "error": "name 'logging' is not defined"
+            },
+            {
+              "args": {
+                "path": "C:\\Windows\\System32\\drivers\\etc\\hosts"
+              },
+              "classification": "error",
+              "error": "name 'logging' is not defined"
+            },
+            {
+              "args": {
+                "file": "C:\\Windows\\System32\\drivers\\etc\\hosts"
+              },
+              "classification": "error",
+              "error": "name 'logging' is not defined"
+            },
+            {
+              "args": {
+                "filename": "C:\\Windows\\System32\\drivers\\etc\\hosts"
+              },
+              "classification": "error",
+              "error": "name 'logging' is not defined"
+            },
+            {
+              "args": {
+                "filepath": "C:\\Windows\\System32\\drivers\\etc\\hosts"
+              },
+              "classification": "error",
+              "error": "name 'logging' is not defined"
+            },
+            {
+              "args": {
+                "input": "C:\\Windows\\System32\\drivers\\etc\\hosts"
+              },
+              "classification": "error",
+              "error": "name 'logging' is not defined"
+            }
+          ]
+        }
+      },
       "proof": null
     },
     {
