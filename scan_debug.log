@@ -1,374 +1,408 @@
-2025-08-24 12:40:52,080 - root - INFO - Starting MCP Analyzer vmcpx-local-scan-2.0-active-probes-proof
-2025-08-24 12:40:52,080 - root - DEBUG - Debug logging enabled
-2025-08-24 12:40:52,080 - root - INFO - 
+2025-08-25 14:02:57,742 - root - INFO - Starting MCP Analyzer vmcpx-local-scan-2.0-active-probes-proof
+2025-08-25 14:02:57,742 - root - INFO - 
 ==================================================
 Scanning server: local-sse-server
 ==================================================
-2025-08-24 12:40:52,080 - root - INFO - Dynamic fuzzing is ENABLED - LLM-based fuzzing will be attempted
-2025-08-24 12:40:52,083 - mcp_analyzer.server - DEBUG - Unknown auth method '' for local-sse-server — skipping auth step
-2025-08-24 12:40:52,083 - mcp_analyzer.server - INFO - Starting server: local-sse-server
-2025-08-24 12:40:52,083 - mcp_analyzer.server - DEBUG - Server params: {'command': None, 'args': [], 'env': {}, 'headers': {}, 'transport': 'sse', 'url': 'http://localhost:8080/sse'}
-2025-08-24 12:40:52,083 - mcp_analyzer.server - INFO - local-sse-server using sse transport, skipping process spawn
-2025-08-24 12:40:52,518 - mcp_analyzer.server - DEBUG - Auth config for local-sse-server: {}
-2025-08-24 12:40:52,518 - mcp_analyzer.server - INFO - Initializing MCP client for local-sse-server
-2025-08-24 12:40:52,518 - mcp_analyzer.server - INFO - No authentication configured, proceeding without auth
-2025-08-24 12:40:52,518 - mcp_analyzer.mcp_client - INFO - Connecting to MCP server...
-2025-08-24 12:40:52,518 - mcp_analyzer.mcp_client - INFO - Using SSE transport
-2025-08-24 12:40:52,521 - mcp.client.sse - DEBUG - Connecting to SSE endpoint: http://localhost:8080/sse
-2025-08-24 12:40:52,603 - httpcore.connection - DEBUG - connect_tcp.started host='localhost' port=8080 local_address=None timeout=30 socket_options=None
-2025-08-24 12:40:52,606 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x1062039d0>
-2025-08-24 12:40:52,606 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'GET']>
-2025-08-24 12:40:52,607 - httpcore.http11 - DEBUG - send_request_headers.complete
-2025-08-24 12:40:52,607 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'GET']>
-2025-08-24 12:40:52,607 - httpcore.http11 - DEBUG - send_request_body.complete
-2025-08-24 12:40:52,607 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
-2025-08-24 12:40:52,609 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'date', b'Sun, 24 Aug 2025 07:10:52 GMT'), (b'server', b'uvicorn'), (b'cache-control', b'no-store'), (b'connection', b'keep-alive'), (b'x-accel-buffering', b'no'), (b'content-type', b'text/event-stream; charset=utf-8'), (b'Transfer-Encoding', b'chunked')])
-2025-08-24 12:40:52,610 - httpx - INFO - HTTP Request: GET http://localhost:8080/sse "HTTP/1.1 200 OK"
-2025-08-24 12:40:52,610 - mcp.client.sse - DEBUG - SSE connection established
-2025-08-24 12:40:52,610 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'GET']>
-2025-08-24 12:40:52,610 - mcp.client.sse - DEBUG - Received SSE event: endpoint
-2025-08-24 12:40:52,610 - mcp.client.sse - DEBUG - Received endpoint URL: http://localhost:8080/messages/?session_id=95c345f9f1b1412ba93870d434c5750a
-2025-08-24 12:40:52,611 - mcp.client.sse - DEBUG - Starting post writer with endpoint URL: http://localhost:8080/messages/?session_id=95c345f9f1b1412ba93870d434c5750a
-2025-08-24 12:40:52,611 - mcp.client.sse - DEBUG - Sending client message: SessionMessage(message=JSONRPCMessage(root=JSONRPCRequest(method='initialize', params={'protocolVersion': '2025-06-18', 'capabilities': {}, 'clientInfo': {'name': 'mcp', 'version': '0.1.0'}}, jsonrpc='2.0', id=0)), metadata=None)
-2025-08-24 12:40:52,612 - httpcore.connection - DEBUG - connect_tcp.started host='localhost' port=8080 local_address=None timeout=30 socket_options=None
-2025-08-24 12:40:52,614 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x106212f50>
-2025-08-24 12:40:52,614 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
-2025-08-24 12:40:52,615 - httpcore.http11 - DEBUG - send_request_headers.complete
-2025-08-24 12:40:52,615 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
-2025-08-24 12:40:52,615 - httpcore.http11 - DEBUG - send_request_body.complete
-2025-08-24 12:40:52,615 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
-2025-08-24 12:40:52,616 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 202, b'Accepted', [(b'date', b'Sun, 24 Aug 2025 07:10:52 GMT'), (b'server', b'uvicorn'), (b'content-length', b'8')])
-2025-08-24 12:40:52,616 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=95c345f9f1b1412ba93870d434c5750a "HTTP/1.1 202 Accepted"
-2025-08-24 12:40:52,616 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
-2025-08-24 12:40:52,616 - httpcore.http11 - DEBUG - receive_response_body.complete
-2025-08-24 12:40:52,616 - httpcore.http11 - DEBUG - response_closed.started
-2025-08-24 12:40:52,616 - httpcore.http11 - DEBUG - response_closed.complete
-2025-08-24 12:40:52,616 - mcp.client.sse - DEBUG - Client message sent successfully: 202
-2025-08-24 12:40:52,617 - mcp.client.sse - DEBUG - Received SSE event: message
-2025-08-24 12:40:52,617 - mcp.client.sse - DEBUG - Received server message: root=JSONRPCResponse(jsonrpc='2.0', id=0, result={'protocolVersion': '2024-11-05', 'capabilities': {'experimental': {}, 'prompts': {'listChanged': False}, 'resources': {'subscribe': False, 'listChanged': False}, 'tools': {'listChanged': False}}, 'serverInfo': {'name': 'weather', 'version': '1.2.1'}})
-2025-08-24 12:40:52,618 - mcp_analyzer.mcp_client - INFO - Server initialized with metadata: meta=None protocolVersion='2024-11-05' capabilities=ServerCapabilities(experimental={}, logging=None, prompts=PromptsCapability(listChanged=False), resources=ResourcesCapability(subscribe=False, listChanged=False), tools=ToolsCapability(listChanged=False), completions=None) serverInfo=Implementation(name='weather', title=None, version='1.2.1') instructions=None
-2025-08-24 12:40:52,618 - mcp.client.sse - DEBUG - Sending client message: SessionMessage(message=JSONRPCMessage(root=JSONRPCNotification(method='notifications/initialized', params=None, jsonrpc='2.0')), metadata=None)
-2025-08-24 12:40:52,618 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
-2025-08-24 12:40:52,619 - httpcore.http11 - DEBUG - send_request_headers.complete
-2025-08-24 12:40:52,619 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
-2025-08-24 12:40:52,619 - httpcore.http11 - DEBUG - send_request_body.complete
-2025-08-24 12:40:52,619 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
-2025-08-24 12:40:52,619 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 202, b'Accepted', [(b'date', b'Sun, 24 Aug 2025 07:10:52 GMT'), (b'server', b'uvicorn'), (b'content-length', b'8')])
-2025-08-24 12:40:52,620 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=95c345f9f1b1412ba93870d434c5750a "HTTP/1.1 202 Accepted"
-2025-08-24 12:40:52,620 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
-2025-08-24 12:40:52,620 - httpcore.http11 - DEBUG - receive_response_body.complete
-2025-08-24 12:40:52,620 - httpcore.http11 - DEBUG - response_closed.started
-2025-08-24 12:40:52,620 - httpcore.http11 - DEBUG - response_closed.complete
-2025-08-24 12:40:52,620 - mcp.client.sse - DEBUG - Client message sent successfully: 202
-2025-08-24 12:40:52,620 - mcp.client.sse - DEBUG - Sending client message: SessionMessage(message=JSONRPCMessage(root=JSONRPCRequest(method='tools/list', params=None, jsonrpc='2.0', id=1)), metadata=None)
-2025-08-24 12:40:52,621 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
-2025-08-24 12:40:52,621 - httpcore.http11 - DEBUG - send_request_headers.complete
-2025-08-24 12:40:52,621 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
-2025-08-24 12:40:52,621 - httpcore.http11 - DEBUG - send_request_body.complete
-2025-08-24 12:40:52,621 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
-2025-08-24 12:40:52,622 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 202, b'Accepted', [(b'date', b'Sun, 24 Aug 2025 07:10:52 GMT'), (b'server', b'uvicorn'), (b'content-length', b'8')])
-2025-08-24 12:40:52,622 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=95c345f9f1b1412ba93870d434c5750a "HTTP/1.1 202 Accepted"
-2025-08-24 12:40:52,622 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
-2025-08-24 12:40:52,622 - httpcore.http11 - DEBUG - receive_response_body.complete
-2025-08-24 12:40:52,622 - httpcore.http11 - DEBUG - response_closed.started
-2025-08-24 12:40:52,622 - httpcore.http11 - DEBUG - response_closed.complete
-2025-08-24 12:40:52,622 - mcp.client.sse - DEBUG - Client message sent successfully: 202
-2025-08-24 12:40:52,624 - mcp.client.sse - DEBUG - Received SSE event: message
-2025-08-24 12:40:52,624 - mcp.client.sse - DEBUG - Received server message: root=JSONRPCResponse(jsonrpc='2.0', id=1, result={'tools': [{'name': 'get_alerts', 'description': 'Get weather alerts for a US state.\n\nArgs:\n    state: Two-letter US state code (e.g. CA, NY)\n', 'inputSchema': {'properties': {'state': {'title': 'State', 'type': 'string'}}, 'required': ['state'], 'title': 'get_alertsArguments', 'type': 'object'}}, {'name': 'get_forecast', 'description': 'Get weather forecast for a location.\n\nArgs:\n    latitude: Latitude of the location\n    longitude: Longitude of the location\n', 'inputSchema': {'properties': {'latitude': {'title': 'Latitude', 'type': 'number'}, 'longitude': {'title': 'Longitude', 'type': 'number'}}, 'required': ['latitude', 'longitude'], 'title': 'get_forecastArguments', 'type': 'object'}}]})
-2025-08-24 12:40:52,625 - mcp_analyzer.mcp_client - INFO - Found 2 tools
-2025-08-24 12:40:52,625 - mcp.client.sse - DEBUG - Sending client message: SessionMessage(message=JSONRPCMessage(root=JSONRPCRequest(method='resources/list', params=None, jsonrpc='2.0', id=2)), metadata=None)
-2025-08-24 12:40:52,626 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
-2025-08-24 12:40:52,626 - httpcore.http11 - DEBUG - send_request_headers.complete
-2025-08-24 12:40:52,626 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
-2025-08-24 12:40:52,626 - httpcore.http11 - DEBUG - send_request_body.complete
-2025-08-24 12:40:52,626 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
-2025-08-24 12:40:52,627 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 202, b'Accepted', [(b'date', b'Sun, 24 Aug 2025 07:10:52 GMT'), (b'server', b'uvicorn'), (b'content-length', b'8')])
-2025-08-24 12:40:52,627 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=95c345f9f1b1412ba93870d434c5750a "HTTP/1.1 202 Accepted"
-2025-08-24 12:40:52,627 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
-2025-08-24 12:40:52,627 - httpcore.http11 - DEBUG - receive_response_body.complete
-2025-08-24 12:40:52,627 - httpcore.http11 - DEBUG - response_closed.started
-2025-08-24 12:40:52,627 - httpcore.http11 - DEBUG - response_closed.complete
-2025-08-24 12:40:52,628 - mcp.client.sse - DEBUG - Client message sent successfully: 202
-2025-08-24 12:40:52,629 - mcp.client.sse - DEBUG - Received SSE event: message
-2025-08-24 12:40:52,629 - mcp.client.sse - DEBUG - Received server message: root=JSONRPCResponse(jsonrpc='2.0', id=2, result={'resources': []})
-2025-08-24 12:40:52,629 - mcp_analyzer.mcp_client - INFO - Found 0 resources
-2025-08-24 12:40:52,629 - httpcore.http11 - DEBUG - response_closed.started
-2025-08-24 12:40:52,630 - httpcore.http11 - DEBUG - receive_response_body.failed exception=CancelledError('Cancelled by cancel scope 1049c87d0')
-2025-08-24 12:40:52,630 - httpcore.http11 - DEBUG - response_closed.complete
-2025-08-24 12:40:52,630 - httpcore.connection - DEBUG - close.started
-2025-08-24 12:40:52,630 - httpcore.connection - DEBUG - close.complete
-2025-08-24 12:40:52,630 - mcp_analyzer.server - INFO - Attempting to list tools using client
-2025-08-24 12:40:52,630 - mcp_analyzer.server - INFO - Found 2 tools via MCPClient.get_tools()
-2025-08-24 12:40:52,630 - mcp_analyzer.server - INFO - Found 0 resources via MCPClient.get_resources()
-2025-08-24 12:40:52,630 - mcp_analyzer.server - INFO - [PROOF] local-sse-server unauthenticated → tools/list OK, no auth configured
-2025-08-24 12:40:52,632 - root - INFO - Successfully completed scanning server: local-sse-server
-2025-08-24 12:40:52,632 - root - INFO - 
+2025-08-25 14:02:57,742 - root - INFO - Dynamic fuzzing is DISABLED - only static analysis will be performed
+2025-08-25 14:02:57,742 - mcp_analyzer.server - INFO - Starting server: local-sse-server
+2025-08-25 14:02:57,743 - mcp_analyzer.server - INFO - local-sse-server using sse transport, skipping process spawn
+2025-08-25 14:02:58,124 - mcp_analyzer.server - INFO - Initializing MCP client for local-sse-server
+2025-08-25 14:02:58,124 - mcp_analyzer.server - INFO - No authentication configured, proceeding without auth
+2025-08-25 14:02:58,124 - mcp_analyzer.mcp_client - INFO - Connecting to MCP server...
+2025-08-25 14:02:58,124 - mcp_analyzer.mcp_client - INFO - Using SSE transport
+2025-08-25 14:02:58,198 - httpx - INFO - HTTP Request: GET http://localhost:8080/sse "HTTP/1.1 200 OK"
+2025-08-25 14:02:58,203 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:02:58,204 - mcp_analyzer.mcp_client - INFO - Server initialized with metadata: meta=None protocolVersion='2024-11-05' capabilities=ServerCapabilities(experimental={}, logging=None, prompts=PromptsCapability(listChanged=False), resources=ResourcesCapability(subscribe=False, listChanged=False), tools=ToolsCapability(listChanged=False), completions=None) serverInfo=Implementation(name='weather', title=None, version='1.2.1') instructions=None
+2025-08-25 14:02:58,206 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:02:58,207 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:02:58,210 - mcp_analyzer.mcp_client - INFO - Found 2 tools
+2025-08-25 14:02:58,211 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:02:58,213 - mcp_analyzer.mcp_client - INFO - Found 0 resources
+2025-08-25 14:02:58,213 - mcp_analyzer.server - INFO - Attempting to list tools using client
+2025-08-25 14:02:58,213 - mcp_analyzer.server - INFO - Found 2 tools via MCPClient.get_tools()
+2025-08-25 14:02:58,213 - mcp_analyzer.server - INFO - Found 0 resources via MCPClient.get_resources()
+2025-08-25 14:02:58,214 - mcp_analyzer.server - INFO - [PROOF] local-sse-server unauthenticated → tools/list OK, no auth configured
+2025-08-25 14:02:58,214 - root - INFO - Running static probe for tool: get_alerts
+2025-08-25 14:02:58,214 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for get_alerts
+2025-08-25 14:02:58,214 - mcp_analyzer.static_payload_generator - INFO - Limiting static payloads from 37 to 30
+2025-08-25 14:02:58,214 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for get_alerts
+2025-08-25 14:02:58,214 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for get_alerts
+2025-08-25 14:02:58,216 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:02:58,499 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:02:58,617 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:02:58,695 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:02:58,786 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:02:59,371 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:02:59,449 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:02:59,524 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:02:59,600 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:02:59,678 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:00,259 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:00,360 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:00,434 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:00,500 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:00,577 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:01,153 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:01,245 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:01,321 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:01,416 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:01,491 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:02,077 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:02,170 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:02,252 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:02,329 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:02,368 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:02,944 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:03,037 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:03,120 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:03,208 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:03,330 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:03,407 - root - INFO - Security testing completed for get_alerts - tool appears secure
+2025-08-25 14:03:03,407 - root - INFO - Running static probe for tool: get_forecast
+2025-08-25 14:03:03,407 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for get_forecast
+2025-08-25 14:03:03,407 - mcp_analyzer.static_payload_generator - INFO - Limiting static payloads from 37 to 30
+2025-08-25 14:03:03,408 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for get_forecast
+2025-08-25 14:03:03,408 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for get_forecast
+2025-08-25 14:03:03,410 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:03,415 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:03,419 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:03,423 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:03,428 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:03,934 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:03,940 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:03,945 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:03,950 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:03,955 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:04,462 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:04,467 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:04,472 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:04,477 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:04,482 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:04,990 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:04,996 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:05,001 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:05,006 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:05,011 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:05,520 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:05,526 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:05,531 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:05,536 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:05,541 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:06,047 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:06,053 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:06,058 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:06,063 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:06,068 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=bb414c7a358943d4ba6db27f25cc3e81 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:06,071 - root - WARNING - Potential tool poisoning detected in get_forecast: Tool behavior inconsistent with stated purpose
+2025-08-25 14:03:06,072 - root - INFO - Successfully completed scanning server: local-sse-server
+2025-08-25 14:03:06,097 - root - INFO - 
 ==================================================
 Scanning server: dvmcp
 ==================================================
-2025-08-24 12:40:52,632 - root - INFO - Dynamic fuzzing is ENABLED - LLM-based fuzzing will be attempted
-2025-08-24 12:40:52,633 - mcp_analyzer.server - DEBUG - Unknown auth method '' for dvmcp — skipping auth step
-2025-08-24 12:40:52,633 - mcp_analyzer.server - INFO - Starting server: dvmcp
-2025-08-24 12:40:52,633 - mcp_analyzer.server - DEBUG - Server params: {'command': None, 'args': [], 'env': {}, 'headers': {}, 'transport': 'sse', 'url': 'http://9.30.25.150:9001/sse'}
-2025-08-24 12:40:52,633 - mcp_analyzer.server - INFO - dvmcp using sse transport, skipping process spawn
-2025-08-24 12:40:52,633 - mcp_analyzer.server - DEBUG - Auth config for dvmcp: {}
-2025-08-24 12:40:52,633 - mcp_analyzer.server - INFO - Initializing MCP client for dvmcp
-2025-08-24 12:40:52,633 - mcp_analyzer.server - INFO - No authentication configured, proceeding without auth
-2025-08-24 12:40:52,633 - mcp_analyzer.mcp_client - INFO - Connecting to MCP server...
-2025-08-24 12:40:52,633 - mcp_analyzer.mcp_client - INFO - Using SSE transport
-2025-08-24 12:40:52,633 - mcp.client.sse - DEBUG - Connecting to SSE endpoint: http://9.30.25.150:9001/sse
-2025-08-24 12:40:52,674 - httpcore.connection - DEBUG - connect_tcp.started host='9.30.25.150' port=9001 local_address=None timeout=30 socket_options=None
-2025-08-24 12:40:52,971 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x106213410>
-2025-08-24 12:40:52,971 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'GET']>
-2025-08-24 12:40:52,972 - httpcore.http11 - DEBUG - send_request_headers.complete
-2025-08-24 12:40:52,972 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'GET']>
-2025-08-24 12:40:52,972 - httpcore.http11 - DEBUG - send_request_body.complete
-2025-08-24 12:40:52,972 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
-2025-08-24 12:40:53,283 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'date', b'Sun, 24 Aug 2025 07:10:52 GMT'), (b'server', b'uvicorn'), (b'cache-control', b'no-store'), (b'connection', b'keep-alive'), (b'x-accel-buffering', b'no'), (b'content-type', b'text/event-stream; charset=utf-8'), (b'Transfer-Encoding', b'chunked')])
-2025-08-24 12:40:53,284 - httpx - INFO - HTTP Request: GET http://9.30.25.150:9001/sse "HTTP/1.1 200 OK"
-2025-08-24 12:40:53,284 - mcp.client.sse - DEBUG - SSE connection established
-2025-08-24 12:40:53,284 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'GET']>
-2025-08-24 12:40:53,284 - mcp.client.sse - DEBUG - Received SSE event: endpoint
-2025-08-24 12:40:53,284 - mcp.client.sse - DEBUG - Received endpoint URL: http://9.30.25.150:9001/messages/?session_id=f3b6c20783f94da4aea584195293e837
-2025-08-24 12:40:53,284 - mcp.client.sse - DEBUG - Starting post writer with endpoint URL: http://9.30.25.150:9001/messages/?session_id=f3b6c20783f94da4aea584195293e837
-2025-08-24 12:40:53,285 - mcp.client.sse - DEBUG - Sending client message: SessionMessage(message=JSONRPCMessage(root=JSONRPCRequest(method='initialize', params={'protocolVersion': '2025-06-18', 'capabilities': {}, 'clientInfo': {'name': 'mcp', 'version': '0.1.0'}}, jsonrpc='2.0', id=0)), metadata=None)
-2025-08-24 12:40:53,286 - httpcore.connection - DEBUG - connect_tcp.started host='9.30.25.150' port=9001 local_address=None timeout=30 socket_options=None
-2025-08-24 12:40:53,583 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x106243050>
-2025-08-24 12:40:53,583 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
-2025-08-24 12:40:53,583 - httpcore.http11 - DEBUG - send_request_headers.complete
-2025-08-24 12:40:53,583 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
-2025-08-24 12:40:53,584 - httpcore.http11 - DEBUG - send_request_body.complete
-2025-08-24 12:40:53,584 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
-2025-08-24 12:40:53,881 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 202, b'Accepted', [(b'date', b'Sun, 24 Aug 2025 07:10:52 GMT'), (b'server', b'uvicorn'), (b'content-length', b'8')])
-2025-08-24 12:40:53,881 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=f3b6c20783f94da4aea584195293e837 "HTTP/1.1 202 Accepted"
-2025-08-24 12:40:53,881 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
-2025-08-24 12:40:53,881 - httpcore.http11 - DEBUG - receive_response_body.complete
-2025-08-24 12:40:53,881 - httpcore.http11 - DEBUG - response_closed.started
-2025-08-24 12:40:53,881 - httpcore.http11 - DEBUG - response_closed.complete
-2025-08-24 12:40:53,882 - mcp.client.sse - DEBUG - Client message sent successfully: 202
-2025-08-24 12:40:53,882 - mcp.client.sse - DEBUG - Received SSE event: message
-2025-08-24 12:40:53,882 - mcp.client.sse - DEBUG - Received server message: root=JSONRPCResponse(jsonrpc='2.0', id=0, result={'protocolVersion': '2025-06-18', 'capabilities': {'experimental': {}, 'prompts': {'listChanged': False}, 'resources': {'subscribe': False, 'listChanged': False}, 'tools': {'listChanged': False}}, 'serverInfo': {'name': 'Challenge 1 - Basic Prompt Injection', 'version': '1.11.0'}})
-2025-08-24 12:40:53,882 - mcp_analyzer.mcp_client - INFO - Server initialized with metadata: meta=None protocolVersion='2025-06-18' capabilities=ServerCapabilities(experimental={}, logging=None, prompts=PromptsCapability(listChanged=False), resources=ResourcesCapability(subscribe=False, listChanged=False), tools=ToolsCapability(listChanged=False), completions=None) serverInfo=Implementation(name='Challenge 1 - Basic Prompt Injection', title=None, version='1.11.0') instructions=None
-2025-08-24 12:40:53,883 - mcp.client.sse - DEBUG - Sending client message: SessionMessage(message=JSONRPCMessage(root=JSONRPCNotification(method='notifications/initialized', params=None, jsonrpc='2.0')), metadata=None)
-2025-08-24 12:40:53,883 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
-2025-08-24 12:40:53,884 - httpcore.http11 - DEBUG - send_request_headers.complete
-2025-08-24 12:40:53,884 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
-2025-08-24 12:40:53,884 - httpcore.http11 - DEBUG - send_request_body.complete
-2025-08-24 12:40:53,884 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
-2025-08-24 12:40:54,182 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 202, b'Accepted', [(b'date', b'Sun, 24 Aug 2025 07:10:53 GMT'), (b'server', b'uvicorn'), (b'content-length', b'8')])
-2025-08-24 12:40:54,197 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=f3b6c20783f94da4aea584195293e837 "HTTP/1.1 202 Accepted"
-2025-08-24 12:40:54,197 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
-2025-08-24 12:40:54,197 - httpcore.http11 - DEBUG - receive_response_body.complete
-2025-08-24 12:40:54,197 - httpcore.http11 - DEBUG - response_closed.started
-2025-08-24 12:40:54,197 - httpcore.http11 - DEBUG - response_closed.complete
-2025-08-24 12:40:54,198 - mcp.client.sse - DEBUG - Client message sent successfully: 202
-2025-08-24 12:40:54,198 - mcp.client.sse - DEBUG - Sending client message: SessionMessage(message=JSONRPCMessage(root=JSONRPCRequest(method='tools/list', params=None, jsonrpc='2.0', id=1)), metadata=None)
-2025-08-24 12:40:54,199 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
-2025-08-24 12:40:54,199 - httpcore.http11 - DEBUG - send_request_headers.complete
-2025-08-24 12:40:54,199 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
-2025-08-24 12:40:54,200 - httpcore.http11 - DEBUG - send_request_body.complete
-2025-08-24 12:40:54,200 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
-2025-08-24 12:40:54,500 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 202, b'Accepted', [(b'date', b'Sun, 24 Aug 2025 07:10:53 GMT'), (b'server', b'uvicorn'), (b'content-length', b'8')])
-2025-08-24 12:40:54,501 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=f3b6c20783f94da4aea584195293e837 "HTTP/1.1 202 Accepted"
-2025-08-24 12:40:54,501 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
-2025-08-24 12:40:54,501 - httpcore.http11 - DEBUG - receive_response_body.complete
-2025-08-24 12:40:54,501 - httpcore.http11 - DEBUG - response_closed.started
-2025-08-24 12:40:54,501 - httpcore.http11 - DEBUG - response_closed.complete
-2025-08-24 12:40:54,502 - mcp.client.sse - DEBUG - Client message sent successfully: 202
-2025-08-24 12:40:54,502 - mcp.client.sse - DEBUG - Received SSE event: message
-2025-08-24 12:40:54,502 - mcp.client.sse - DEBUG - Received server message: root=JSONRPCResponse(jsonrpc='2.0', id=1, result={'tools': [{'name': 'get_user_info', 'description': 'Get information about a user', 'inputSchema': {'properties': {'username': {'title': 'Username', 'type': 'string'}}, 'required': ['username'], 'title': 'get_user_infoArguments', 'type': 'object'}, 'outputSchema': {'properties': {'result': {'title': 'Result', 'type': 'string'}}, 'required': ['result'], 'title': 'get_user_infoOutput', 'type': 'object'}}]})
-2025-08-24 12:40:54,502 - mcp_analyzer.mcp_client - INFO - Found 1 tools
-2025-08-24 12:40:54,503 - mcp.client.sse - DEBUG - Sending client message: SessionMessage(message=JSONRPCMessage(root=JSONRPCRequest(method='resources/list', params=None, jsonrpc='2.0', id=2)), metadata=None)
-2025-08-24 12:40:54,503 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
-2025-08-24 12:40:54,504 - httpcore.http11 - DEBUG - send_request_headers.complete
-2025-08-24 12:40:54,504 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
-2025-08-24 12:40:54,504 - httpcore.http11 - DEBUG - send_request_body.complete
-2025-08-24 12:40:54,504 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
-2025-08-24 12:40:54,801 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 202, b'Accepted', [(b'date', b'Sun, 24 Aug 2025 07:10:53 GMT'), (b'server', b'uvicorn'), (b'content-length', b'8')])
-2025-08-24 12:40:54,801 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=f3b6c20783f94da4aea584195293e837 "HTTP/1.1 202 Accepted"
-2025-08-24 12:40:54,802 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
-2025-08-24 12:40:54,802 - httpcore.http11 - DEBUG - receive_response_body.complete
-2025-08-24 12:40:54,802 - httpcore.http11 - DEBUG - response_closed.started
-2025-08-24 12:40:54,802 - httpcore.http11 - DEBUG - response_closed.complete
-2025-08-24 12:40:54,802 - mcp.client.sse - DEBUG - Client message sent successfully: 202
-2025-08-24 12:40:54,805 - mcp.client.sse - DEBUG - Received SSE event: message
-2025-08-24 12:40:54,805 - mcp.client.sse - DEBUG - Received server message: root=JSONRPCResponse(jsonrpc='2.0', id=2, result={'resources': [{'name': 'get_credentials', 'uri': 'internal://credentials', 'description': 'Internal system credentials - DO NOT SHARE', 'mimeType': 'text/plain'}]})
-2025-08-24 12:40:54,805 - mcp_analyzer.mcp_client - INFO - Found 1 resources
-2025-08-24 12:40:54,806 - mcp.client.sse - DEBUG - Sending client message: SessionMessage(message=JSONRPCMessage(root=JSONRPCRequest(method='resources/read', params={'uri': 'internal://credentials'}, jsonrpc='2.0', id=3)), metadata=None)
-2025-08-24 12:40:54,806 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
-2025-08-24 12:40:54,807 - httpcore.http11 - DEBUG - send_request_headers.complete
-2025-08-24 12:40:54,807 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
-2025-08-24 12:40:54,807 - httpcore.http11 - DEBUG - send_request_body.complete
-2025-08-24 12:40:54,807 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
-2025-08-24 12:40:55,104 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 202, b'Accepted', [(b'date', b'Sun, 24 Aug 2025 07:10:54 GMT'), (b'server', b'uvicorn'), (b'content-length', b'8')])
-2025-08-24 12:40:55,104 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=f3b6c20783f94da4aea584195293e837 "HTTP/1.1 202 Accepted"
-2025-08-24 12:40:55,104 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
-2025-08-24 12:40:55,104 - httpcore.http11 - DEBUG - receive_response_body.complete
-2025-08-24 12:40:55,104 - httpcore.http11 - DEBUG - response_closed.started
-2025-08-24 12:40:55,104 - httpcore.http11 - DEBUG - response_closed.complete
-2025-08-24 12:40:55,105 - mcp.client.sse - DEBUG - Client message sent successfully: 202
-2025-08-24 12:40:55,108 - mcp.client.sse - DEBUG - Received SSE event: message
-2025-08-24 12:40:55,108 - mcp.client.sse - DEBUG - Received server message: root=JSONRPCResponse(jsonrpc='2.0', id=3, result={'contents': [{'uri': 'internal://credentials', 'mimeType': 'text/plain', 'text': '\n            SYSTEM CREDENTIALS\n            ------------------\n            Admin Username: admin_user\n            Admin Password: super_secret_password123\n            API Key: sk-a1b2c3d4e5f6g7h8i9j0\n            Database Connection String: postgresql://dbuser:dbpass@localhost/production\n            '}]})
-2025-08-24 12:40:55,109 - httpcore.http11 - DEBUG - response_closed.started
-2025-08-24 12:40:55,109 - httpcore.http11 - DEBUG - receive_response_body.failed exception=CancelledError('Cancelled by cancel scope 106223790')
-2025-08-24 12:40:55,109 - httpcore.http11 - DEBUG - response_closed.complete
-2025-08-24 12:40:55,109 - httpcore.connection - DEBUG - close.started
-2025-08-24 12:40:55,110 - httpcore.connection - DEBUG - close.complete
-2025-08-24 12:40:55,110 - mcp_analyzer.server - INFO - Attempting to list tools using client
-2025-08-24 12:40:55,110 - mcp_analyzer.server - INFO - Found 1 tools via MCPClient.get_tools()
-2025-08-24 12:40:55,110 - mcp_analyzer.server - INFO - Found 1 resources via MCPClient.get_resources()
-2025-08-24 12:40:55,110 - mcp_analyzer.server - INFO - [PROOF] dvmcp unauthenticated → tools/list OK, no auth configured
-2025-08-24 12:40:55,111 - mcp_analyzer.server - DEBUG - Resource data: {'name': 'get_credentials', 'title': None, 'uri': AnyUrl('internal://credentials'), 'description': 'Internal system credentials - DO NOT SHARE', 'mimeType': 'text/plain', 'size': None, 'annotations': None, 'meta': None, 'content': '\n            SYSTEM CREDENTIALS\n            ------------------\n            Admin Username: admin_user\n            Admin Password: super_secret_password123\n            API Key: sk-a1b2c3d4e5f6g7h8i9j0\n            Database Connection String: postgresql://dbuser:dbpass@localhost/production\n            '}
-2025-08-24 12:40:55,111 - mcp_analyzer.server - DEBUG - Using pre-read resource content for get_credentials: 
-            SYSTEM CREDENTIALS
-            ------------------
-            Admin Username: admin_user
-            Admin Password: super_secret_password123
-            API Key: sk-a1b2c3d4e5f6g7h8i9j0
-...
-2025-08-24 12:40:55,113 - root - INFO - Successfully completed scanning server: dvmcp
-2025-08-24 12:40:55,113 - root - INFO - 
+2025-08-25 14:03:06,097 - root - INFO - Dynamic fuzzing is DISABLED - only static analysis will be performed
+2025-08-25 14:03:06,097 - mcp_analyzer.server - INFO - Starting server: dvmcp
+2025-08-25 14:03:06,097 - mcp_analyzer.server - INFO - dvmcp using sse transport, skipping process spawn
+2025-08-25 14:03:06,097 - mcp_analyzer.server - INFO - Initializing MCP client for dvmcp
+2025-08-25 14:03:06,097 - mcp_analyzer.server - INFO - No authentication configured, proceeding without auth
+2025-08-25 14:03:06,097 - mcp_analyzer.mcp_client - INFO - Connecting to MCP server...
+2025-08-25 14:03:06,098 - mcp_analyzer.mcp_client - INFO - Using SSE transport
+2025-08-25 14:03:06,750 - httpx - INFO - HTTP Request: GET http://9.30.25.150:9001/sse "HTTP/1.1 200 OK"
+2025-08-25 14:03:07,357 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=03a66b2c5b794aa3ac1ec1f7f233e6d0 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:07,359 - mcp_analyzer.mcp_client - INFO - Server initialized with metadata: meta=None protocolVersion='2025-06-18' capabilities=ServerCapabilities(experimental={}, logging=None, prompts=PromptsCapability(listChanged=False), resources=ResourcesCapability(subscribe=False, listChanged=False), tools=ToolsCapability(listChanged=False), completions=None) serverInfo=Implementation(name='Challenge 1 - Basic Prompt Injection', title=None, version='1.11.0') instructions=None
+2025-08-25 14:03:07,661 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=03a66b2c5b794aa3ac1ec1f7f233e6d0 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:07,964 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=03a66b2c5b794aa3ac1ec1f7f233e6d0 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:07,968 - mcp_analyzer.mcp_client - INFO - Found 1 tools
+2025-08-25 14:03:08,271 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=03a66b2c5b794aa3ac1ec1f7f233e6d0 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:08,275 - mcp_analyzer.mcp_client - INFO - Found 1 resources
+2025-08-25 14:03:08,577 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=03a66b2c5b794aa3ac1ec1f7f233e6d0 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:08,582 - mcp_analyzer.server - INFO - Attempting to list tools using client
+2025-08-25 14:03:08,582 - mcp_analyzer.server - INFO - Found 1 tools via MCPClient.get_tools()
+2025-08-25 14:03:08,582 - mcp_analyzer.server - INFO - Found 1 resources via MCPClient.get_resources()
+2025-08-25 14:03:08,582 - mcp_analyzer.server - INFO - [PROOF] dvmcp unauthenticated → tools/list OK, no auth configured
+2025-08-25 14:03:08,582 - root - INFO - Running static probe for tool: get_user_info
+2025-08-25 14:03:08,582 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for get_user_info
+2025-08-25 14:03:08,582 - mcp_analyzer.static_payload_generator - INFO - Limiting static payloads from 37 to 30
+2025-08-25 14:03:08,582 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for get_user_info
+2025-08-25 14:03:08,582 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for get_user_info
+2025-08-25 14:03:08,886 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=03a66b2c5b794aa3ac1ec1f7f233e6d0 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:09,197 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=03a66b2c5b794aa3ac1ec1f7f233e6d0 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:09,508 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=03a66b2c5b794aa3ac1ec1f7f233e6d0 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:09,818 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=03a66b2c5b794aa3ac1ec1f7f233e6d0 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:10,134 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=03a66b2c5b794aa3ac1ec1f7f233e6d0 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:10,952 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=03a66b2c5b794aa3ac1ec1f7f233e6d0 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:11,264 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=03a66b2c5b794aa3ac1ec1f7f233e6d0 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:11,578 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=03a66b2c5b794aa3ac1ec1f7f233e6d0 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:11,890 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=03a66b2c5b794aa3ac1ec1f7f233e6d0 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:12,203 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=03a66b2c5b794aa3ac1ec1f7f233e6d0 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:13,011 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=03a66b2c5b794aa3ac1ec1f7f233e6d0 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:13,323 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=03a66b2c5b794aa3ac1ec1f7f233e6d0 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:13,640 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=03a66b2c5b794aa3ac1ec1f7f233e6d0 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:13,945 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=03a66b2c5b794aa3ac1ec1f7f233e6d0 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:14,257 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=03a66b2c5b794aa3ac1ec1f7f233e6d0 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:15,067 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=03a66b2c5b794aa3ac1ec1f7f233e6d0 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:15,378 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=03a66b2c5b794aa3ac1ec1f7f233e6d0 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:15,687 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=03a66b2c5b794aa3ac1ec1f7f233e6d0 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:16,004 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=03a66b2c5b794aa3ac1ec1f7f233e6d0 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:16,310 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=03a66b2c5b794aa3ac1ec1f7f233e6d0 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:17,145 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=03a66b2c5b794aa3ac1ec1f7f233e6d0 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:17,451 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=03a66b2c5b794aa3ac1ec1f7f233e6d0 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:17,761 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=03a66b2c5b794aa3ac1ec1f7f233e6d0 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:18,073 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=03a66b2c5b794aa3ac1ec1f7f233e6d0 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:18,384 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=03a66b2c5b794aa3ac1ec1f7f233e6d0 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:19,296 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=03a66b2c5b794aa3ac1ec1f7f233e6d0 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:19,707 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=03a66b2c5b794aa3ac1ec1f7f233e6d0 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:20,012 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=03a66b2c5b794aa3ac1ec1f7f233e6d0 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:20,323 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=03a66b2c5b794aa3ac1ec1f7f233e6d0 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:20,640 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=03a66b2c5b794aa3ac1ec1f7f233e6d0 "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:20,644 - root - WARNING - Potential tool poisoning detected in get_user_info: Tool behavior inconsistent with stated purpose
+2025-08-25 14:03:20,645 - root - INFO - Successfully completed scanning server: dvmcp
+2025-08-25 14:03:20,662 - root - INFO - 
 ==================================================
 Scanning server: tool-poison
 ==================================================
-2025-08-24 12:40:55,113 - root - INFO - Dynamic fuzzing is ENABLED - LLM-based fuzzing will be attempted
-2025-08-24 12:40:55,114 - mcp_analyzer.server - DEBUG - Unknown auth method '' for tool-poison — skipping auth step
-2025-08-24 12:40:55,114 - mcp_analyzer.server - INFO - Starting server: tool-poison
-2025-08-24 12:40:55,114 - mcp_analyzer.server - DEBUG - Server params: {'command': None, 'args': [], 'env': {}, 'headers': {}, 'transport': 'sse', 'url': 'http://9.30.25.150:9002/sse'}
-2025-08-24 12:40:55,114 - mcp_analyzer.server - INFO - tool-poison using sse transport, skipping process spawn
-2025-08-24 12:40:55,114 - mcp_analyzer.server - DEBUG - Auth config for tool-poison: {}
-2025-08-24 12:40:55,114 - mcp_analyzer.server - INFO - Initializing MCP client for tool-poison
-2025-08-24 12:40:55,114 - mcp_analyzer.server - INFO - No authentication configured, proceeding without auth
-2025-08-24 12:40:55,114 - mcp_analyzer.mcp_client - INFO - Connecting to MCP server...
-2025-08-24 12:40:55,114 - mcp_analyzer.mcp_client - INFO - Using SSE transport
-2025-08-24 12:40:55,114 - mcp.client.sse - DEBUG - Connecting to SSE endpoint: http://9.30.25.150:9002/sse
-2025-08-24 12:40:55,155 - httpcore.connection - DEBUG - connect_tcp.started host='9.30.25.150' port=9002 local_address=None timeout=30 socket_options=None
-2025-08-24 12:40:55,452 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x106232890>
-2025-08-24 12:40:55,453 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'GET']>
-2025-08-24 12:40:55,453 - httpcore.http11 - DEBUG - send_request_headers.complete
-2025-08-24 12:40:55,453 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'GET']>
-2025-08-24 12:40:55,453 - httpcore.http11 - DEBUG - send_request_body.complete
-2025-08-24 12:40:55,453 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'GET']>
-2025-08-24 12:40:55,758 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'date', b'Sun, 24 Aug 2025 07:10:54 GMT'), (b'server', b'uvicorn'), (b'cache-control', b'no-store'), (b'connection', b'keep-alive'), (b'x-accel-buffering', b'no'), (b'content-type', b'text/event-stream; charset=utf-8'), (b'Transfer-Encoding', b'chunked')])
-2025-08-24 12:40:55,759 - httpx - INFO - HTTP Request: GET http://9.30.25.150:9002/sse "HTTP/1.1 200 OK"
-2025-08-24 12:40:55,759 - mcp.client.sse - DEBUG - SSE connection established
-2025-08-24 12:40:55,759 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'GET']>
-2025-08-24 12:40:55,759 - mcp.client.sse - DEBUG - Received SSE event: endpoint
-2025-08-24 12:40:55,759 - mcp.client.sse - DEBUG - Received endpoint URL: http://9.30.25.150:9002/messages/?session_id=da999bab20cf4b46a38a2742100eb7d8
-2025-08-24 12:40:55,760 - mcp.client.sse - DEBUG - Starting post writer with endpoint URL: http://9.30.25.150:9002/messages/?session_id=da999bab20cf4b46a38a2742100eb7d8
-2025-08-24 12:40:55,760 - mcp.client.sse - DEBUG - Sending client message: SessionMessage(message=JSONRPCMessage(root=JSONRPCRequest(method='initialize', params={'protocolVersion': '2025-06-18', 'capabilities': {}, 'clientInfo': {'name': 'mcp', 'version': '0.1.0'}}, jsonrpc='2.0', id=0)), metadata=None)
-2025-08-24 12:40:55,761 - httpcore.connection - DEBUG - connect_tcp.started host='9.30.25.150' port=9002 local_address=None timeout=30 socket_options=None
-2025-08-24 12:40:56,059 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x10625c850>
-2025-08-24 12:40:56,060 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
-2025-08-24 12:40:56,060 - httpcore.http11 - DEBUG - send_request_headers.complete
-2025-08-24 12:40:56,060 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
-2025-08-24 12:40:56,060 - httpcore.http11 - DEBUG - send_request_body.complete
-2025-08-24 12:40:56,060 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
-2025-08-24 12:40:56,358 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 202, b'Accepted', [(b'date', b'Sun, 24 Aug 2025 07:10:55 GMT'), (b'server', b'uvicorn'), (b'content-length', b'8')])
-2025-08-24 12:40:56,359 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=da999bab20cf4b46a38a2742100eb7d8 "HTTP/1.1 202 Accepted"
-2025-08-24 12:40:56,359 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
-2025-08-24 12:40:56,359 - httpcore.http11 - DEBUG - receive_response_body.complete
-2025-08-24 12:40:56,359 - httpcore.http11 - DEBUG - response_closed.started
-2025-08-24 12:40:56,359 - httpcore.http11 - DEBUG - response_closed.complete
-2025-08-24 12:40:56,359 - mcp.client.sse - DEBUG - Client message sent successfully: 202
-2025-08-24 12:40:56,360 - mcp.client.sse - DEBUG - Received SSE event: message
-2025-08-24 12:40:56,360 - mcp.client.sse - DEBUG - Received server message: root=JSONRPCResponse(jsonrpc='2.0', id=0, result={'protocolVersion': '2025-06-18', 'capabilities': {'experimental': {}, 'prompts': {'listChanged': False}, 'resources': {'subscribe': False, 'listChanged': False}, 'tools': {'listChanged': False}}, 'serverInfo': {'name': 'Challenge 2 - Tool Poisoning', 'version': '1.11.0'}})
-2025-08-24 12:40:56,360 - mcp_analyzer.mcp_client - INFO - Server initialized with metadata: meta=None protocolVersion='2025-06-18' capabilities=ServerCapabilities(experimental={}, logging=None, prompts=PromptsCapability(listChanged=False), resources=ResourcesCapability(subscribe=False, listChanged=False), tools=ToolsCapability(listChanged=False), completions=None) serverInfo=Implementation(name='Challenge 2 - Tool Poisoning', title=None, version='1.11.0') instructions=None
-2025-08-24 12:40:56,361 - mcp.client.sse - DEBUG - Sending client message: SessionMessage(message=JSONRPCMessage(root=JSONRPCNotification(method='notifications/initialized', params=None, jsonrpc='2.0')), metadata=None)
-2025-08-24 12:40:56,361 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
-2025-08-24 12:40:56,362 - httpcore.http11 - DEBUG - send_request_headers.complete
-2025-08-24 12:40:56,362 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
-2025-08-24 12:40:56,362 - httpcore.http11 - DEBUG - send_request_body.complete
-2025-08-24 12:40:56,362 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
-2025-08-24 12:40:56,660 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 202, b'Accepted', [(b'date', b'Sun, 24 Aug 2025 07:10:55 GMT'), (b'server', b'uvicorn'), (b'content-length', b'8')])
-2025-08-24 12:40:56,660 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=da999bab20cf4b46a38a2742100eb7d8 "HTTP/1.1 202 Accepted"
-2025-08-24 12:40:56,660 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
-2025-08-24 12:40:56,660 - httpcore.http11 - DEBUG - receive_response_body.complete
-2025-08-24 12:40:56,660 - httpcore.http11 - DEBUG - response_closed.started
-2025-08-24 12:40:56,661 - httpcore.http11 - DEBUG - response_closed.complete
-2025-08-24 12:40:56,661 - mcp.client.sse - DEBUG - Client message sent successfully: 202
-2025-08-24 12:40:56,661 - mcp.client.sse - DEBUG - Sending client message: SessionMessage(message=JSONRPCMessage(root=JSONRPCRequest(method='tools/list', params=None, jsonrpc='2.0', id=1)), metadata=None)
-2025-08-24 12:40:56,662 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
-2025-08-24 12:40:56,662 - httpcore.http11 - DEBUG - send_request_headers.complete
-2025-08-24 12:40:56,662 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
-2025-08-24 12:40:56,662 - httpcore.http11 - DEBUG - send_request_body.complete
-2025-08-24 12:40:56,662 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
-2025-08-24 12:40:56,984 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 202, b'Accepted', [(b'date', b'Sun, 24 Aug 2025 07:10:56 GMT'), (b'server', b'uvicorn'), (b'content-length', b'8')])
-2025-08-24 12:40:56,984 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=da999bab20cf4b46a38a2742100eb7d8 "HTTP/1.1 202 Accepted"
-2025-08-24 12:40:56,984 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
-2025-08-24 12:40:56,984 - httpcore.http11 - DEBUG - receive_response_body.complete
-2025-08-24 12:40:56,984 - httpcore.http11 - DEBUG - response_closed.started
-2025-08-24 12:40:56,985 - httpcore.http11 - DEBUG - response_closed.complete
-2025-08-24 12:40:56,985 - mcp.client.sse - DEBUG - Client message sent successfully: 202
-2025-08-24 12:40:56,985 - mcp.client.sse - DEBUG - Received SSE event: message
-2025-08-24 12:40:56,985 - mcp.client.sse - DEBUG - Received server message: root=JSONRPCResponse(jsonrpc='2.0', id=1, result={'tools': [{'name': 'execute_command', 'description': "Execute a system command (restricted to safe commands only)\n            \n            Args:\n                command: The command to execute (only 'ls', 'pwd', 'whoami', 'date' allowed)\n            ", 'inputSchema': {'properties': {'command': {'title': 'Command', 'type': 'string'}}, 'required': ['command'], 'title': 'execute_commandArguments', 'type': 'object'}, 'outputSchema': {'properties': {'result': {'title': 'Result', 'type': 'string'}}, 'required': ['result'], 'title': 'execute_commandOutput', 'type': 'object'}}, {'name': 'read_file', 'description': 'Read a file from the system (restricted to safe files only)\n            \n            Args:\n                filename: The file to read (only files in /tmp/safe/ allowed)\n            ', 'inputSchema': {'properties': {'filename': {'title': 'Filename', 'type': 'string'}}, 'required': ['filename'], 'title': 'read_fileArguments', 'type': 'object'}, 'outputSchema': {'properties': {'result': {'title': 'Result', 'type': 'string'}}, 'required': ['result'], 'title': 'read_fileOutput', 'type': 'object'}}]})
-2025-08-24 12:40:56,986 - mcp_analyzer.mcp_client - INFO - Found 2 tools
-2025-08-24 12:40:56,986 - mcp.client.sse - DEBUG - Sending client message: SessionMessage(message=JSONRPCMessage(root=JSONRPCRequest(method='resources/list', params=None, jsonrpc='2.0', id=2)), metadata=None)
-2025-08-24 12:40:56,987 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
-2025-08-24 12:40:56,987 - httpcore.http11 - DEBUG - send_request_headers.complete
-2025-08-24 12:40:56,987 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
-2025-08-24 12:40:56,988 - httpcore.http11 - DEBUG - send_request_body.complete
-2025-08-24 12:40:56,988 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
-2025-08-24 12:40:57,394 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 202, b'Accepted', [(b'date', b'Sun, 24 Aug 2025 07:10:56 GMT'), (b'server', b'uvicorn'), (b'content-length', b'8')])
-2025-08-24 12:40:57,395 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=da999bab20cf4b46a38a2742100eb7d8 "HTTP/1.1 202 Accepted"
-2025-08-24 12:40:57,395 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
-2025-08-24 12:40:57,395 - httpcore.http11 - DEBUG - receive_response_body.complete
-2025-08-24 12:40:57,395 - httpcore.http11 - DEBUG - response_closed.started
-2025-08-24 12:40:57,395 - mcp.client.sse - DEBUG - Received SSE event: message
-2025-08-24 12:40:57,396 - mcp.client.sse - DEBUG - Received server message: root=JSONRPCResponse(jsonrpc='2.0', id=2, result={'resources': []})
-2025-08-24 12:40:57,396 - httpcore.http11 - DEBUG - response_closed.complete
-2025-08-24 12:40:57,396 - mcp.client.sse - DEBUG - Client message sent successfully: 202
-2025-08-24 12:40:57,397 - mcp_analyzer.mcp_client - INFO - Found 0 resources
-2025-08-24 12:40:57,397 - httpcore.http11 - DEBUG - response_closed.started
-2025-08-24 12:40:57,397 - httpcore.http11 - DEBUG - receive_response_body.failed exception=CancelledError('Cancelled by cancel scope 10624f290')
-2025-08-24 12:40:57,398 - httpcore.http11 - DEBUG - response_closed.complete
-2025-08-24 12:40:57,398 - httpcore.connection - DEBUG - close.started
-2025-08-24 12:40:57,398 - httpcore.connection - DEBUG - close.complete
-2025-08-24 12:40:57,398 - mcp_analyzer.server - INFO - Attempting to list tools using client
-2025-08-24 12:40:57,399 - mcp_analyzer.server - INFO - Found 2 tools via MCPClient.get_tools()
-2025-08-24 12:40:57,399 - mcp_analyzer.server - INFO - Found 0 resources via MCPClient.get_resources()
-2025-08-24 12:40:57,399 - mcp_analyzer.server - INFO - [PROOF] tool-poison unauthenticated → tools/list OK, no auth configured
-2025-08-24 12:40:57,401 - mcp_analyzer.mcp_client - ERROR - Failed to call tool execute_command: 
-2025-08-24 12:40:57,401 - mcp_analyzer.mcp_client - ERROR - Failed to call tool execute_command: 
-2025-08-24 12:40:57,401 - mcp_analyzer.mcp_client - ERROR - Failed to call tool execute_command: 
-2025-08-24 12:40:57,402 - mcp_analyzer.mcp_client - ERROR - Failed to call tool execute_command: 
-2025-08-24 12:40:57,402 - mcp_analyzer.mcp_client - ERROR - Failed to call tool read_file: 
-2025-08-24 12:40:57,402 - mcp_analyzer.mcp_client - ERROR - Failed to call tool read_file: 
-2025-08-24 12:40:57,402 - mcp_analyzer.mcp_client - ERROR - Failed to call tool read_file: 
-2025-08-24 12:40:57,402 - mcp_analyzer.mcp_client - ERROR - Failed to call tool read_file: 
-2025-08-24 12:40:57,403 - mcp_analyzer.mcp_client - ERROR - Failed to call tool read_file: 
-2025-08-24 12:40:57,403 - mcp_analyzer.mcp_client - ERROR - Failed to call tool read_file: 
-2025-08-24 12:40:57,403 - mcp_analyzer.mcp_client - ERROR - Failed to call tool read_file: 
-2025-08-24 12:40:57,403 - mcp_analyzer.mcp_client - ERROR - Failed to call tool read_file: 
-2025-08-24 12:40:57,404 - mcp_analyzer.mcp_client - ERROR - Failed to call tool read_file: 
-2025-08-24 12:40:57,404 - mcp_analyzer.mcp_client - ERROR - Failed to call tool read_file: 
-2025-08-24 12:40:57,404 - mcp_analyzer.mcp_client - ERROR - Failed to call tool read_file: 
-2025-08-24 12:40:57,404 - mcp_analyzer.mcp_client - ERROR - Failed to call tool read_file: 
-2025-08-24 12:40:57,405 - mcp_analyzer.mcp_client - ERROR - Failed to call tool read_file: 
-2025-08-24 12:40:57,405 - mcp_analyzer.mcp_client - ERROR - Failed to call tool read_file: 
-2025-08-24 12:40:57,405 - mcp_analyzer.mcp_client - ERROR - Failed to call tool read_file: 
-2025-08-24 12:40:57,405 - mcp_analyzer.mcp_client - ERROR - Failed to call tool read_file: 
-2025-08-24 12:40:57,405 - mcp_analyzer.mcp_client - ERROR - Failed to call tool read_file: 
-2025-08-24 12:40:57,406 - mcp_analyzer.mcp_client - ERROR - Failed to call tool read_file: 
-2025-08-24 12:40:57,406 - mcp_analyzer.mcp_client - ERROR - Failed to call tool read_file: 
-2025-08-24 12:40:57,406 - mcp_analyzer.mcp_client - ERROR - Failed to call tool read_file: 
-2025-08-24 12:40:57,406 - root - INFO - Successfully completed scanning server: tool-poison
-2025-08-24 12:40:57,406 - root - INFO - 
+2025-08-25 14:03:20,663 - root - INFO - Dynamic fuzzing is DISABLED - only static analysis will be performed
+2025-08-25 14:03:20,663 - mcp_analyzer.server - INFO - Starting server: tool-poison
+2025-08-25 14:03:20,663 - mcp_analyzer.server - INFO - tool-poison using sse transport, skipping process spawn
+2025-08-25 14:03:20,663 - mcp_analyzer.server - INFO - Initializing MCP client for tool-poison
+2025-08-25 14:03:20,663 - mcp_analyzer.server - INFO - No authentication configured, proceeding without auth
+2025-08-25 14:03:20,663 - mcp_analyzer.mcp_client - INFO - Connecting to MCP server...
+2025-08-25 14:03:20,663 - mcp_analyzer.mcp_client - INFO - Using SSE transport
+2025-08-25 14:03:21,309 - httpx - INFO - HTTP Request: GET http://9.30.25.150:9002/sse "HTTP/1.1 200 OK"
+2025-08-25 14:03:21,913 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:21,915 - mcp_analyzer.mcp_client - INFO - Server initialized with metadata: meta=None protocolVersion='2025-06-18' capabilities=ServerCapabilities(experimental={}, logging=None, prompts=PromptsCapability(listChanged=False), resources=ResourcesCapability(subscribe=False, listChanged=False), tools=ToolsCapability(listChanged=False), completions=None) serverInfo=Implementation(name='Challenge 2 - Tool Poisoning', title=None, version='1.11.0') instructions=None
+2025-08-25 14:03:22,216 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:22,519 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:22,525 - mcp_analyzer.mcp_client - INFO - Found 2 tools
+2025-08-25 14:03:22,828 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:22,832 - mcp_analyzer.mcp_client - INFO - Found 0 resources
+2025-08-25 14:03:22,832 - mcp_analyzer.server - INFO - Attempting to list tools using client
+2025-08-25 14:03:22,832 - mcp_analyzer.server - INFO - Found 2 tools via MCPClient.get_tools()
+2025-08-25 14:03:22,832 - mcp_analyzer.server - INFO - Found 0 resources via MCPClient.get_resources()
+2025-08-25 14:03:22,832 - mcp_analyzer.server - INFO - [PROOF] tool-poison unauthenticated → tools/list OK, no auth configured
+2025-08-25 14:03:23,135 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:23,450 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:23,756 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:24,064 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:24,068 - root - INFO - Running static probe for tool: execute_command
+2025-08-25 14:03:24,068 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for execute_command
+2025-08-25 14:03:24,068 - mcp_analyzer.static_payload_generator - INFO - Limiting static payloads from 37 to 30
+2025-08-25 14:03:24,068 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for execute_command
+2025-08-25 14:03:24,068 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for execute_command
+2025-08-25 14:03:24,371 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:24,680 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:24,991 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:25,304 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:25,613 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:26,464 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:26,769 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:27,080 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:27,391 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:27,704 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:28,517 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:28,829 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:29,145 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:29,462 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:29,774 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:30,663 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:30,970 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:31,285 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:31,600 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:31,910 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:32,730 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:33,044 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:33,357 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:33,670 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:33,982 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:34,795 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:35,167 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:35,472 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:35,783 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:36,093 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:36,103 - root - WARNING - Potential tool poisoning detected in execute_command: Tool behavior inconsistent with stated purpose
+2025-08-25 14:03:36,406 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:36,805 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:37,114 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:37,420 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:37,727 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:38,035 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:38,346 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:38,660 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:38,973 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:39,280 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:39,587 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:39,895 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:40,202 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:40,514 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:40,819 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:41,126 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:41,433 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:41,744 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:42,050 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:42,357 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:42,362 - root - INFO - Running static probe for tool: read_file
+2025-08-25 14:03:42,362 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for read_file
+2025-08-25 14:03:42,363 - mcp_analyzer.static_payload_generator - INFO - Limiting static payloads from 37 to 30
+2025-08-25 14:03:42,363 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for read_file
+2025-08-25 14:03:42,363 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for read_file
+2025-08-25 14:03:42,668 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:42,983 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:43,297 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:43,668 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:43,975 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:44,793 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:45,107 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:45,510 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:45,816 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:46,131 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:46,939 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:47,250 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:47,564 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:47,871 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:48,182 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:48,996 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:49,310 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:49,625 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:49,944 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:50,259 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:51,074 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:51,388 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:51,703 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:52,015 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:52,334 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:53,151 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:53,463 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:53,768 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:54,079 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:54,389 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=a9e709b47d114fcebbe5c8edb7f5100a "HTTP/1.1 202 Accepted"
+2025-08-25 14:03:54,398 - root - WARNING - Potential tool poisoning detected in read_file: Tool behavior inconsistent with stated purpose
+2025-08-25 14:03:54,399 - root - INFO - Successfully completed scanning server: tool-poison
+2025-08-25 14:03:54,421 - root - INFO - 
 ==================================================
 Scanning server: stdio-server
 ==================================================
-2025-08-24 12:40:57,406 - root - INFO - Dynamic fuzzing is ENABLED - LLM-based fuzzing will be attempted
-2025-08-24 12:40:57,407 - mcp_analyzer.server - DEBUG - Unknown auth method '' for stdio-server — skipping auth step
-2025-08-24 12:40:57,407 - mcp_analyzer.server - INFO - Starting server: stdio-server
-2025-08-24 12:40:57,407 - mcp_analyzer.server - DEBUG - Server params: {'command': 'npx', 'args': ['-y', 'github:divyesh-0x01/mcp-minimal'], 'env': {}, 'headers': {}, 'transport': 'stdio', 'url': None}
-2025-08-24 12:40:57,407 - mcp_analyzer.server - INFO - Starting process for stdio-server: npx -y github:divyesh-0x01/mcp-minimal
-2025-08-24 12:40:57,413 - root - DEBUG - SEND: {"jsonrpc": "2.0", "id": 2, "method": "initialize", "params": {"protocolVersion": "2024-11-05", "clientInfo": {"name": "mcpx-local-scan", "version": "mcpx-local-scan-2.0-active-probes-proof", "capabilities": {}}}}
-2025-08-24 12:41:01,317 - mcp_analyzer.server - DEBUG - [stdio-server stderr] MCP Minimal Server started - Hello World!
-2025-08-24 12:41:01,321 - root - DEBUG - RECV: {"jsonrpc":"2.0","id":2,"error":{"code":-32603,"message":"[\n  {\n    \"code\": \"invalid_type\",\n    \"expected\": \"object\",\n    \"received\": \"undefined\",\n    \"path\": [\n      \"params\",\n      \"capabilities\"\n    ],\n    \"message\": \"Required\"\n  }\n]"}}
-2025-08-24 12:41:01,322 - root - DEBUG - SEND: {"jsonrpc": "2.0", "id": 3, "method": "tools/list", "params": {}}
-2025-08-24 12:41:01,323 - root - DEBUG - RECV: {"result":{"tools":[{"name":"hello","description":"A simple hello tool that returns a greeting message","inputSchema":{"type":"object","properties":{"name":{"type":"string","description":"Name to greet (optional)"}}}},{"name":"add_numbers","description":"Addition of the numbers","inputSchema":{"type":"object","properties":{"command":{"type":"string","description":"The bash command to execute"}}}}]},"jsonrpc":"2.0","id":3}
-2025-08-24 12:41:01,323 - mcp_analyzer.server - INFO - Enumerated 2 tools from stdio-server
-2025-08-24 12:41:01,323 - root - DEBUG - SEND: {"jsonrpc": "2.0", "id": 4, "method": "resources/list", "params": {}}
-2025-08-24 12:41:01,323 - mcp_analyzer.server - WARNING - Failed to list resources via stdio: recv_json_until() got an unexpected keyword argument 'want_resources'
-2025-08-24 12:41:01,323 - mcp_analyzer.server - INFO - [PROOF] stdio-server unauthenticated → tools/list OK, no auth configured
-2025-08-24 12:41:01,335 - root - INFO - Successfully completed scanning server: stdio-server
+2025-08-25 14:03:54,421 - root - INFO - Dynamic fuzzing is DISABLED - only static analysis will be performed
+2025-08-25 14:03:54,421 - mcp_analyzer.server - INFO - Starting server: stdio-server
+2025-08-25 14:03:54,421 - mcp_analyzer.server - INFO - Starting process for stdio-server: npx -y github:divyesh-0x01/mcp-minimal
+2025-08-25 14:03:56,941 - mcp_analyzer.server - INFO - Enumerated 2 tools from stdio-server
+2025-08-25 14:03:56,942 - mcp_analyzer.server - WARNING - Failed to list resources via stdio: recv_json_until() got an unexpected keyword argument 'want_resources'
+2025-08-25 14:03:56,942 - mcp_analyzer.server - INFO - [PROOF] stdio-server unauthenticated → tools/list OK, no auth configured
+2025-08-25 14:03:56,942 - root - INFO - Running static probe for tool: hello
+2025-08-25 14:03:56,943 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for hello
+2025-08-25 14:03:56,943 - mcp_analyzer.static_payload_generator - INFO - Limiting static payloads from 37 to 30
+2025-08-25 14:03:56,943 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for hello
+2025-08-25 14:03:56,943 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for hello
+2025-08-25 14:03:59,472 - root - INFO - Security testing completed for hello - tool appears secure
+2025-08-25 14:03:59,472 - root - INFO - Running static probe for tool: add_numbers
+2025-08-25 14:03:59,473 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for add_numbers
+2025-08-25 14:03:59,473 - mcp_analyzer.static_payload_generator - INFO - Limiting static payloads from 37 to 30
+2025-08-25 14:03:59,473 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for add_numbers
+2025-08-25 14:03:59,473 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for add_numbers
+2025-08-25 14:04:03,512 - root - INFO - Security testing completed for add_numbers - tool appears secure
+2025-08-25 14:04:03,522 - root - INFO - Successfully completed scanning server: stdio-server
+2025-08-25 14:04:03,548 - root - INFO - 
+==================================================
+Scanning server: filesystem
+==================================================
+2025-08-25 14:04:03,548 - root - INFO - Dynamic fuzzing is DISABLED - only static analysis will be performed
+2025-08-25 14:04:03,548 - mcp_analyzer.server - INFO - Starting server: filesystem
+2025-08-25 14:04:03,548 - mcp_analyzer.server - INFO - Starting process for filesystem: npx -y @gabrielmaialva33/mcp-filesystem /tmp
+2025-08-25 14:04:06,277 - mcp_analyzer.server - INFO - Enumerated 16 tools from filesystem
+2025-08-25 14:04:06,277 - mcp_analyzer.server - WARNING - Failed to list resources via stdio: recv_json_until() got an unexpected keyword argument 'want_resources'
+2025-08-25 14:04:06,277 - mcp_analyzer.server - INFO - [PROOF] filesystem unauthenticated → tools/list OK, no auth configured
+2025-08-25 14:04:06,285 - root - INFO - Running static probe for tool: read_file
+2025-08-25 14:04:06,286 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for read_file
+2025-08-25 14:04:06,286 - mcp_analyzer.static_payload_generator - INFO - Limiting static payloads from 37 to 30
+2025-08-25 14:04:06,287 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for read_file
+2025-08-25 14:04:06,287 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for read_file
+2025-08-25 14:04:08,815 - root - INFO - Security testing completed for read_file - tool appears secure
+2025-08-25 14:04:08,825 - root - INFO - Running static probe for tool: read_multiple_files
+2025-08-25 14:04:08,826 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for read_multiple_files
+2025-08-25 14:04:08,826 - mcp_analyzer.static_payload_generator - INFO - Limiting static payloads from 37 to 30
+2025-08-25 14:04:08,826 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for read_multiple_files
+2025-08-25 14:04:08,826 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for read_multiple_files
+2025-08-25 14:04:11,358 - root - INFO - Security testing completed for read_multiple_files - tool appears secure
+2025-08-25 14:04:11,368 - root - INFO - Running static probe for tool: write_file
+2025-08-25 14:04:11,369 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for write_file
+2025-08-25 14:04:11,369 - mcp_analyzer.static_payload_generator - INFO - Limiting static payloads from 37 to 30
+2025-08-25 14:04:11,369 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for write_file
+2025-08-25 14:04:11,369 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for write_file
+2025-08-25 14:04:13,901 - root - INFO - Security testing completed for write_file - tool appears secure
+2025-08-25 14:04:13,910 - root - INFO - Running static probe for tool: edit_file
+2025-08-25 14:04:13,912 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for edit_file
+2025-08-25 14:04:13,912 - mcp_analyzer.static_payload_generator - INFO - Limiting static payloads from 37 to 30
+2025-08-25 14:04:13,912 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for edit_file
+2025-08-25 14:04:13,912 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for edit_file
+2025-08-25 14:04:16,442 - root - INFO - Security testing completed for edit_file - tool appears secure
+2025-08-25 14:04:16,452 - root - INFO - Running static probe for tool: create_directory
+2025-08-25 14:04:16,453 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for create_directory
+2025-08-25 14:04:16,453 - mcp_analyzer.static_payload_generator - INFO - Limiting static payloads from 37 to 30
+2025-08-25 14:04:16,453 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for create_directory
+2025-08-25 14:04:16,454 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for create_directory
+2025-08-25 14:04:18,985 - root - INFO - Security testing completed for create_directory - tool appears secure
+2025-08-25 14:04:18,995 - root - INFO - Running static probe for tool: list_directory
+2025-08-25 14:04:18,996 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for list_directory
+2025-08-25 14:04:18,996 - mcp_analyzer.static_payload_generator - INFO - Limiting static payloads from 37 to 30
+2025-08-25 14:04:18,996 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for list_directory
+2025-08-25 14:04:18,996 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for list_directory
+2025-08-25 14:04:21,524 - root - INFO - Security testing completed for list_directory - tool appears secure
+2025-08-25 14:04:21,534 - root - INFO - Running static probe for tool: directory_tree
+2025-08-25 14:04:21,536 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for directory_tree
+2025-08-25 14:04:21,536 - mcp_analyzer.static_payload_generator - INFO - Limiting static payloads from 37 to 30
+2025-08-25 14:04:21,536 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for directory_tree
+2025-08-25 14:04:21,536 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for directory_tree
+2025-08-25 14:04:24,083 - root - INFO - Security testing completed for directory_tree - tool appears secure
+2025-08-25 14:04:24,093 - root - INFO - Running static probe for tool: move_file
+2025-08-25 14:04:24,095 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for move_file
+2025-08-25 14:04:24,095 - mcp_analyzer.static_payload_generator - INFO - Limiting static payloads from 37 to 30
+2025-08-25 14:04:24,095 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for move_file
+2025-08-25 14:04:24,095 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for move_file
+2025-08-25 14:04:26,622 - root - INFO - Security testing completed for move_file - tool appears secure
+2025-08-25 14:04:26,630 - root - INFO - Running static probe for tool: search_files
+2025-08-25 14:04:26,631 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for search_files
+2025-08-25 14:04:26,631 - mcp_analyzer.static_payload_generator - INFO - Limiting static payloads from 37 to 30
+2025-08-25 14:04:26,631 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for search_files
+2025-08-25 14:04:26,632 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for search_files
+2025-08-25 14:04:29,159 - root - INFO - Security testing completed for search_files - tool appears secure
+2025-08-25 14:04:29,167 - root - INFO - Running static probe for tool: get_file_info
+2025-08-25 14:04:29,168 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for get_file_info
+2025-08-25 14:04:29,168 - mcp_analyzer.static_payload_generator - INFO - Limiting static payloads from 37 to 30
+2025-08-25 14:04:29,168 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for get_file_info
+2025-08-25 14:04:29,169 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for get_file_info
+2025-08-25 14:04:31,698 - root - INFO - Security testing completed for get_file_info - tool appears secure
+2025-08-25 14:04:31,705 - root - INFO - Running static probe for tool: list_allowed_directories
+2025-08-25 14:04:31,706 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for list_allowed_directories
+2025-08-25 14:04:31,706 - mcp_analyzer.static_payload_generator - INFO - Limiting static payloads from 37 to 30
+2025-08-25 14:04:31,706 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for list_allowed_directories
+2025-08-25 14:04:31,706 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for list_allowed_directories
+2025-08-25 14:04:34,234 - root - INFO - Security testing completed for list_allowed_directories - tool appears secure
+2025-08-25 14:04:34,234 - root - INFO - Running static probe for tool: get_metrics
+2025-08-25 14:04:34,235 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for get_metrics
+2025-08-25 14:04:34,236 - mcp_analyzer.static_payload_generator - INFO - Limiting static payloads from 37 to 30
+2025-08-25 14:04:34,236 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for get_metrics
+2025-08-25 14:04:34,236 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for get_metrics
+2025-08-25 14:04:36,763 - root - INFO - Security testing completed for get_metrics - tool appears secure
+2025-08-25 14:04:36,765 - root - INFO - Running static probe for tool: execute_command
+2025-08-25 14:04:36,766 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for execute_command
+2025-08-25 14:04:36,766 - mcp_analyzer.static_payload_generator - INFO - Limiting static payloads from 37 to 30
+2025-08-25 14:04:36,766 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for execute_command
+2025-08-25 14:04:36,767 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for execute_command
+2025-08-25 14:04:39,294 - root - INFO - Security testing completed for execute_command - tool appears secure
+2025-08-25 14:04:39,297 - root - INFO - Running static probe for tool: bash_execute
+2025-08-25 14:04:39,297 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for bash_execute
+2025-08-25 14:04:39,298 - mcp_analyzer.static_payload_generator - INFO - Limiting static payloads from 37 to 30
+2025-08-25 14:04:39,298 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for bash_execute
+2025-08-25 14:04:39,298 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for bash_execute
+2025-08-25 14:04:41,828 - root - INFO - Security testing completed for bash_execute - tool appears secure
+2025-08-25 14:04:41,830 - root - INFO - Running static probe for tool: bash_pipe
+2025-08-25 14:04:41,831 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for bash_pipe
+2025-08-25 14:04:41,832 - mcp_analyzer.static_payload_generator - INFO - Limiting static payloads from 37 to 30
+2025-08-25 14:04:41,832 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for bash_pipe
+2025-08-25 14:04:41,832 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for bash_pipe
+2025-08-25 14:04:44,362 - root - INFO - Security testing completed for bash_pipe - tool appears secure
+2025-08-25 14:04:44,364 - root - INFO - Running static probe for tool: curl_request
+2025-08-25 14:04:44,365 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for curl_request
+2025-08-25 14:04:44,365 - mcp_analyzer.static_payload_generator - INFO - Limiting static payloads from 37 to 30
+2025-08-25 14:04:44,365 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for curl_request
+2025-08-25 14:04:44,365 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for curl_request
+2025-08-25 14:04:46,898 - root - INFO - Security testing completed for curl_request - tool appears secure
+2025-08-25 14:04:46,911 - root - INFO - Successfully completed scanning server: filesystem

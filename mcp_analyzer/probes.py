@@ -82,12 +82,17 @@ async def get_relevant_probes(tool: Dict[str, Any]) -> List[ProbeType]:
            for term in ['auth', 'login', 'token', 'credential']):
         probes.append(ProbeType.AUTHENTICATION)
     
+    # For dynamic fuzzing, always include a general probe for all tools
+    # This will be handled in execute_probes function
+    
     return list(set(probes))  # Remove duplicates
 
-async def execute_probes(tool: Dict[str, Any], mcp_client: Any, use_dynamic: bool = False) -> Dict[ProbeType, Dict[str, Any]]:
+async def execute_probes(tool: Dict[str, Any], mcp_client: Any, use_dynamic: bool = False, use_static: bool = False) -> Dict[ProbeType, Dict[str, Any]]:
     """Execute all relevant probes for a tool."""
+    logging.debug(f"execute_probes called for tool: {tool.get('name', 'unknown')}")
     results = {}
     probe_types = await get_relevant_probes(tool)
+    logging.debug(f"Relevant probe types: {probe_types}")
     
     for probe_type in probe_types:
         if probe_func := PROBE_REGISTRY.get(probe_type):
@@ -100,6 +105,32 @@ async def execute_probes(tool: Dict[str, Any], mcp_client: Any, use_dynamic: boo
                     "error": str(e),
                     "success": False
                 }
+    
+    # For dynamic fuzzing, always run a general probe for all tools
+    if use_dynamic:
+        try:
+            logging.info(f"Running dynamic probe for tool: {tool.get('name', 'unknown')}")
+            result = await probe_exec("dynamic", tool, mcp_client, use_dynamic=True)
+            results["dynamic_fuzzing"] = result
+        except Exception as e:
+            logging.error(f"Error executing dynamic probe: {e}")
+            results["dynamic_fuzzing"] = {
+                "error": str(e),
+                "success": False
+            }
+    
+    # For static payload generation, always run a general probe for all tools
+    if use_static:
+        try:
+            logging.info(f"Running static probe for tool: {tool.get('name', 'unknown')}")
+            result = await probe_exec("static", tool, mcp_client, use_dynamic=False, use_static=True)
+            results["static_fuzzing"] = result
+        except Exception as e:
+            logging.error(f"Error executing static probe: {e}")
+            results["static_fuzzing"] = {
+                "error": str(e),
+                "success": False
+            }
     
     return results
 
@@ -467,7 +498,8 @@ def is_suspicious_behavior(tool_name: str, tool_desc: str, input_payload: Any, o
     return has_command_output
 
 
-async def probe_exec(server: str, tool: Dict[str, Any], mcp_client, use_dynamic: bool = False) -> Dict[str, Any]:
+async def probe_exec(server: str, tool: Dict[str, Any], mcp_client, use_dynamic: bool = False, use_static: bool = False) -> Dict[str, Any]:
+    logging.debug(f"probe_exec called for server: {server}, tool: {tool.get('name', 'unknown')}")
     """
     Execute a tool with various payloads to test for command injection and tool poisoning.
     
@@ -502,7 +534,8 @@ async def probe_exec(server: str, tool: Dict[str, Any], mcp_client, use_dynamic:
         tool_desc,
         tool.get("raw", {}).get("inputSchema", {}),
         mcp_client=mcp_client,
-        use_llm=use_dynamic
+        use_llm=use_dynamic,
+        use_static=use_static
     )
     
     if not payloads_result:
@@ -521,6 +554,15 @@ async def probe_exec(server: str, tool: Dict[str, Any], mcp_client, use_dynamic:
         # Check if the tool expects a 'command' parameter or 'a' and 'b' parameters
         input_schema = tool.get("raw", {}).get("inputSchema", {})
         properties = input_schema.get("properties", {})
+        # If schema wasn't present in the normalized tool, try fetching via client (stdio)
+        if (not properties) and mcp_client and hasattr(mcp_client, 'get_tool_schema'):
+            try:
+                live_schema = await mcp_client.get_tool_schema(tool_name)
+                if isinstance(live_schema, dict):
+                    input_schema = live_schema.get("inputSchema", {}) or {}
+                    properties = input_schema.get("properties", {}) or {}
+            except Exception:
+                properties = properties or {}
         
         if "command" in properties:
             # Tool expects a 'command' parameter
@@ -561,12 +603,16 @@ async def probe_exec(server: str, tool: Dict[str, Any], mcp_client, use_dynamic:
     # Track suspicious behaviors across all attempts
     suspicious_behaviors = []
     
-    for result in payloads_result:
+    for i, result in enumerate(payloads_result):
         if "payload" not in result:
             continue
             
         payload = result["payload"]
         attempt = {"args": payload, "resp_short": None, "classification": "pending"}
+        
+        # Add throttling to prevent overwhelming the server
+        if i > 0 and i % 5 == 0:  # Add delay every 5 requests
+            await asyncio.sleep(0.5)  # 500ms delay
         
         try:
             # Use call_tool_with_client which handles different calling patterns
@@ -663,6 +709,44 @@ async def probe_exec(server: str, tool: Dict[str, Any], mcp_client, use_dynamic:
         )
         logging.warning("Potential tool poisoning detected in %s: %s", 
                       tool_name, suspicious_behaviors[0]["reason"])
+    else:
+        # No suspicious behaviors found - tool appears secure
+        # Still generate a proof to show that testing was performed
+        proof_data = {
+            "security_testing_performed": True,
+            "total_payloads_tested": len(probe["attempts"]),
+            "suspicious_behaviors_found": 0,
+            "tool_name": tool["name"],
+            "tool_description": tool.get("description", ""),
+            "server": server,
+            "security_assessment": "Tool appears secure - all malicious payloads were properly rejected",
+            "sample_responses": [
+                {
+                    "payload": attempt["args"],
+                    "response": attempt["resp_short"],
+                    "classification": attempt["classification"]
+                }
+                for attempt in probe["attempts"][:3]  # Show first 3 attempts as examples
+            ]
+        }
+        
+        try:
+            proof_json = json.dumps(proof_data, indent=2, ensure_ascii=False)
+        except (TypeError, ValueError) as e:
+            logging.error(f"Failed to serialize proof data: {e}")
+            proof_json = json.dumps({
+                "error": "Failed to serialize proof data",
+                "tool_name": tool["name"],
+                "server": server
+            })
+            
+        probe.update(
+            success=False,  # Tool is secure, no vulnerabilities found
+            is_tool_poisoning=False,
+            proof=proof_json,
+            payload=None
+        )
+        logging.info("Security testing completed for %s - tool appears secure", tool_name)
     
     return probe
 

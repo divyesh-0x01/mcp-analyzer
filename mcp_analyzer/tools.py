@@ -1,4 +1,5 @@
 from __future__ import annotations
+import logging
 from typing import Any, Dict, List, Optional, Union
 from .rpc import send_jsonrpc, recv_json_until, next_id
 from .constants import CALL_METHODS
@@ -52,5 +53,5 @@ async def call_tool_with_client(
         # Let the MCP client handle the calling pattern
         return await mcp_client.call_tool(tool_name, arguments)
     except Exception as e:
-        logging.debug(f"Tool call failed for {tool_name}: {e}")
+        logging.info(f"Tool call failed for {tool_name}: {e}")
         return None

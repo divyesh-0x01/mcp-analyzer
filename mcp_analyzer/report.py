@@ -242,7 +242,7 @@ def get_complete_proof(finding: dict) -> str:
                 return finding['proof']
         return json.dumps({
             'tool_name': finding.get('tool', ''),
-            'server': finding.get('server', ''),
+            'server': finding.get('server', ''),                      
             'proof': finding['proof'],
             'classification': 'suspicious_behavior' if finding.get('active_risk') != 'none' else 'normal_behavior'
         }, indent=2)
@@ -294,8 +294,51 @@ def generate_report(all_findings: List[Finding]) -> None:
         server_findings = data['findings']
         risk_counts = data['risk_counts']
         
-        # Server header with risk summary
+        # Server header
         console.rule(f"[bold]Server: {server}[/]")
+        
+        # Get authentication status and tools/resources from findings
+        auth_status = "Unauthenticated"
+        tools_list = []
+        resources_list = []
+        
+        for finding in server_findings:
+            if finding.get('unauthenticated', True):
+                auth_status = "Unauthenticated"
+            else:
+                auth_status = "Authenticated"
+            
+            # Collect tools and resources information
+            tool_name = finding.get('tool', '')
+            if tool_name and tool_name != 'connection' and tool_name != 'scanner':
+                if tool_name.startswith('resource:'):
+                    # Extract resource name from "resource:name" format
+                    resource_name = tool_name.replace('resource:', '', 1)
+                    resources_list.append(resource_name)
+                else:
+                    tools_list.append(tool_name)
+        
+        # Print authentication status
+        if auth_status == "Authenticated":
+            console.print(f"  [green]{auth_status}[/green]")
+        else:
+            console.print(f"  [red]{auth_status}[/red]")
+        
+        # Print resources (if any)
+        if resources_list:
+            console.print("  Resources:")
+            for resource in resources_list:
+                console.print(f"    [green]✅[/green] {resource}")
+        else:
+            console.print("  [yellow]No resources found[/yellow]")
+        
+        # Print tools
+        if tools_list:
+            console.print("  Tools:")
+            for tool in tools_list:
+                console.print(f"    [green]✅[/green] {tool}")
+        else:
+            console.print("  [yellow]No tools found[/yellow]")
         
         # Print risk summary
         console.print(f"\n[bold]Risk Summary:[/]")
@@ -378,7 +421,7 @@ def generate_report(all_findings: List[Finding]) -> None:
                             console.print(f"   {line}")
                         console.print(f"   [dim]{'─'*70}[/]")
         
-        console.print("\n" + "="*120 + "\n")
+        #console.print("\n" + "="*120 + "\n")
     
     # Print summary
     console.print(f"\n[bold green]Scan completed![/]")

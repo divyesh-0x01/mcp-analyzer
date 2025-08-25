@@ -7,6 +7,8 @@ import subprocess
 from typing import Dict, List, Optional, Any, Union
 
 from .tools import call_tool_with_client
+from .enhanced_payload_generator import HybridPayloadGenerator, PayloadResult
+from .static_payload_generator import StaticPayloadGenerator, StaticPayloadResult
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -17,10 +19,11 @@ async def generate_payloads(
     tool_description: str, 
     input_schema: Optional[Dict] = None, 
     mcp_client = None,
-    use_llm: bool = True
+    use_llm: bool = True,
+    use_static: bool = False
 ) -> List[Dict[str, Any]]:
     """
-    Generate test payloads for a given tool using LLM or predefined payloads.
+    Generate test payloads for a given tool using enhanced hybrid approach or static approach.
     
     Args:
         tool_name: Name of the tool
@@ -28,26 +31,11 @@ async def generate_payloads(
         input_schema: Input schema of the tool (if available)
         mcp_client: Optional MCP client for testing payloads and getting schema
         use_llm: Whether to use LLM for payload generation (default: True)
+        use_static: Whether to use static payload generation (default: False)
         
     Returns:
         List of generated payloads with metadata
     """
-    # Special case for number addition tools (always use predefined payloads for these)
-    if any(term in tool_name.lower() for term in ['add', 'sum', 'plus', 'calculator']) or \
-       any(term in tool_description.lower() for term in ['add', 'sum', 'plus', 'calculate', 'number']):
-        return [
-            {"payload": {"a": 5, "b": 3}, "type": "basic", "description": "Basic addition"},
-            {"payload": {"a": 4294967295, "b": 1}, "type": "large_numbers", "description": "Large number addition"},
-            {"payload": {"a": -5, "b": 3}, "type": "negative_numbers", "description": "Negative number addition"},
-            {"payload": {"a": 3.14, "b": 1.59}, "type": "decimal_numbers", "description": "Floating point addition"},
-            {"payload": {"a": "5", "b": "3"}, "type": "string_numbers", "description": "String number addition"},
-            {"payload": {"a": "", "b": 5}, "type": "edge_case", "description": "Empty string input"},
-            {"payload": {"a": "5; id; echo ", "b": "3"}, "type": "security", "description": "Command injection attempt"},
-            {"payload": {"a": "$(id)", "b": 1}, "type": "security", "description": "Command substitution attempt"},
-            {"payload": {"a": "../../etc/passwd", "b": 0}, "type": "security", "description": "Path traversal attempt"},
-            {"payload": {"a": "5' || id #", "b": 0}, "type": "security", "description": "SQL injection attempt"},
-            {"payload": {"a": "1; DROP TABLE users --", "b": 0}, "type": "security", "description": "SQL injection attempt 2"}
-        ]
     
     # If we have a client, try to get the tool's schema if not provided
     if mcp_client and hasattr(mcp_client, 'get_tool_schema') and not input_schema:
@@ -58,105 +46,98 @@ async def generate_payloads(
                 logger.debug(f"Retrieved schema for {tool_name}")
         except Exception as e:
             logger.warning(f"Could not get schema for {tool_name}: {e}")
+
+    # Special case for number addition tools (use predefined payloads only if not using LLM)
+    is_calculator_tool = any(term in tool_name.lower() for term in ['add', 'sum', 'plus', 'calculator']) or \
+       any(term in tool_description.lower() for term in ['add', 'sum', 'plus', 'calculate', 'number'])
+
+    # Only use calculator payloads if schema matches expected (properties include 'a' and 'b')
+    schema_has_a_b = False
+    if isinstance(input_schema, dict) and 'properties' in input_schema:
+        props = set(input_schema.get('properties', {}).keys())
+        schema_has_a_b = {'a', 'b'}.issubset(props)
+
+    if is_calculator_tool and not use_llm and schema_has_a_b:
+        return [
+            {"payload": {"a": 5, "b": 3}, "type": "basic", "description": "Basic addition"},
+            {"payload": {"a": 4294967295, "b": 1}, "type": "large_numbers", "description": "Large number addition"},
+            {"payload": {"a": -5, "b": 3}, "type": "negative_numbers", "description": "Negative number addition"},
+            {"payload": {"a": 3.14, "b": 1.59}, "type": "decimal_numbers", "description": "Floating point addition"},
+            {"payload": {"a": "5", "b": "3"}, "type": "string_numbers", "description": "String number addition"},
+            {"payload": {"a": "", "b": 5}, "type": "edge_case", "description": "Empty string input"},
+            {"payload": {"a": "5; id; echo ", "b": 3}, "type": "security", "description": "Command injection attempt"},
+            {"payload": {"a": "$(id)", "b": 1}, "type": "security", "description": "Command substitution attempt"},
+            {"payload": {"a": "../../etc/passwd", "b": 0}, "type": "security", "description": "Path traversal attempt"},
+            {"payload": {"a": "5' || id #", "b": 0}, "type": "security", "description": "SQL injection attempt"},
+            {"payload": {"a": "1; DROP TABLE users --", "b": 0}, "type": "security", "description": "SQL injection attempt 2"}
+        ]
     
-    # If we have an input schema, use it to generate more targeted payloads
-    schema_str = ""
-    if input_schema:
+    # Use static payload generator (fast, reliable, no external dependencies)
+    if use_static:
         try:
-            schema_str = json.dumps(input_schema, indent=2)
-        except Exception as e:
-            logger.error(f"Error serializing input schema: {e}")
-    
-    # If we have a client and want to use LLM for payload generation
-    if use_llm and mcp_client and hasattr(mcp_client, 'call_tool'):
-        try:
-            # Construct the prompt for the LLM
-            prompt = (
-                "You are a security testing assistant. Generate test payloads for an API tool.\n"
-                f"Tool name: {tool_name}\n"
-                f"Description: {tool_description}\n"
+            logger.info(f"Using static payload generator for {tool_name}")
+            
+            # Initialize the static generator
+            static_generator = StaticPayloadGenerator()
+            
+            # Generate static payloads
+            static_payload_results = static_generator.generate_payloads(
+                tool_name, tool_description, input_schema or {}
             )
             
-            if schema_str:
-                prompt += (
-                    f"Input schema (JSON Schema):\n{schema_str}\n\n"
-                    "Generate exactly 3 JSON payloads as a JSON array of objects. "
-                    "Each payload should be a valid input for this tool.\n"
-                    "1. First payload: A normal, valid input that follows the schema exactly.\n"
-                    "2. Second payload: A malicious input that attempts to exploit potential vulnerabilities.\n"
-                    "3. Third payload: An edge-case input that tests the boundaries of the input validation.\n\n"
-                    "⚠️ IMPORTANT: Only use fields defined in the schema. Do not invent new fields.\n"
-                    "Return ONLY a valid JSON array of objects, with no other text or explanation."
-                )
-            else:
-                prompt += (
-                    "No input schema available. Generate 3 test payloads based on the tool name and description.\n"
-                    "1. First payload: A normal, valid input.\n"
-                    "2. Second payload: A malicious input that attempts to exploit potential vulnerabilities.\n"
-                    "3. Third payload: An edge-case input that tests input validation.\n\n"
-                    "Return ONLY a valid JSON array of objects, with no other text or explanation."
-                )
-
-            # Call the LLM with timeout
-            logger.debug(f"Generating payloads for {tool_name} using LLM...")
-            try:
-                result = await asyncio.wait_for(
-                    _call_llm(prompt),
-                    timeout=60  # 60 second timeout
-                )
-                
-                # Process the output
-                output = result.strip()
-                
-                # Extract JSON from markdown code blocks if present
-                if output.startswith("```"):
-                    parts = output.split("```")
-                    output = parts[1].strip() if len(parts) > 1 else output
-                    if output.startswith("json\n"):
-                        output = output[5:]
-                
-                # Find the JSON array in the output
-                start = output.find('[')
-                end = output.rfind(']')
-                
-                if start == -1 or end == -1:
-                    raise ValueError("Could not find JSON array in LLM output")
-                    
-                json_str = output[start:end+1]
-                payloads = json.loads(json_str)
-                
-                if not isinstance(payloads, list):
-                    payloads = [payloads]
-                    
-                # Add metadata to each payload
-                result = []
-                for i, payload in enumerate(payloads, 1):
-                    if not isinstance(payload, dict):
-                        logger.warning(f"Skipping invalid payload (not a dict): {payload}")
-                        continue
-                        
-                    result.append({
-                        "payload": payload,
-                        "type": "llm_generated",
-                        "description": f"Generated by LLM (variant {i})",
-                        "source": "llm"
-                    })
-                
-                logger.info(f"Generated {len(result)} payloads for {tool_name} using LLM")
-                return result
-                
-            except asyncio.TimeoutError:
-                logger.error("LLM generation timed out")
-            except json.JSONDecodeError as e:
-                logger.error(f"Failed to parse LLM output as JSON: {e}")
-                logger.debug(f"LLM output: {output}")
-            except Exception as e:
-                logger.error(f"Error during LLM payload generation: {e}", exc_info=True)
-                
+            # Convert StaticPayloadResult objects to the expected format
+            result = []
+            for payload_result in static_payload_results:
+                result.append({
+                    "payload": payload_result.payload,
+                    "type": payload_result.attack_type,
+                    "description": f"{payload_result.technique} - {payload_result.expected_behavior}",
+                    "source": "static",
+                    "risk_level": payload_result.risk_level,
+                    "technique": payload_result.technique,
+                    "expected_behavior": payload_result.expected_behavior,
+                    "category": payload_result.category
+                })
+            
+            logger.info(f"Generated {len(result)} static payloads for {tool_name}")
+            return result
+            
         except Exception as e:
-            logger.error(f"Unexpected error during LLM payload generation: {e}", exc_info=True)
+            logger.error(f"Static payload generation failed: {e}", exc_info=True)
     
-    # Fallback to basic payloads if LLM generation fails or is disabled
+    # Use the new hybrid payload generator (dynamic approach)
+    elif use_llm and mcp_client and hasattr(mcp_client, 'call_tool'):
+        try:
+            logger.info(f"Using enhanced hybrid payload generator for {tool_name}")
+            
+            # Initialize the hybrid generator
+            generator = HybridPayloadGenerator()
+            
+            # Generate payloads using multiple approaches (LLM disabled by default)
+            payload_results = await generator.generate_payloads(
+                tool_name, tool_description, input_schema or {}, use_llm=False
+            )
+            
+            # Convert PayloadResult objects to the expected format
+            result = []
+            for payload_result in payload_results:
+                result.append({
+                    "payload": payload_result.payload,
+                    "type": payload_result.attack_type,
+                    "description": f"{payload_result.technique} - {payload_result.expected_behavior}",
+                    "source": payload_result.source,
+                    "risk_level": payload_result.risk_level,
+                    "technique": payload_result.technique,
+                    "expected_behavior": payload_result.expected_behavior
+                })
+            
+            logger.info(f"Generated {len(result)} enhanced payloads for {tool_name}")
+            return result
+            
+        except Exception as e:
+            logger.error(f"Enhanced payload generation failed: {e}", exc_info=True)
+    
+    # Fallback to basic payloads if enhanced generation fails or is disabled
     logger.info(f"Using fallback payloads for {tool_name}")
     return [
         {"payload": {}, "type": "empty", "description": "Empty payload", "source": "fallback"},
