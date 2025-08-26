@@ -142,47 +142,13 @@ def generate_single_server_report(findings: List[Finding], server_name: str) -> 
         # Check if there are any security findings (not safe)
         has_security_issues = any(risk_counts[level] > 0 for level in ['critical', 'high', 'medium', 'low'])
         
-        # Only show safe findings if there are no security issues
+        # Only show non-safe findings; omit SAFE sections entirely
         if not has_security_issues:
             console.print("\n[green]✓ No security vulnerabilities found[/]")
             console.print("All tools are safe to use.")
-            
-            # Show safe findings with proof if static testing was performed
-            safe_findings = findings_by_risk.get('safe', [])
-            if safe_findings:
-                console.print(f"\n[bold green]SAFE FINDINGS[/]")
-                console.print("-" * 80)
-                
-                for i, finding in enumerate(safe_findings, 1):
-                    console.print(f"\n[bold]{i}. {finding['tool']}[/]")
-                    if finding.get('description'):
-                        console.print(f"   [dim]Description:[/] {finding['description']}")
-                    
-                    console.print(f"   [bold]Risk Level:[/] [green]SAFE[/]")
-                    
-                    if finding.get('matches'):
-                        console.print("\n   [bold]Indicators:[/]")
-                        for match in finding['matches']:
-                            console.print(f"     • {match}")
-                    
-                    if finding.get('proof'):
-                        console.print("\n   [bold]Proof:[/]")
-                        console.print(f"   [dim]{'─'*70}[/]")
-                        try:
-                            proof_data = json.loads(finding['proof'])
-                            proof_text = json.dumps(proof_data, indent=2)
-                        except:
-                            proof_text = str(finding['proof'])
-                        
-                        proof_lines = proof_text.split('\n')
-                        for line in proof_lines:
-                            console.print(f"   {line}")
-                        console.print(f"   [dim]{'─'*70}[/]")
         else:
             # Print detailed findings by risk level (skip 'safe' if no security issues)
             risk_levels = ['critical', 'high', 'medium', 'low']
-            if has_security_issues or risk_counts['safe'] > 0:
-                risk_levels.append('safe')
                 
             for risk_level in risk_levels:
                 findings = findings_by_risk[risk_level]
@@ -194,10 +160,9 @@ def generate_single_server_report(findings: List[Finding], server_name: str) -> 
                     'high': 'red',
                     'medium': 'yellow',
                     'low': 'blue',
-                    'safe': 'green'
                 }[risk_level]
                 
-                console.print(f"\n[bold {risk_color}]{risk_level.upper() if risk_level != 'safe' else 'SAFE'} FINDINGS[/]")
+                console.print(f"\n[bold {risk_color}]{risk_level.upper()} FINDINGS[/]")
                 console.print("-" * 80)
                 
                 for i, finding in enumerate(findings, 1):
@@ -205,7 +170,7 @@ def generate_single_server_report(findings: List[Finding], server_name: str) -> 
                     if finding.get('description'):
                         console.print(f"   [dim]Description:[/] {finding['description']}")
                     
-                    console.print(f"   [bold]Risk Level:[/] [{risk_color}]{risk_level.upper() if risk_level != 'safe' else 'SAFE'}[/]")
+                    console.print(f"   [bold]Risk Level:[/] [{risk_color}]{risk_level.upper()}[/]")
                     
                     if finding.get('matches'):
                         console.print("\n   [bold]Indicators:[/]")
@@ -272,6 +237,7 @@ async def _amain():
     parser.add_argument("--dynamic", action="store_true", help="Enable dynamic fuzzing of identified tools (disabled by default)")
     parser.add_argument("--static", action="store_true", help="Enable static payload generation (fast, reliable, no external dependencies)")
     parser.add_argument("--debug", action="store_true", help="Enable debug logging")
+    parser.add_argument("--prompt", action="store_true", help="Enable prompt-injection payloads (disabled by default)")
     args = parser.parse_args()
     
     # Setup logging based on debug flag
@@ -299,7 +265,8 @@ async def _amain():
                 list_timeout=args.list_timeout,
                 skip_active=args.skip_active_probes,
                 use_dynamic=args.dynamic,
-                use_static=args.static
+                use_static=args.static,
+                use_prompt=args.prompt
             )
             all_findings.extend(findings)
             logger.info(f"Successfully completed scanning server: {name}")

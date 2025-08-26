@@ -87,7 +87,7 @@ async def get_relevant_probes(tool: Dict[str, Any]) -> List[ProbeType]:
     
     return list(set(probes))  # Remove duplicates
 
-async def execute_probes(tool: Dict[str, Any], mcp_client: Any, use_dynamic: bool = False, use_static: bool = False) -> Dict[ProbeType, Dict[str, Any]]:
+async def execute_probes(tool: Dict[str, Any], mcp_client: Any, use_dynamic: bool = False, use_static: bool = False, use_prompt: bool = False) -> Dict[ProbeType, Dict[str, Any]]:
     """Execute all relevant probes for a tool."""
     logging.debug(f"execute_probes called for tool: {tool.get('name', 'unknown')}")
     results = {}
@@ -110,7 +110,7 @@ async def execute_probes(tool: Dict[str, Any], mcp_client: Any, use_dynamic: boo
     if use_dynamic:
         try:
             logging.info(f"Running dynamic probe for tool: {tool.get('name', 'unknown')}")
-            result = await probe_exec("dynamic", tool, mcp_client, use_dynamic=True)
+            result = await probe_exec("dynamic", tool, mcp_client, use_dynamic=True, use_prompt=use_prompt)
             results["dynamic_fuzzing"] = result
         except Exception as e:
             logging.error(f"Error executing dynamic probe: {e}")
@@ -123,7 +123,7 @@ async def execute_probes(tool: Dict[str, Any], mcp_client: Any, use_dynamic: boo
     if use_static:
         try:
             logging.info(f"Running static probe for tool: {tool.get('name', 'unknown')}")
-            result = await probe_exec("static", tool, mcp_client, use_dynamic=False, use_static=True)
+            result = await probe_exec("static", tool, mcp_client, use_dynamic=False, use_static=True, use_prompt=use_prompt)
             results["static_fuzzing"] = result
         except Exception as e:
             logging.error(f"Error executing static probe: {e}")
@@ -132,6 +132,16 @@ async def execute_probes(tool: Dict[str, Any], mcp_client: Any, use_dynamic: boo
                 "success": False
             }
     
+    # Run prompt-injection probe only when explicitly enabled
+    if use_prompt:
+        try:
+            logging.info(f"Running prompt-injection probe for tool: {tool.get('name', 'unknown')}")
+            pi_result = await probe_prompt_injection(mcp_client, tool, use_dynamic=False)
+            results["prompt_injection"] = pi_result
+        except Exception as e:
+            logging.error(f"Error executing prompt-injection probe: {e}")
+            results["prompt_injection"] = {"error": str(e), "success": False}
+    
     return results
 
 @register_probe(ProbeType.FILE_READ)
@@ -139,86 +149,232 @@ async def probe_file_read(mcp_client: Any, tool: Dict[str, Any], use_dynamic: bo
     """Probe for file read vulnerabilities."""
     result = ProbeResult(probe_type=ProbeType.FILE_READ, severity="high")
     result.attempts = []
-    
-    # Generate test files based on OS hints
+
+    # Minimal, specific read tests
     test_files = [
-        "/etc/passwd", "/etc/hosts", "/etc/group",
-        "C:\\Windows\\System32\\drivers\\etc\\hosts"
+        "/etc/passwd",
+        "/etc/hosts",
+        "C\\\Windows\\System32\\drivers\\etc\\hosts"
     ]
-    
-    # Try different parameter names
+
+    param_names = ['path', 'file', 'filename', 'filepath', 'input']
+
     for test_file in test_files:
-        for param in ['path', 'file', 'filename', 'filepath', 'input']:
+        for param in param_names:
             payload = {param: test_file}
             attempt = {"args": payload, "classification": "pending"}
-            
             try:
                 resp = await call_tool_with_client(mcp_client, tool['name'], payload)
                 attempt["response"] = resp
                 text = extract_result_text(resp) if resp else ""
-                
-                if looks_like_passwd(text):
+
+                if looks_like_passwd(text) or text.startswith("root:"):
                     attempt["classification"] = "vulnerable"
                     result.success = True
                     result.payload = payload
-                    result.proof = f"Successfully read system file: {test_file}"
-                    result.confidence = 0.9
-                elif any(indicator in text for indicator in ['root:', '127.0.0.1', 'nobody:']):
-                    attempt["classification"] = "suspicious"
+                    result.proof = json.dumps({
+                        "payload": payload,
+                        "response": extract_concise_response(text)
+                    }, ensure_ascii=False)
+                    result.confidence = 0.95
+                    result.attempts.append(attempt)
+                    return result.to_dict()
+                if "127.0.0.1" in text and "hosts" in text:
+                    attempt["classification"] = "vulnerable"
                     result.success = True
                     result.payload = payload
-                    result.proof = f"Suspicious file read detected: {text[:200]}..."
-                    result.confidence = 0.7
-                
-                result.attempts.append(attempt)
-                if result.success:
+                    result.proof = json.dumps({
+                        "payload": payload,
+                        "response": extract_concise_response(text)
+                    }, ensure_ascii=False)
+                    result.confidence = 0.85
+                    result.attempts.append(attempt)
                     return result.to_dict()
-                    
+
+                if "denied" in text.lower():
+                    attempt["classification"] = "denied"
+                elif any(w in text.lower() for w in ["error", "invalid", "not found", "no such"]):
+                    attempt["classification"] = "error_response"
+                else:
+                    attempt["classification"] = "success"
+                result.attempts.append(attempt)
             except Exception as e:
                 attempt["classification"] = "error"
                 attempt["error"] = str(e)
                 result.attempts.append(attempt)
-    
+
     return result.to_dict()
+
 
 @register_probe(ProbeType.COMMAND_EXEC)
 async def probe_command_exec(mcp_client: Any, tool: Dict[str, Any], use_dynamic: bool = False) -> Dict[str, Any]:
-    """Probe for command execution vulnerabilities."""
+    """Probe for command execution vulnerabilities using minimal safe commands."""
     result = ProbeResult(probe_type=ProbeType.COMMAND_EXEC, severity="critical")
     result.attempts = []
-    
-    test_commands = [
+
+    # Only minimal commands as requested
+    cmd_variants = [
         {"command": "whoami"},
-        {"cmd": "id"},
-        {"exec": "echo test"},
-        {"run": "hostname"}
+        {"command": "hostname"},
+        {"command": "pwd"},
     ]
-    
-    for cmd in test_commands:
-        attempt = {"args": cmd, "classification": "pending"}
+
+    # Also try common alternate parameter names
+    alt_keys = ["cmd", "exec", "run"]
+
+    for base in cmd_variants:
+        for key in ["command"] + alt_keys:
+            payload = {key: list(base.values())[0]}
+            attempt = {"args": payload, "classification": "pending"}
+            try:
+                resp = await call_tool_with_client(mcp_client, tool['name'], payload)
+                attempt["response"] = resp
+                text = extract_result_text(resp) if resp else ""
+
+                # Match indicative patterns
+                if key in payload and payload[key] == "whoami" and text.strip():
+                    attempt["classification"] = "vulnerable"
+                    result.success = True
+                    result.payload = payload
+                    result.proof = json.dumps({
+                        "payload": payload,
+                        "response": extract_concise_response(text)
+                    }, ensure_ascii=False)
+                    result.confidence = 0.9
+                    result.attempts.append(attempt)
+                    return result.to_dict()
+                if key in payload and payload[key] == "hostname" and text.strip():
+                    attempt["classification"] = "vulnerable"
+                    result.success = True
+                    result.payload = payload
+                    result.proof = json.dumps({
+                        "payload": payload,
+                        "response": extract_concise_response(text)
+                    }, ensure_ascii=False)
+                    result.confidence = 0.85
+                    result.attempts.append(attempt)
+                    return result.to_dict()
+                if key in payload and payload[key] == "pwd" and text.startswith("/"):
+                    attempt["classification"] = "vulnerable"
+                    result.success = True
+                    result.payload = payload
+                    result.proof = json.dumps({
+                        "payload": payload,
+                        "response": first_non_empty_line(text)
+                    }, ensure_ascii=False)
+                    result.confidence = 0.8
+                    result.attempts.append(attempt)
+                    return result.to_dict()
+
+                if "denied" in text.lower():
+                    attempt["classification"] = "denied"
+                elif any(w in text.lower() for w in ["error", "invalid", "not found", "no such"]):
+                    attempt["classification"] = "error_response"
+                else:
+                    attempt["classification"] = "success"
+                result.attempts.append(attempt)
+            except Exception as e:
+                attempt["classification"] = "error"
+                attempt["error"] = str(e)
+                result.attempts.append(attempt)
+
+    return result.to_dict()
+
+
+# Dedicated prompt-injection probe leveraging static templates
+@register_probe(ProbeType.DATA_EXPOSURE)
+async def probe_prompt_injection(mcp_client: Any, tool: Dict[str, Any], use_dynamic: bool = False) -> Dict[str, Any]:
+    result = ProbeResult(probe_type=ProbeType.DATA_EXPOSURE, severity="high")
+    result.attempts = []
+
+    from .static_payload_generator import StaticPayloadGenerator
+    generator = StaticPayloadGenerator()
+    # Select only context/role/instruction manipulation payloads
+    pi_payloads = [p for p in generator._load_static_payloads() if p.attack_type in {
+        "context_manipulation", "role_confusion", "instruction_injection", "delimiter_attack", "encoding_attack"
+    }]
+
+    # Adapt payloads to tool schema if available
+    input_schema = tool.get("raw", {}).get("inputSchema", {}) or {}
+    adapted = [generator._adapt_payload_to_schema(p, input_schema, tool.get('name', '')) for p in pi_payloads]
+
+    for payload_obj in adapted:
+        payload = payload_obj.payload
+        attempt = {"args": payload, "classification": "pending"}
         try:
-            resp = await call_tool_with_client(mcp_client, tool['name'], cmd)
+            resp = await call_tool_with_client(mcp_client, tool['name'], payload)
             attempt["response"] = resp
             text = extract_result_text(resp) if resp else ""
-            
-            # Check for command output patterns
-            if any(pattern in text.lower() for pattern in ["uid=", "windows", "linux", "unix"]):
+
+            # If execution traces or sensitive outputs appear, mark as vulnerable
+            if looks_like_passwd(text) or any(s in text for s in ["uid=", "root:", "/etc/passwd"]):
                 attempt["classification"] = "vulnerable"
                 result.success = True
-                result.payload = cmd
-                result.proof = f"Command execution successful. Output: {text[:200]}..."
-                result.confidence = 0.9
-            
-            result.attempts.append(attempt)
-            if result.success:
+                result.payload = payload
+                result.proof = json.dumps({
+                    "payload": payload,
+                    "response": extract_concise_response(text)
+                }, ensure_ascii=False)
+                result.confidence = 0.85
+                result.attempts.append(attempt)
                 return result.to_dict()
-                
+
+            if any(tok in text for tok in ["Method not found", "invalid", "denied", "error"]):
+                attempt["classification"] = "error_response"
+            else:
+                attempt["classification"] = "success"
+            result.attempts.append(attempt)
         except Exception as e:
             attempt["classification"] = "error"
             attempt["error"] = str(e)
             result.attempts.append(attempt)
-    
+
     return result.to_dict()
+
+
+def first_non_empty_line(text: str) -> str:
+    if not text:
+        return ""
+    for line in text.splitlines():
+        s = line.strip()
+        if s:
+            return s[:200]
+    return text.strip()[:200]
+
+def extract_concise_response(text: str) -> str:
+    """Prefer actual command output over status lines.
+    - Try to capture after 'Command output:'
+    - Try STDOUT block
+    - Fallback to first non-empty line excluding labels
+    """
+    if not text:
+        return ""
+    # Normalize newlines
+    t = text.replace("\r\n", "\n").replace("\r", "\n")
+    # 1) Command output: <line>
+    m = re.search(r"Command output:\n([^\n]+)", t, flags=re.IGNORECASE)
+    if m:
+        return m.group(1).strip()[:200]
+    # 2) STDOUT block
+    m = re.search(r"STDOUT:\n([\s\S]*?)(?:\n\s*STDERR:|$)", t, flags=re.IGNORECASE)
+    if m:
+        stdout_block = m.group(1).strip()
+        # Return first non-empty line from stdout
+        for line in stdout_block.splitlines():
+            s = line.strip()
+            if s:
+                return s[:200]
+        return stdout_block[:200]
+    # 3) Fallback: first non-empty line that isn't a label
+    label_prefixes = ("command:", "exit code:", "stderr:", "stdout:", "error:")
+    for line in t.splitlines():
+        s = line.strip()
+        if not s:
+            continue
+        if s.lower().startswith(label_prefixes):
+            continue
+        return s[:200]
+    return first_non_empty_line(t)
 
 def looks_like_passwd(text: str) -> bool:
     return bool(re.search(r"^root:.*:0:0:", text, flags=re.MULTILINE))
@@ -498,7 +654,7 @@ def is_suspicious_behavior(tool_name: str, tool_desc: str, input_payload: Any, o
     return has_command_output
 
 
-async def probe_exec(server: str, tool: Dict[str, Any], mcp_client, use_dynamic: bool = False, use_static: bool = False) -> Dict[str, Any]:
+async def probe_exec(server: str, tool: Dict[str, Any], mcp_client, use_dynamic: bool = False, use_static: bool = False, use_prompt: bool = False) -> Dict[str, Any]:
     logging.debug(f"probe_exec called for server: {server}, tool: {tool.get('name', 'unknown')}")
     """
     Execute a tool with various payloads to test for command injection and tool poisoning.
@@ -535,7 +691,8 @@ async def probe_exec(server: str, tool: Dict[str, Any], mcp_client, use_dynamic:
         tool.get("raw", {}).get("inputSchema", {}),
         mcp_client=mcp_client,
         use_llm=use_dynamic,
-        use_static=use_static
+        use_static=use_static,
+        use_prompt=use_prompt
     )
     
     if not payloads_result:
@@ -682,9 +839,16 @@ async def probe_exec(server: str, tool: Dict[str, Any], mcp_client, use_dynamic:
     
     # If we found suspicious behaviors, mark as tool poisoning
     if suspicious_behaviors:
-        # Ensure we have valid JSON for the proof
+        # Show only one representative proof entry instead of all suspicious behaviors
+        representative_behavior = suspicious_behaviors[0]  # Take the first one as representative
         proof_data = {
-            "suspicious_behaviors": suspicious_behaviors,
+            "suspicious_behavior_detected": True,
+            "total_suspicious_behaviors_found": len(suspicious_behaviors),
+            "representative_proof": {
+                "payload": representative_behavior["payload"],
+                "response": representative_behavior["response"],
+                "reason": representative_behavior["reason"]
+            },
             "tool_name": tool["name"],
             "tool_description": tool.get("description", ""),
             "server": server

@@ -20,7 +20,8 @@ async def generate_payloads(
     input_schema: Optional[Dict] = None, 
     mcp_client = None,
     use_llm: bool = True,
-    use_static: bool = False
+    use_static: bool = False,
+    use_prompt: bool = False
 ) -> List[Dict[str, Any]]:
     """
     Generate test payloads for a given tool using enhanced hybrid approach or static approach.
@@ -82,7 +83,7 @@ async def generate_payloads(
             
             # Generate static payloads
             static_payload_results = static_generator.generate_payloads(
-                tool_name, tool_description, input_schema or {}
+                tool_name, tool_description, input_schema or {}, include_prompt=use_prompt
             )
             
             # Convert StaticPayloadResult objects to the expected format
