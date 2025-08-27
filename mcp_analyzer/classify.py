@@ -54,40 +54,40 @@ def detect_malicious_server_behavior(name: str, description: str, suspicious_beh
     return False, detected_patterns
 
 def static_classify(name: str, description: str, raw_tool: Dict, suspicious_behaviors: List[Dict] = None) -> Tuple[str, List[str]]:
-    text = f"{name} {description}".lower()
+    """
+    Simplified classification that only considers actual probe results.
+    No more static keyword-based risk assessment.
+    """
     matches: List[str] = []
-    score = 0
     
-    # Check for malicious server behavior first
-    is_malicious, malicious_patterns = detect_malicious_server_behavior(name, description, suspicious_behaviors)
-    if is_malicious:
-        matches.extend(malicious_patterns)
-        score += 10  # Very high score for malicious server behavior
+    # Only classify based on actual suspicious behaviors found by probes
+    if suspicious_behaviors and len(suspicious_behaviors) > 0:
+        # Check for malicious server behavior (tool poisoning)
+        is_malicious, malicious_patterns = detect_malicious_server_behavior(name, description, suspicious_behaviors)
+        if is_malicious:
+            matches.extend(malicious_patterns)
+            return "critical", matches
+        
+        # If suspicious behaviors found but not malicious server, classify based on behavior severity
+        # Check for critical behaviors first (command execution, file read, etc.)
+        has_critical_behavior = False
+        for behavior in suspicious_behaviors:
+            # Check if this is a critical behavior
+            if any(critical_indicator in str(behavior).lower() for critical_indicator in [
+                'root:', 'whoami', 'command output', 'uid=', 'gid=', 'shell access',
+                '/etc/passwd', '/etc/shadow', 'daemon:', 'bin/', 'nologin'
+            ]):
+                has_critical_behavior = True
+                break
+        
+        if has_critical_behavior:
+            return "critical", matches
+        elif len(suspicious_behaviors) >= 2:
+            return "high", matches
+        else:
+            return "medium", matches
     
-    # Standard pattern matching
-    for cat, pats in DANGEROUS_PATTERNS.items():
-        for p in pats:
-            if p in text:
-                matches.append(f"{cat}:{p}")
-                score += 2 if cat in ("file_ops", "exec", "secrets", "admin") else 1
-    
-    schema = (raw_tool or {}).get("inputSchema") or {}
-    props = (schema.get("properties") or {}) if isinstance(schema, dict) else {}
-    for p_name, p_spec in props.items():
-        p_text = f"{p_name} {(p_spec.get('description') or '')}".lower() if isinstance(p_spec, dict) else str(p_spec).lower()
-        if any(k in p_name.lower() for k in ("path", "paths", "filepath", "filename")):
-            matches.append("file_ops:parameter"); score += 2
-        if "read" in p_text or "file" in p_text:
-            matches.append("file_ops:desc"); score += 1
-        if p_name.lower() in [*COMMON_CMD_KEYS, "command"]:
-            matches.append("exec:parameter"); score += 2
-        if any(w in p_text for w in ("bash", "shell", "exec", "command", "subprocess", "system")):
-            matches.append("exec:desc"); score += 2
-    
-    # Adjusted scoring for malicious server detection
-    if score >= 10:   return "critical", matches  # Malicious server behavior
-    if score >= 4:    return "dangerous", matches
-    if score >= 2:    return "suspicious", matches
+    # No suspicious behaviors found - tool is safe
     return "safe", matches
 
 def detect_prompt_injection(description: str) -> Tuple[bool, List[str]]:

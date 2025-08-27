@@ -145,7 +145,7 @@ def generate_single_server_report(findings: List[Finding], server_name: str) -> 
         # Only show non-safe findings; omit SAFE sections entirely
         if not has_security_issues:
             console.print("\n[green]✓ No security vulnerabilities found[/]")
-            console.print("All tools are safe to use.")
+            #console.print("All tools are safe to use.")
         else:
             # Print detailed findings by risk level (skip 'safe' if no security issues)
             risk_levels = ['critical', 'high', 'medium', 'low']
@@ -172,24 +172,41 @@ def generate_single_server_report(findings: List[Finding], server_name: str) -> 
                     
                     console.print(f"   [bold]Risk Level:[/] [{risk_color}]{risk_level.upper()}[/]")
                     
-                    if finding.get('matches'):
-                        console.print("\n   [bold]Indicators:[/]")
-                        for match in finding['matches']:
-                            console.print(f"     • {match}")
-                    
+                    # Skipping indicators in console output as they're available in the logs
                     if finding.get('proof'):
-                        console.print("\n   [bold]Proof:[/]")
-                        console.print(f"   [dim]{'─'*70}[/]")
                         try:
                             proof_data = json.loads(finding['proof'])
-                            proof_text = json.dumps(proof_data, indent=2)
-                        except:
-                            proof_text = str(finding['proof'])
-                        
-                        proof_lines = proof_text.split('\n')
-                        for line in proof_lines:
-                            console.print(f"   {line}")
-                        console.print(f"   [dim]{'─'*70}[/]")
+                            # Show full proof for both critical and high risk findings
+                            if risk_level in ['critical', 'high']:
+                                console.print("\n   [bold]Proof:[/]")
+                                console.print(f"   [dim]{'─'*70}[/]")
+                                proof_text = json.dumps(proof_data, indent=2)
+                                proof_lines = proof_text.split('\n')
+                                for line in proof_lines:
+                                    console.print(f"   {line}")
+                                console.print(f"   [dim]{'─'*70}[/]")
+                            # Don't show safe message for high/critical risk tools
+                            # Check if this is a safe tool with no suspicious behaviors
+                            elif (isinstance(proof_data, dict) and 
+                                proof_data.get('security_testing_performed', False) and 
+                                proof_data.get('suspicious_behaviors_found', 0) == 0 and 
+                                'security_assessment' in proof_data):
+                                console.print(f"\n   [green]✓ security_assessment: {proof_data['security_assessment']}[/]")
+                            else:
+                                # For tools with findings, show the full proof
+                                console.print("\n   [bold]Proof:[/]")
+                                console.print(f"   [dim]{'─'*70}[/]")
+                                proof_text = json.dumps(proof_data, indent=2)
+                                proof_lines = proof_text.split('\n')
+                                for line in proof_lines:
+                                    console.print(f"   {line}")
+                                console.print(f"   [dim]{'─'*70}[/]")
+                        except (json.JSONDecodeError, AttributeError):
+                            # Fallback for non-JSON proofs
+                            console.print("\n   [bold]Proof:[/]")
+                            console.print(f"   [dim]{'─'*70}[/]")
+                            console.print(f"   {finding['proof']}")
+                            console.print(f"   [dim]{'─'*70}[/]")
         
         console.print("\n" + "="*120 + "\n")
 
@@ -324,6 +341,8 @@ async def _amain():
     
     # Save results to JSON file
     with open(OUT_JSON, 'w') as f:
+        json.dump([asdict(f) for f in all_findings], f, indent=2)
+        logger.info(f"Scan results saved to {os.path.abspath(OUT_JSON)}")
         json.dump([asdict(f) for f in all_findings], f, indent=2, default=str)
 
 def main():

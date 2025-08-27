@@ -558,18 +558,16 @@ async def scan_server(
         tname = t.get("name", "<unknown>")
         tdesc = t.get("description", "") or ""
         raw = t.get("raw") or {}
-        
-        # Initial static classification without suspicious behaviors
-        static_risk, matches = static_classify(tname, tdesc, raw)
 
+        # No more static classification - risk will be determined by probe results only
         finding = Finding(
             server=server_name,
             unauthenticated=unauthenticated,
             tool=tname,
             description=tdesc,
-            static_risk=static_risk,
-            active_risk="none",
-            matches=matches,
+            static_risk="unknown",  # No more static risk assessment
+            active_risk="unknown",   # Will be determined by probe results
+            matches=[],              # No more static pattern matching
             probe_results={},
             proof=None
         )
@@ -835,10 +833,10 @@ async def scan_server(
                                     finding.matches.append("exec:command")
                                 else:
                                     finding.active_risk = _max_risk(finding.active_risk, "medium")
-
-                        # Store proof if available
-                        if 'proof' in result and result['proof']:
-                            finding.proof = result['proof']
+                            
+                            # Store proof if available
+                            if 'proof' in result and result['proof']:
+                                finding.proof = result['proof']
                         else:
                             # Even if probe was not successful (tool is secure), store proof if available
                             if 'proof' in result and result['proof']:
@@ -870,7 +868,7 @@ async def scan_server(
                 # If execution error hinted tool poisoning, conservatively flag high risk
                 # (Detailed poisoning classification is handled in probe results when available)
 
-            # Reclassify with suspicious behaviors (do this last to avoid being overridden)
+            # Determine risk based purely on probe results (no more static classification)
             if probe_results:
                 suspicious_behaviors = []
                 for result in probe_results.values():
@@ -896,30 +894,18 @@ async def scan_server(
                                         'classification': attempt.get('classification', '')
                                     })
                 
-                # Reclassify with suspicious behaviors
+                # Classify risk based on probe results only
                 if suspicious_behaviors:
-                    updated_static_risk, updated_matches = static_classify(tname, tdesc, raw, suspicious_behaviors)
-                    finding.static_risk = updated_static_risk
-                    finding.matches = updated_matches
-                    # Update active_risk based on the new static_risk classification
-                    if updated_static_risk == "critical":
-                        finding.active_risk = "critical"
-                    elif updated_static_risk == "dangerous":
-                        finding.active_risk = "high"
-                    elif updated_static_risk == "suspicious":
-                        finding.active_risk = "medium"
-                    else:
-                        finding.active_risk = "low"
-
-            if finding.active_risk == "none" and static_risk == "dangerous":
-                finding.active_risk = "medium"
+                    # Use the simplified static_classify that only considers probe results
+                    risk_level, matches = static_classify(tname, tdesc, raw, suspicious_behaviors)
+                    finding.active_risk = risk_level
+                    finding.matches = matches
+                    finding.static_risk = risk_level  # Keep them in sync
         else:
-            if static_risk == "dangerous":
-                finding.active_risk = "medium"
-            elif static_risk == "suspicious":
-                finding.active_risk = "low"
-            else:
-                finding.active_risk = "none"
+            # No suspicious behaviors found - tool is safe
+            finding.active_risk = "safe"
+            finding.static_risk = "safe"
+            finding.matches = []
 
         findings.append(finding)
 

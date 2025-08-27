@@ -19,6 +19,7 @@ ProbeFunction = Callable[[Any, Dict[str, Any], bool], Awaitable[Dict[str, Any]]]
 class ProbeType(str, Enum):
     FILE_READ = "file_read"
     COMMAND_EXEC = "command_exec"
+    BASH_EXEC = "bash_exec"  # New probe type for bash-specific tools
     API_ENDPOINT = "api_endpoint"
     AUTHENTICATION = "authentication"
     DATA_EXPOSURE = "data_exposure"
@@ -67,14 +68,23 @@ async def get_relevant_probes(tool: Dict[str, Any]) -> List[ProbeType]:
            for term in ['file', 'read', 'write', 'open', 'load']):
         probes.append(ProbeType.FILE_READ)
     
-    # Check for command execution
+    # Check for command execution (but exclude HTTP/curl tools and bash-specific tools)
     if any(term in tool_name or term in tool_desc 
            for term in ['exec', 'command', 'run', 'shell', 'terminal']):
-        probes.append(ProbeType.COMMAND_EXEC)
+        # Don't add COMMAND_EXEC if it's clearly an HTTP/API tool
+        if not any(http_term in tool_name or http_term in tool_desc 
+                  for http_term in ['curl', 'http', 'https', 'api', 'endpoint', 'request']):
+            # Don't add COMMAND_EXEC if it's a bash-specific tool (needs different payloads)
+            if not any(bash_term in tool_name.lower() for bash_term in ['bash_pipe', 'bash_execute']):
+                probes.append(ProbeType.COMMAND_EXEC)
     
-    # Check for API endpoints
+    # Check for bash-specific tools (bash_pipe, bash_execute)
+    if any(term in tool_name.lower() for term in ['bash_pipe', 'bash_execute']):
+        probes.append(ProbeType.BASH_EXEC)
+    
+    # Check for API endpoints (prioritize this over command execution for HTTP tools)
     if any(term in tool_name or term in tool_desc 
-           for term in ['api', 'endpoint', 'http', 'https']):
+           for term in ['api', 'endpoint', 'http', 'https', 'curl', 'request']):
         probes.append(ProbeType.API_ENDPOINT)
     
     # Check for authentication
@@ -119,18 +129,27 @@ async def execute_probes(tool: Dict[str, Any], mcp_client: Any, use_dynamic: boo
                 "success": False
             }
     
-    # For static payload generation, always run a general probe for all tools
+    # For static payload generation, only run if no vulnerabilities were already detected
     if use_static:
-        try:
-            logging.info(f"Running static probe for tool: {tool.get('name', 'unknown')}")
-            result = await probe_exec("static", tool, mcp_client, use_dynamic=False, use_static=True, use_prompt=use_prompt)
-            results["static_fuzzing"] = result
-        except Exception as e:
-            logging.error(f"Error executing static probe: {e}")
-            results["static_fuzzing"] = {
-                "error": str(e),
-                "success": False
-            }
+        # Check if any previous probes already detected vulnerabilities
+        has_vulnerabilities = any(
+            result.get('success') and result.get('severity') in ['critical', 'high', 'medium']
+            for result in results.values()
+        )
+        
+        if not has_vulnerabilities:
+            try:
+                logging.info(f"Running static probe for tool: {tool.get('name', 'unknown')}")
+                result = await probe_exec("static", tool, mcp_client, use_dynamic=False, use_static=True, use_prompt=use_prompt)
+                results["static_fuzzing"] = result
+            except Exception as e:
+                logging.error(f"Error executing static probe: {e}")
+                results["static_fuzzing"] = {
+                    "error": str(e),
+                    "success": False
+                }
+        else:
+            logging.info(f"Skipping static probe for {tool.get('name', 'unknown')} - vulnerabilities already detected")
     
     # Run prompt-injection probe only when explicitly enabled
     if use_prompt:
@@ -144,66 +163,6 @@ async def execute_probes(tool: Dict[str, Any], mcp_client: Any, use_dynamic: boo
     
     return results
 
-@register_probe(ProbeType.FILE_READ)
-async def probe_file_read(mcp_client: Any, tool: Dict[str, Any], use_dynamic: bool = False) -> Dict[str, Any]:
-    """Probe for file read vulnerabilities."""
-    result = ProbeResult(probe_type=ProbeType.FILE_READ, severity="high")
-    result.attempts = []
-
-    # Minimal, specific read tests
-    test_files = [
-        "/etc/passwd",
-        "/etc/hosts",
-        "C\\\Windows\\System32\\drivers\\etc\\hosts"
-    ]
-
-    param_names = ['path', 'file', 'filename', 'filepath', 'input']
-
-    for test_file in test_files:
-        for param in param_names:
-            payload = {param: test_file}
-            attempt = {"args": payload, "classification": "pending"}
-            try:
-                resp = await call_tool_with_client(mcp_client, tool['name'], payload)
-                attempt["response"] = resp
-                text = extract_result_text(resp) if resp else ""
-
-                if looks_like_passwd(text) or text.startswith("root:"):
-                    attempt["classification"] = "vulnerable"
-                    result.success = True
-                    result.payload = payload
-                    result.proof = json.dumps({
-                        "payload": payload,
-                        "response": extract_concise_response(text)
-                    }, ensure_ascii=False)
-                    result.confidence = 0.95
-                    result.attempts.append(attempt)
-                    return result.to_dict()
-                if "127.0.0.1" in text and "hosts" in text:
-                    attempt["classification"] = "vulnerable"
-                    result.success = True
-                    result.payload = payload
-                    result.proof = json.dumps({
-                        "payload": payload,
-                        "response": extract_concise_response(text)
-                    }, ensure_ascii=False)
-                    result.confidence = 0.85
-                    result.attempts.append(attempt)
-                    return result.to_dict()
-
-                if "denied" in text.lower():
-                    attempt["classification"] = "denied"
-                elif any(w in text.lower() for w in ["error", "invalid", "not found", "no such"]):
-                    attempt["classification"] = "error_response"
-                else:
-                    attempt["classification"] = "success"
-                result.attempts.append(attempt)
-            except Exception as e:
-                attempt["classification"] = "error"
-                attempt["error"] = str(e)
-                result.attempts.append(attempt)
-
-    return result.to_dict()
 
 
 @register_probe(ProbeType.COMMAND_EXEC)
@@ -341,6 +300,27 @@ def first_non_empty_line(text: str) -> str:
             return s[:200]
     return text.strip()[:200]
 
+def limit_lines(text: str, max_lines: int = 2, max_chars: int = 300) -> str:
+    """Return up to max_lines non-empty lines, trimmed to max_chars total."""
+    if not text:
+        return ""
+    lines: List[str] = []
+    acc = 0
+    for line in text.replace("\r\n", "\n").replace("\r", "\n").splitlines():
+        s = line.strip()
+        if not s:
+            continue
+        if not lines:
+            # Prefer to skip label-like lines
+            lower = s.lower()
+            if lower.startswith(("command:", "exit code:", "stderr:", "stdout:", "error:")):
+                continue
+        lines.append(s)
+        if len(lines) >= max_lines:
+            break
+    joined = "\n".join(lines)
+    return joined[:max_chars]
+
 def extract_concise_response(text: str) -> str:
     """Prefer actual command output over status lines.
     - Try to capture after 'Command output:'
@@ -359,12 +339,7 @@ def extract_concise_response(text: str) -> str:
     m = re.search(r"STDOUT:\n([\s\S]*?)(?:\n\s*STDERR:|$)", t, flags=re.IGNORECASE)
     if m:
         stdout_block = m.group(1).strip()
-        # Return first non-empty line from stdout
-        for line in stdout_block.splitlines():
-            s = line.strip()
-            if s:
-                return s[:200]
-        return stdout_block[:200]
+        return limit_lines(stdout_block, max_lines=2, max_chars=300)
     # 3) Fallback: first non-empty line that isn't a label
     label_prefixes = ("command:", "exit code:", "stderr:", "stdout:", "error:")
     for line in t.splitlines():
@@ -406,34 +381,467 @@ def extract_result_text(resp: dict) -> str:
     except Exception:
         return json.dumps(resp)
 
-async def probe_file_read(mcp_client, tool: Dict[str, Any], use_dynamic: bool = False) -> Dict[str, Any]:
-    """
-    Test a tool for file read vulnerabilities.
+@register_probe(ProbeType.BASH_EXEC)
+async def probe_bash_exec(mcp_client: Any, tool: Dict[str, Any], use_dynamic: bool = False) -> Dict[str, Any]:
+    """Probe for bash-specific command execution vulnerabilities using proper bash syntax."""
+    result = ProbeResult(probe_type=ProbeType.BASH_EXEC, severity="critical")
+    result.attempts = []
+
+    # Get tool schema to determine parameter names
+    schema = None
+    required_params = []
+    param_properties = {}
     
-    Args:
-        mcp_client: MCP client instance for making tool calls
-        tool: Tool definition dictionary
-        use_dynamic: Whether to use dynamic LLM-based payload generation
+    try:
+        # Try to get the schema from the tool dict first
+        if 'inputSchema' in tool:
+            schema = tool['inputSchema']
         
-    Returns:
-        Dictionary with probe results
-    """
-    probe = {"success": False, "payload": None, "proof": None, "response": None, "attempts": []}
+        # If no schema in tool dict, try to fetch it
+        if not schema and hasattr(mcp_client, 'get_tool_schema'):
+            tool_schema = await mcp_client.get_tool_schema(tool.get('name', ''))
+            if tool_schema and 'inputSchema' in tool_schema:
+                schema = tool_schema['inputSchema']
+        
+        # Extract parameter information
+        if schema and 'properties' in schema:
+            param_properties = schema['properties']
+            required_params = schema.get('required', [])
+    except Exception as e:
+        logging.debug(f"Error getting tool schema for {tool.get('name', 'unknown')}: {e}")
+
+    # Bash-specific payloads that use proper syntax
+    test_payloads = [
+        # Simple bash commands
+        {"command": "whoami"},
+        {"command": "hostname"},
+        {"command": "pwd"},
+        # Bash pipe commands (more realistic for bash_pipe)
+        {"command": "ls -la | head -5"},
+        {"command": "ps aux | grep bash"},
+        {"command": "cat /etc/passwd | head -3"},
+        {"command": "find /tmp -type f | wc -l"},
+        # Bash command substitution
+        {"command": "$(whoami)"},
+        {"command": "`id`"},
+        # Bash parameter expansion
+        {"command": "${SHELL:-/bin/bash}"},
+    ]
+
+    # Determine parameter names from schema or use defaults
+    if required_params:
+        param_names = required_params
+    else:
+        # Look for command-related parameters
+        command_params = []
+        for param, props in param_properties.items():
+            if isinstance(props, dict):
+                param_lower = param.lower()
+                if any(term in param_lower for term in ['command', 'cmd', 'exec', 'bash']):
+                    command_params.append(param)
+        
+        if command_params:
+            param_names = command_params
+        else:
+            # Fallback to common parameter names
+            param_names = ['command', 'cmd', 'input']
+
+    for test_payload in test_payloads:
+        for param in param_names:
+            # Create payload with all required parameters
+            payload = {}
+            
+            # Add the current parameter with test value
+            payload[param] = test_payload[param]
+            
+            # Add other required parameters with default values
+            for req_param in required_params:
+                if req_param != param and req_param not in payload:
+                    default_value = ""
+                    if req_param in param_properties and isinstance(param_properties[req_param], dict):
+                        prop = param_properties[req_param]
+                        if 'default' in prop:
+                            default_value = prop['default']
+                        elif 'type' in prop:
+                            if prop['type'] == 'string':
+                                default_value = ""
+                            elif prop['type'] == 'number':
+                                default_value = 0
+                            elif prop['type'] == 'boolean':
+                                default_value = False
+                    payload[req_param] = default_value
+            
+            attempt = {"args": payload, "classification": "pending"}
+            try:
+                resp = await call_tool_with_client(mcp_client, tool['name'], payload)
+                attempt["response"] = resp
+                text = extract_result_text(resp) if resp else ""
+
+                # Check for successful bash command execution
+                if text and not any(error_term in text.lower() for error_term in ['error', 'invalid', 'denied', 'forbidden']):
+                    # Check for bash command output indicators
+                    if any(bash_indicator in text.lower() for bash_indicator in [
+                        'uid=', 'gid=', 'root:', 'user:', 'hostname:', 'command output', 'bash'
+                    ]):
+                        attempt["classification"] = "vulnerable"
+                        result.success = True
+                        result.payload = payload
+                        result.proof = json.dumps({
+                            "payload": payload,
+                            "response": extract_concise_response(text)
+                        }, ensure_ascii=False)
+                        result.confidence = 0.9
+                        result.attempts.append(attempt)
+                        logging.warning(f"Bash execution vulnerability found in {tool.get('name', 'unknown')} with payload {payload}")
+                        return result.to_dict()
+
+                if "denied" in text.lower():
+                    attempt["classification"] = "denied"
+                elif any(w in text.lower() for w in ["error", "invalid", "not found", "no such"]):
+                    attempt["classification"] = "error_response"
+                else:
+                    attempt["classification"] = "success"
+                    
+            except Exception as e:
+                attempt["classification"] = "error"
+                attempt["error"] = str(e)
+            
+            result.attempts.append(attempt)
+
+    return result.to_dict()
+
+
+@register_probe(ProbeType.API_ENDPOINT)
+async def probe_api_endpoint(mcp_client: Any, tool: Dict[str, Any], use_dynamic: bool = False) -> Dict[str, Any]:
+    """Probe for HTTP/API endpoint vulnerabilities like SSRF, open redirects, etc."""
+    result = ProbeResult(probe_type=ProbeType.API_ENDPOINT, severity="high")
+    result.attempts = []
+
+    # Get tool schema to determine parameter names
+    schema = None
+    required_params = []
+    param_properties = {}
+    
+    try:
+        # Try to get the schema from the tool dict first
+        if 'inputSchema' in tool:
+            schema = tool['inputSchema']
+        
+        # If no schema in tool dict, try to fetch it
+        if not schema and hasattr(mcp_client, 'get_tool_schema'):
+            tool_schema = await mcp_client.get_tool_schema(tool.get('name', ''))
+            if tool_schema and 'inputSchema' in tool_schema:
+                schema = tool_schema['inputSchema']
+        
+        # Extract parameter information
+        if schema and 'properties' in schema:
+            param_properties = schema['properties']
+            required_params = schema.get('required', [])
+    except Exception as e:
+        logging.debug(f"Error getting tool schema for {tool.get('name', 'unknown')}: {e}")
+
+    # SSRF and HTTP payloads for API tools
+    test_payloads = [
+        # SSRF payloads
+        {"url": "http://localhost:8080"},
+        {"url": "http://127.0.0.1:3000"},
+        {"url": "http://169.254.169.254/latest/meta-data/"},
+        {"url": "http://demo.testfire.net"},
+        {"url": "http://attacker.com/steal"},
+        # File protocol abuse
+        {"url": "file:///etc/passwd"},
+        {"url": "file:///tmp/../etc/passwd"},
+        # Internal network access
+        {"url": "http://10.0.0.1"},
+        {"url": "http://192.168.1.1"},
+        {"url": "http://172.16.0.1"},
+    ]
+
+    # Determine parameter names from schema or use defaults
+    if required_params:
+        param_names = required_params
+    else:
+        # Look for URL-related parameters
+        url_params = []
+        for param, props in param_properties.items():
+            if isinstance(props, dict):
+                param_lower = param.lower()
+                if any(term in param_lower for term in ['url', 'uri', 'endpoint', 'link']):
+                    url_params.append(param)
+        
+        if url_params:
+            param_names = url_params
+        else:
+            # Fallback to common parameter names
+            param_names = ['url', 'uri', 'endpoint', 'input']
+
+    for test_payload in test_payloads:
+        for param in param_names:
+            # Create payload with all required parameters
+            payload = {}
+            
+            # Add the current parameter with test value
+            payload[param] = test_payload[param]
+            
+            # Add other required parameters with default values
+            for req_param in required_params:
+                if req_param != param and req_param not in payload:
+                    default_value = ""
+                    if req_param in param_properties and isinstance(param_properties[req_param], dict):
+                        prop = param_properties[req_param]
+                        if 'default' in prop:
+                            default_value = prop['default']
+                        elif 'type' in prop:
+                            if prop['type'] == 'string':
+                                default_value = ""
+                            elif prop['type'] == 'number':
+                                default_value = 0
+                            elif prop['type'] == 'boolean':
+                                default_value = False
+                    payload[req_param] = default_value
+            
+            attempt = {"args": payload, "classification": "pending"}
+            try:
+                resp = await call_tool_with_client(mcp_client, tool['name'], payload)
+                attempt["response"] = resp
+                text = extract_result_text(resp) if resp else ""
+
+                # Check for successful HTTP request (not just error responses)
+                if text and not any(error_term in text.lower() for error_term in ['error', 'invalid', 'denied', 'forbidden']):
+                    # Check if response contains HTTP content
+                    if any(http_indicator in text.lower() for http_indicator in ['http', 'html', 'content-type', 'status']):
+                        attempt["classification"] = "vulnerable"
+                        result.success = True
+                        result.payload = payload
+                        result.proof = json.dumps({
+                            "payload": payload,
+                            "response": extract_concise_response(text)
+                        }, ensure_ascii=False)
+                        result.confidence = 0.9
+                        result.attempts.append(attempt)
+                        logging.warning(f"API endpoint vulnerability found in {tool.get('name', 'unknown')} with payload {payload}")
+                        return result.to_dict()
+
+                if "denied" in text.lower():
+                    attempt["classification"] = "denied"
+                elif any(w in text.lower() for w in ["error", "invalid", "not found", "no such"]):
+                    attempt["classification"] = "error_response"
+                else:
+                    attempt["classification"] = "success"
+                    
+            except Exception as e:
+                attempt["classification"] = "error"
+                attempt["error"] = str(e)
+            
+            result.attempts.append(attempt)
+
+    return result.to_dict()
+
+
+@register_probe(ProbeType.FILE_READ)
+async def probe_file_read(mcp_client: Any, tool: Dict[str, Any], use_dynamic: bool = False) -> Dict[str, Any]:
+    """Probe for file read vulnerabilities using tool schema for parameter names."""
+    result = ProbeResult(probe_type=ProbeType.FILE_READ, severity="high")
+    result.attempts = []
+
+    # Comprehensive path traversal test cases
+    test_files = [
+        # Standard path traversal attempts
+        "/tmp/../etc/passwd",
+        "/tmp/../etc/hosts",
+        "/tmp/safe/../../etc/passwd",  # New payload
+        "/etc/passwd",                 # New payload - direct path
+        "/etc/hosts",                  # New payload - direct path
+        # Windows path traversal
+        "C:\\Windows\\System32\\drivers\\etc\\hosts",
+        # Additional variations
+        "/var/tmp/../../../etc/passwd",
+        "/usr/local/../../etc/passwd"
+    ]
+
+    # Get parameter info from tool schema
+    schema = None
+    required_params = []
+    param_properties = {}
+    
+    try:
+        # Try to get the schema from the tool dict first
+        if 'inputSchema' in tool:
+            schema = tool['inputSchema']
+        
+        # If no schema in tool dict, try to fetch it
+        if not schema and hasattr(mcp_client, 'get_tool_schema'):
+            tool_schema = await mcp_client.get_tool_schema(tool.get('name', ''))
+            if tool_schema and 'inputSchema' in tool_schema:
+                schema = tool_schema['inputSchema']
+        
+        # Extract parameter information
+        if schema and 'properties' in schema:
+            param_properties = schema['properties']
+            # Get list of required parameters if specified
+            required_params = schema.get('required', [])
+            
+            # If there are required params, use those first
+            if required_params:
+                param_names = required_params
+            else:
+                # Otherwise try to find parameters that look like they accept file paths
+                for param, props in param_properties.items():
+                    if isinstance(props, dict):
+                        # Look for parameters with 'file' or 'path' in name or type
+                        param_lower = param.lower()
+                        if ('file' in param_lower or 'path' in param_lower or 
+                            (isinstance(props.get('type'), str) and 
+                             any(t in props['type'].lower() for t in ['string', 'file', 'path']))):
+                            param_names.append(param)
+                
+                # If no file-like params found, use all parameters
+                if not param_names and param_properties:
+                    param_names = list(param_properties.keys())
+    except Exception as e:
+        logging.debug(f"Error getting tool schema for {tool.get('name', 'unknown')}: {e}")
+
+    # Fallback to common parameter names if we couldn't determine them from the schema
+    if not param_names:
+        param_names = ['filename', 'file', 'path', 'filepath', 'input']
+        logging.info(f"Using fallback parameter names for {tool.get('name', 'unknown')}")
+    else:
+        logging.info(f"Using parameters for {tool.get('name', 'unknown')}: {param_names}")
+        if required_params:
+            logging.info(f"Required parameters: {required_params}")
+    
+    # Remove any duplicate parameters while preserving order
+    seen = set()
+    param_names = [x for x in param_names if not (x in seen or seen.add(x))]
+
+    for test_file in test_files:
+        for param in param_names:
+            # Create payload with all required parameters that have default values
+            payload = {}
+            
+            # Add the current parameter with test file
+            payload[param] = test_file
+            
+            # Add other required parameters with default values if they exist
+            for req_param in required_params:
+                if req_param != param and req_param not in payload:
+                    # Try to get default from schema or use empty string
+                    default_value = ""
+                    if req_param in param_properties and isinstance(param_properties[req_param], dict):
+                        prop = param_properties[req_param]
+                        if 'default' in prop:
+                            default_value = prop['default']
+                        elif 'type' in prop:
+                            # Provide type-appropriate default values
+                            if prop['type'] == 'number':
+                                default_value = 0
+                            elif prop['type'] == 'boolean':
+                                default_value = False
+                            elif prop['type'] == 'array':
+                                default_value = []
+                            elif prop['type'] == 'object':
+                                default_value = {}
+                    payload[req_param] = default_value
+            
+            attempt = {"args": payload, "classification": "pending"}
+            try:
+                resp = await call_tool_with_client(mcp_client, tool['name'], payload)
+                attempt["response"] = resp
+                text = extract_result_text(resp) if resp else ""
+                attempt["classification"] = "safe"
+
+                # Check for successful file read
+                if looks_like_passwd(text) or text.startswith("root:"):
+                    attempt["classification"] = "vulnerable"
+                    result.success = True
+                    result.payload = payload
+                    result.proof = json.dumps({
+                        "payload": payload,
+                        "response": extract_concise_response(text)
+                    }, ensure_ascii=False)
+                    result.confidence = 0.95
+                    result.attempts.append(attempt)
+                    logging.warning(f"File read vulnerability found in {tool.get('name', 'unknown')} with parameter '{param}'")
+                    return result.to_dict()
+                    
+                # Check for hosts file read
+                if "127.0.0.1" in text and "hosts" in text:
+                    attempt["classification"] = "vulnerable"
+                    result.success = True
+                    result.payload = payload
+                    result.proof = json.dumps({
+                        "payload": payload,
+                        "response": extract_concise_response(text)
+                    }, ensure_ascii=False)
+                    result.confidence = 0.85
+                    result.attempts.append(attempt)
+                    logging.warning(f"Hosts file read vulnerability found in {tool.get('name', 'unknown')} with parameter '{param}'")
+                    return result.to_dict()
+                    
+            except Exception as e:
+                error_msg = str(e).lower()
+                if 'validation' in error_msg or 'field required' in error_msg:
+                    attempt["classification"] = "invalid_parameter"
+                    # Provide more detailed validation error information
+                    if hasattr(e, 'response') and hasattr(e.response, 'text'):
+                        try:
+                            error_data = json.loads(e.response.text)
+                            if 'detail' in error_data:
+                                if isinstance(error_data['detail'], list):
+                                    # Handle FastAPI-style validation errors
+                                    error_msgs = [f"{err['loc'][-1]}: {err['msg']}" 
+                                                for err in error_data['detail'] 
+                                                if 'loc' in err and 'msg' in err]
+                                    if error_msgs:
+                                        error_msg = "; ".join(error_msgs)
+                                else:
+                                    error_msg = str(error_data['detail'])
+                                    
+                            attempt["error"] = error_msg
+                            logging.debug(f"Validation error for {tool.get('name', 'unknown')} with payload {payload}: {error_msg}")
+                        except (json.JSONDecodeError, AttributeError, KeyError):
+                            attempt["error"] = str(e)
+                    continue
+                
+                attempt["classification"] = "error"
+                attempt["error"] = str(e)
+                logging.warning(f"Error testing {tool.get('name', 'unknown')} with parameter '{param}': {e}", 
+                             exc_info=logging.DEBUG >= logging.root.level)
+            
+            result.attempts.append(attempt)
+    
+    return result.to_dict()
 
     # Generate payloads from LLM with the MCP client
     payloads_result = await generate_payloads(
-        tool["name"],
-        tool.get("description", ""),
-        tool.get("raw", {}).get("inputSchema", {}),
+        tool_name=tool.get('name', ''),
+        tool_description=tool.get('description', ''),
+        input_schema=tool.get('inputSchema', {}),
         mcp_client=mcp_client,
         use_llm=use_dynamic
     )
-    
-    # Extract just the payloads from the results
-    payloads = [p.get("payload") for p in payloads_result if p.get("payload")]
+
+    # Extract payloads from the results, including empty payloads for tools with no parameters
+    payloads = []
+    for p in payloads_result:
+        payload = p.get("payload")
+        if payload is not None:  # Include both empty {} and non-empty payloads
+            payloads.append(payload)
 
     if not payloads:
         return probe
+
+    # Add static file read payloads only for tools that accept file parameters
+    if param_names:  # Only add if tool has parameters
+        test_files = [
+            "/tmp/../etc/passwd",  # Updated path traversal
+            "/tmp/../etc/hosts",   # Updated path traversal
+            "C:\\Windows\\System32\\drivers\\etc\\hosts"
+        ]
+        for param in param_names:
+            for file in test_files:
+                payload = {param: file}
+                payloads.append(payload)
 
     for payload in payloads:
         try:
@@ -793,7 +1201,7 @@ async def probe_exec(server: str, tool: Dict[str, Any], mcp_client, use_dynamic:
                 if is_suspicious:
                     suspicious_behaviors.append({
                         "payload": payload,
-                        "response": text,  # Keep first 500 chars for evidence
+                        "response": limit_lines(text, max_lines=2, max_chars=300),
                         "reason": "Tool behavior inconsistent with stated purpose"
                     })
             
@@ -815,7 +1223,7 @@ async def probe_exec(server: str, tool: Dict[str, Any], mcp_client, use_dynamic:
                         "tool_description": tool_desc,
                         "server": server,
                         "payload": payload,
-                        "response": text.strip(),
+                        "response": limit_lines(text, max_lines=2, max_chars=300),
                         "classification": "normal_behavior"
                     }
                     
@@ -874,40 +1282,20 @@ async def probe_exec(server: str, tool: Dict[str, Any], mcp_client, use_dynamic:
         logging.warning("Potential tool poisoning detected in %s: %s", 
                       tool_name, suspicious_behaviors[0]["reason"])
     else:
-        # No suspicious behaviors found - tool appears secure
-        # Still generate a proof to show that testing was performed
-        proof_data = {
+        # No suspicious behaviors found - emit a minimal safe note and skip verbose proof
+        safe_note = {
             "security_testing_performed": True,
             "total_payloads_tested": len(probe["attempts"]),
             "suspicious_behaviors_found": 0,
             "tool_name": tool["name"],
-            "tool_description": tool.get("description", ""),
             "server": server,
-            "security_assessment": "Tool appears secure - all malicious payloads were properly rejected",
-            "sample_responses": [
-                {
-                    "payload": attempt["args"],
-                    "response": attempt["resp_short"],
-                    "classification": attempt["classification"]
-                }
-                for attempt in probe["attempts"][:3]  # Show first 3 attempts as examples
-            ]
+            "security_assessment": "No suspicious behavior observed. Tool appears to be safe."
         }
-        
-        try:
-            proof_json = json.dumps(proof_data, indent=2, ensure_ascii=False)
-        except (TypeError, ValueError) as e:
-            logging.error(f"Failed to serialize proof data: {e}")
-            proof_json = json.dumps({
-                "error": "Failed to serialize proof data",
-                "tool_name": tool["name"],
-                "server": server
-            })
-            
+
         probe.update(
-            success=False,  # Tool is secure, no vulnerabilities found
+            success=False,
             is_tool_poisoning=False,
-            proof=proof_json,
+            proof=json.dumps(safe_note, indent=2, ensure_ascii=False),
             payload=None
         )
         logging.info("Security testing completed for %s - tool appears secure", tool_name)

@@ -1,377 +1,239 @@
-2025-08-26 14:44:46,902 - root - INFO - Starting MCP Analyzer vmcpx-local-scan-2.0-active-probes-proof
-2025-08-26 14:44:46,902 - root - INFO - 
-==================================================
-Scanning server: local-sse-server
-==================================================
-2025-08-26 14:44:46,902 - root - INFO - Dynamic fuzzing is DISABLED - only static analysis will be performed
-2025-08-26 14:44:46,903 - mcp_analyzer.server - INFO - Starting server: local-sse-server
-2025-08-26 14:44:46,903 - mcp_analyzer.server - INFO - local-sse-server using sse transport, skipping process spawn
-2025-08-26 14:44:47,564 - mcp_analyzer.server - INFO - Initializing MCP client for local-sse-server
-2025-08-26 14:44:47,564 - mcp_analyzer.server - INFO - No authentication configured, proceeding without auth
-2025-08-26 14:44:47,564 - mcp_analyzer.mcp_client - INFO - Connecting to MCP server...
-2025-08-26 14:44:47,564 - mcp_analyzer.mcp_client - INFO - Using SSE transport
-2025-08-26 14:44:47,686 - httpx - INFO - HTTP Request: GET http://localhost:8080/sse "HTTP/1.1 200 OK"
-2025-08-26 14:44:47,690 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:47,691 - mcp_analyzer.mcp_client - INFO - Server initialized with metadata: meta=None protocolVersion='2024-11-05' capabilities=ServerCapabilities(experimental={}, logging=None, prompts=PromptsCapability(listChanged=False), resources=ResourcesCapability(subscribe=False, listChanged=False), tools=ToolsCapability(listChanged=False), completions=None) serverInfo=Implementation(name='weather', title=None, version='1.2.1') instructions=None
-2025-08-26 14:44:47,694 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:47,696 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:47,714 - mcp_analyzer.mcp_client - INFO - Found 2 tools
-2025-08-26 14:44:47,716 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:47,718 - mcp_analyzer.mcp_client - INFO - Found 0 resources
-2025-08-26 14:44:47,718 - mcp_analyzer.server - INFO - Attempting to list tools using client
-2025-08-26 14:44:47,718 - mcp_analyzer.server - INFO - Found 2 tools via MCPClient.get_tools()
-2025-08-26 14:44:47,719 - mcp_analyzer.server - INFO - Found 0 resources via MCPClient.get_resources()
-2025-08-26 14:44:47,719 - mcp_analyzer.server - INFO - [PROOF] local-sse-server unauthenticated → tools/list OK, no auth configured
-2025-08-26 14:44:47,719 - root - INFO - Running static probe for tool: get_alerts
-2025-08-26 14:44:47,719 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for get_alerts
-2025-08-26 14:44:47,719 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for get_alerts
-2025-08-26 14:44:47,719 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for get_alerts
-2025-08-26 14:44:47,721 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:47,974 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:48,092 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:48,211 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:48,328 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:48,945 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:49,096 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:49,234 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:49,376 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:49,491 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:50,107 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:50,224 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:50,338 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:50,471 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:50,608 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:51,234 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:51,359 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:51,492 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:51,626 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:51,737 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:52,354 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:52,492 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:52,608 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:52,732 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:52,843 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:53,455 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:53,573 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:53,688 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:53,820 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:53,939 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:53,979 - root - INFO - Security testing completed for get_alerts - tool appears secure
-2025-08-26 14:44:53,979 - root - INFO - Running static probe for tool: get_forecast
-2025-08-26 14:44:53,979 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for get_forecast
-2025-08-26 14:44:53,979 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for get_forecast
-2025-08-26 14:44:53,979 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for get_forecast
-2025-08-26 14:44:53,981 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:53,986 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:53,990 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:53,995 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:53,999 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:54,504 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:54,509 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:54,514 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:54,518 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:54,522 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:55,029 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:55,035 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:55,041 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:55,046 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:55,051 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:55,558 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:55,564 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:55,569 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:55,574 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:55,579 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:56,084 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:56,089 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:56,093 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:56,097 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:56,101 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:56,608 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:56,613 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:56,618 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:56,623 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:56,632 - httpx - INFO - HTTP Request: POST http://localhost:8080/messages/?session_id=67467184eea5401aae0f15ca45666430 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:56,636 - root - INFO - Security testing completed for get_forecast - tool appears secure
-2025-08-26 14:44:56,637 - root - INFO - Successfully completed scanning server: local-sse-server
-2025-08-26 14:44:56,646 - root - INFO - 
+2025-08-27 12:03:50,962 - root - INFO - Starting MCP Analyzer vmcpx-local-scan-2.0-active-probes-proof
+2025-08-27 12:03:50,962 - root - INFO - 
 ==================================================
 Scanning server: dvmcp
 ==================================================
-2025-08-26 14:44:56,646 - root - INFO - Dynamic fuzzing is DISABLED - only static analysis will be performed
-2025-08-26 14:44:56,646 - mcp_analyzer.server - INFO - Starting server: dvmcp
-2025-08-26 14:44:56,647 - mcp_analyzer.server - INFO - dvmcp using sse transport, skipping process spawn
-2025-08-26 14:44:56,647 - mcp_analyzer.server - INFO - Initializing MCP client for dvmcp
-2025-08-26 14:44:56,647 - mcp_analyzer.server - INFO - No authentication configured, proceeding without auth
-2025-08-26 14:44:56,647 - mcp_analyzer.mcp_client - INFO - Connecting to MCP server...
-2025-08-26 14:44:56,647 - mcp_analyzer.mcp_client - INFO - Using SSE transport
-2025-08-26 14:44:57,280 - httpx - INFO - HTTP Request: GET http://9.30.25.150:9001/sse "HTTP/1.1 200 OK"
-2025-08-26 14:44:57,873 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=5bed3788d1434ad485feed578939c152 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:57,874 - mcp_analyzer.mcp_client - INFO - Server initialized with metadata: meta=None protocolVersion='2025-06-18' capabilities=ServerCapabilities(experimental={}, logging=None, prompts=PromptsCapability(listChanged=False), resources=ResourcesCapability(subscribe=False, listChanged=False), tools=ToolsCapability(listChanged=False), completions=None) serverInfo=Implementation(name='Challenge 1 - Basic Prompt Injection', title=None, version='1.11.0') instructions=None
-2025-08-26 14:44:58,171 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=5bed3788d1434ad485feed578939c152 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:58,467 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=5bed3788d1434ad485feed578939c152 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:58,472 - mcp_analyzer.mcp_client - INFO - Found 1 tools
-2025-08-26 14:44:58,769 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=5bed3788d1434ad485feed578939c152 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:58,774 - mcp_analyzer.mcp_client - INFO - Found 1 resources
-2025-08-26 14:44:59,070 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=5bed3788d1434ad485feed578939c152 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:59,075 - mcp_analyzer.server - INFO - Attempting to list tools using client
-2025-08-26 14:44:59,075 - mcp_analyzer.server - INFO - Found 1 tools via MCPClient.get_tools()
-2025-08-26 14:44:59,075 - mcp_analyzer.server - INFO - Found 1 resources via MCPClient.get_resources()
-2025-08-26 14:44:59,075 - mcp_analyzer.server - INFO - [PROOF] dvmcp unauthenticated → tools/list OK, no auth configured
-2025-08-26 14:44:59,075 - root - INFO - Running static probe for tool: get_user_info
-2025-08-26 14:44:59,075 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for get_user_info
-2025-08-26 14:44:59,076 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for get_user_info
-2025-08-26 14:44:59,076 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for get_user_info
-2025-08-26 14:44:59,372 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=5bed3788d1434ad485feed578939c152 "HTTP/1.1 202 Accepted"
-2025-08-26 14:44:59,678 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=5bed3788d1434ad485feed578939c152 "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:00,061 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=5bed3788d1434ad485feed578939c152 "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:00,369 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=5bed3788d1434ad485feed578939c152 "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:00,669 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=5bed3788d1434ad485feed578939c152 "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:01,474 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=5bed3788d1434ad485feed578939c152 "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:01,778 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=5bed3788d1434ad485feed578939c152 "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:02,081 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=5bed3788d1434ad485feed578939c152 "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:02,385 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=5bed3788d1434ad485feed578939c152 "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:02,692 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=5bed3788d1434ad485feed578939c152 "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:03,546 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=5bed3788d1434ad485feed578939c152 "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:03,845 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=5bed3788d1434ad485feed578939c152 "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:04,161 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=5bed3788d1434ad485feed578939c152 "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:04,464 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=5bed3788d1434ad485feed578939c152 "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:04,775 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=5bed3788d1434ad485feed578939c152 "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:05,594 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=5bed3788d1434ad485feed578939c152 "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:06,005 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=5bed3788d1434ad485feed578939c152 "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:06,307 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=5bed3788d1434ad485feed578939c152 "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:06,618 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=5bed3788d1434ad485feed578939c152 "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:06,916 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=5bed3788d1434ad485feed578939c152 "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:07,741 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=5bed3788d1434ad485feed578939c152 "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:08,049 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=5bed3788d1434ad485feed578939c152 "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:08,348 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=5bed3788d1434ad485feed578939c152 "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:08,654 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=5bed3788d1434ad485feed578939c152 "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:08,962 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=5bed3788d1434ad485feed578939c152 "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:09,790 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=5bed3788d1434ad485feed578939c152 "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:10,096 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=5bed3788d1434ad485feed578939c152 "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:10,397 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=5bed3788d1434ad485feed578939c152 "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:10,703 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=5bed3788d1434ad485feed578939c152 "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:11,021 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=5bed3788d1434ad485feed578939c152 "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:11,031 - root - INFO - Security testing completed for get_user_info - tool appears secure
-2025-08-26 14:45:11,032 - root - INFO - Successfully completed scanning server: dvmcp
-2025-08-26 14:45:11,044 - root - INFO - 
+2025-08-27 12:03:50,962 - root - INFO - Dynamic fuzzing is DISABLED - only static analysis will be performed
+2025-08-27 12:03:50,962 - mcp_analyzer.server - INFO - Starting server: dvmcp
+2025-08-27 12:03:50,962 - mcp_analyzer.server - INFO - dvmcp using sse transport, skipping process spawn
+2025-08-27 12:03:51,504 - mcp_analyzer.server - INFO - Initializing MCP client for dvmcp
+2025-08-27 12:03:51,504 - mcp_analyzer.server - INFO - No authentication configured, proceeding without auth
+2025-08-27 12:03:51,504 - mcp_analyzer.mcp_client - INFO - Connecting to MCP server...
+2025-08-27 12:03:51,504 - mcp_analyzer.mcp_client - INFO - Using SSE transport
+2025-08-27 12:03:52,183 - httpx - INFO - HTTP Request: GET http://9.30.25.150:9001/sse "HTTP/1.1 200 OK"
+2025-08-27 12:03:52,759 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=3d1aa200e8ae4a1c8acb1f5b492828e8 "HTTP/1.1 202 Accepted"
+2025-08-27 12:03:52,761 - mcp_analyzer.mcp_client - INFO - Server initialized with metadata: meta=None protocolVersion='2025-06-18' capabilities=ServerCapabilities(experimental={}, logging=None, prompts=PromptsCapability(listChanged=False), resources=ResourcesCapability(subscribe=False, listChanged=False), tools=ToolsCapability(listChanged=False), completions=None) serverInfo=Implementation(name='Challenge 1 - Basic Prompt Injection', title=None, version='1.11.0') instructions=None
+2025-08-27 12:03:53,048 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=3d1aa200e8ae4a1c8acb1f5b492828e8 "HTTP/1.1 202 Accepted"
+2025-08-27 12:03:53,336 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=3d1aa200e8ae4a1c8acb1f5b492828e8 "HTTP/1.1 202 Accepted"
+2025-08-27 12:03:53,342 - mcp_analyzer.mcp_client - INFO - Found 1 tools
+2025-08-27 12:03:53,631 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=3d1aa200e8ae4a1c8acb1f5b492828e8 "HTTP/1.1 202 Accepted"
+2025-08-27 12:03:53,634 - mcp_analyzer.mcp_client - INFO - Found 1 resources
+2025-08-27 12:03:53,923 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=3d1aa200e8ae4a1c8acb1f5b492828e8 "HTTP/1.1 202 Accepted"
+2025-08-27 12:03:53,928 - mcp_analyzer.server - INFO - Attempting to list tools using client
+2025-08-27 12:03:53,928 - mcp_analyzer.server - INFO - Found 1 tools via MCPClient.get_tools()
+2025-08-27 12:03:53,928 - mcp_analyzer.server - INFO - Found 1 resources via MCPClient.get_resources()
+2025-08-27 12:03:53,928 - mcp_analyzer.server - INFO - [PROOF] dvmcp unauthenticated → tools/list OK, no auth configured
+2025-08-27 12:03:53,928 - root - INFO - Running static probe for tool: get_user_info
+2025-08-27 12:03:53,928 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for get_user_info
+2025-08-27 12:03:53,929 - mcp_analyzer.static_payload_generator - INFO - Limiting static payloads from 31 to 30
+2025-08-27 12:03:53,929 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for get_user_info
+2025-08-27 12:03:53,929 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for get_user_info
+2025-08-27 12:03:54,218 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=3d1aa200e8ae4a1c8acb1f5b492828e8 "HTTP/1.1 202 Accepted"
+2025-08-27 12:03:54,517 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=3d1aa200e8ae4a1c8acb1f5b492828e8 "HTTP/1.1 202 Accepted"
+2025-08-27 12:03:54,892 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=3d1aa200e8ae4a1c8acb1f5b492828e8 "HTTP/1.1 202 Accepted"
+2025-08-27 12:03:55,182 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=3d1aa200e8ae4a1c8acb1f5b492828e8 "HTTP/1.1 202 Accepted"
+2025-08-27 12:03:55,478 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=3d1aa200e8ae4a1c8acb1f5b492828e8 "HTTP/1.1 202 Accepted"
+2025-08-27 12:03:56,483 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=3d1aa200e8ae4a1c8acb1f5b492828e8 "HTTP/1.1 202 Accepted"
+2025-08-27 12:03:56,772 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=3d1aa200e8ae4a1c8acb1f5b492828e8 "HTTP/1.1 202 Accepted"
+2025-08-27 12:03:57,069 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=3d1aa200e8ae4a1c8acb1f5b492828e8 "HTTP/1.1 202 Accepted"
+2025-08-27 12:03:57,360 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=3d1aa200e8ae4a1c8acb1f5b492828e8 "HTTP/1.1 202 Accepted"
+2025-08-27 12:03:58,068 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=3d1aa200e8ae4a1c8acb1f5b492828e8 "HTTP/1.1 202 Accepted"
+2025-08-27 12:03:58,899 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=3d1aa200e8ae4a1c8acb1f5b492828e8 "HTTP/1.1 202 Accepted"
+2025-08-27 12:03:59,374 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=3d1aa200e8ae4a1c8acb1f5b492828e8 "HTTP/1.1 202 Accepted"
+2025-08-27 12:03:59,665 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=3d1aa200e8ae4a1c8acb1f5b492828e8 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:00,490 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=3d1aa200e8ae4a1c8acb1f5b492828e8 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:00,781 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=3d1aa200e8ae4a1c8acb1f5b492828e8 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:02,109 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=3d1aa200e8ae4a1c8acb1f5b492828e8 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:03,086 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=3d1aa200e8ae4a1c8acb1f5b492828e8 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:03,376 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=3d1aa200e8ae4a1c8acb1f5b492828e8 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:03,669 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=3d1aa200e8ae4a1c8acb1f5b492828e8 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:04,374 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=3d1aa200e8ae4a1c8acb1f5b492828e8 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:06,010 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=3d1aa200e8ae4a1c8acb1f5b492828e8 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:06,301 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=3d1aa200e8ae4a1c8acb1f5b492828e8 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:06,806 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=3d1aa200e8ae4a1c8acb1f5b492828e8 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:07,095 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=3d1aa200e8ae4a1c8acb1f5b492828e8 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:07,392 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=3d1aa200e8ae4a1c8acb1f5b492828e8 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:08,187 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=3d1aa200e8ae4a1c8acb1f5b492828e8 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:08,483 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=3d1aa200e8ae4a1c8acb1f5b492828e8 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:09,373 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=3d1aa200e8ae4a1c8acb1f5b492828e8 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:09,661 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=3d1aa200e8ae4a1c8acb1f5b492828e8 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:10,721 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9001/messages/?session_id=3d1aa200e8ae4a1c8acb1f5b492828e8 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:10,724 - root - INFO - Security testing completed for get_user_info - tool appears secure
+2025-08-27 12:04:10,725 - root - INFO - Successfully completed scanning server: dvmcp
+2025-08-27 12:04:10,739 - root - INFO - 
 ==================================================
 Scanning server: tool-poison
 ==================================================
-2025-08-26 14:45:11,044 - root - INFO - Dynamic fuzzing is DISABLED - only static analysis will be performed
-2025-08-26 14:45:11,044 - mcp_analyzer.server - INFO - Starting server: tool-poison
-2025-08-26 14:45:11,044 - mcp_analyzer.server - INFO - tool-poison using sse transport, skipping process spawn
-2025-08-26 14:45:11,044 - mcp_analyzer.server - INFO - Initializing MCP client for tool-poison
-2025-08-26 14:45:11,044 - mcp_analyzer.server - INFO - No authentication configured, proceeding without auth
-2025-08-26 14:45:11,044 - mcp_analyzer.mcp_client - INFO - Connecting to MCP server...
-2025-08-26 14:45:11,044 - mcp_analyzer.mcp_client - INFO - Using SSE transport
-2025-08-26 14:45:11,675 - httpx - INFO - HTTP Request: GET http://9.30.25.150:9002/sse "HTTP/1.1 200 OK"
-2025-08-26 14:45:12,267 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:12,269 - mcp_analyzer.mcp_client - INFO - Server initialized with metadata: meta=None protocolVersion='2025-06-18' capabilities=ServerCapabilities(experimental={}, logging=None, prompts=PromptsCapability(listChanged=False), resources=ResourcesCapability(subscribe=False, listChanged=False), tools=ToolsCapability(listChanged=False), completions=None) serverInfo=Implementation(name='Challenge 2 - Tool Poisoning', title=None, version='1.11.0') instructions=None
-2025-08-26 14:45:12,564 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:12,861 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:12,866 - mcp_analyzer.mcp_client - INFO - Found 2 tools
-2025-08-26 14:45:13,162 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:13,167 - mcp_analyzer.mcp_client - INFO - Found 0 resources
-2025-08-26 14:45:13,167 - mcp_analyzer.server - INFO - Attempting to list tools using client
-2025-08-26 14:45:13,167 - mcp_analyzer.server - INFO - Found 2 tools via MCPClient.get_tools()
-2025-08-26 14:45:13,167 - mcp_analyzer.server - INFO - Found 0 resources via MCPClient.get_resources()
-2025-08-26 14:45:13,167 - mcp_analyzer.server - INFO - [PROOF] tool-poison unauthenticated → tools/list OK, no auth configured
-2025-08-26 14:45:13,475 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:13,478 - root - INFO - Running static probe for tool: execute_command
-2025-08-26 14:45:13,478 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for execute_command
-2025-08-26 14:45:13,478 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for execute_command
-2025-08-26 14:45:13,478 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for execute_command
-2025-08-26 14:45:13,775 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:14,077 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:14,381 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:14,705 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:15,012 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:15,814 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:16,137 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:16,448 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:16,752 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:17,063 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:17,878 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:18,187 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:18,493 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:18,793 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:19,098 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:19,945 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:20,250 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:20,557 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:20,879 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:21,183 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:21,991 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:22,296 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:22,600 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:22,904 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:23,208 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:24,016 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:24,322 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:24,720 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:25,018 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:25,337 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:25,345 - root - INFO - Security testing completed for execute_command - tool appears secure
-2025-08-26 14:45:25,648 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:25,949 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:26,278 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:26,578 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:26,883 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:27,185 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:27,507 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:27,811 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:28,121 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:28,419 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:28,720 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:29,021 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:29,322 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:29,626 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:29,927 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:29,931 - root - INFO - Running static probe for tool: read_file
-2025-08-26 14:45:29,931 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for read_file
-2025-08-26 14:45:29,931 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for read_file
-2025-08-26 14:45:29,931 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for read_file
-2025-08-26 14:45:30,227 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:30,532 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:30,840 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:31,144 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:31,449 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:32,317 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:32,627 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:33,038 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:33,444 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:33,743 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:34,571 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:34,871 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:35,179 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:35,494 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:35,794 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:36,601 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:36,906 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:37,211 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:37,517 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:37,847 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:38,648 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:38,954 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:39,266 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:39,567 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:39,870 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:40,675 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:40,978 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:41,329 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:41,629 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:41,947 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=8ea848f4044e449cb8958a30c40c7c3f "HTTP/1.1 202 Accepted"
-2025-08-26 14:45:41,954 - root - INFO - Security testing completed for read_file - tool appears secure
-2025-08-26 14:45:41,955 - root - INFO - Successfully completed scanning server: tool-poison
-2025-08-26 14:45:41,976 - root - INFO - 
-==================================================
-Scanning server: stdio-server
-==================================================
-2025-08-26 14:45:41,976 - root - INFO - Dynamic fuzzing is DISABLED - only static analysis will be performed
-2025-08-26 14:45:41,976 - mcp_analyzer.server - INFO - Starting server: stdio-server
-2025-08-26 14:45:41,976 - mcp_analyzer.server - INFO - Starting process for stdio-server: npx -y github:divyesh-0x01/mcp-minimal
-2025-08-26 14:45:45,535 - mcp_analyzer.server - INFO - Enumerated 2 tools from stdio-server
-2025-08-26 14:45:45,536 - mcp_analyzer.server - WARNING - Failed to list resources via stdio: recv_json_until() got an unexpected keyword argument 'want_resources'
-2025-08-26 14:45:45,536 - mcp_analyzer.server - INFO - [PROOF] stdio-server unauthenticated → tools/list OK, no auth configured
-2025-08-26 14:45:45,536 - root - INFO - Running static probe for tool: hello
-2025-08-26 14:45:45,537 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for hello
-2025-08-26 14:45:45,537 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for hello
-2025-08-26 14:45:45,537 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for hello
-2025-08-26 14:45:55,791 - root - WARNING - Potential tool poisoning detected in hello: Tool behavior inconsistent with stated purpose
-2025-08-26 14:45:55,791 - root - INFO - Running static probe for tool: add_numbers
-2025-08-26 14:45:55,792 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for add_numbers
-2025-08-26 14:45:55,792 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for add_numbers
-2025-08-26 14:45:55,792 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for add_numbers
-2025-08-26 14:46:08,214 - root - WARNING - Potential tool poisoning detected in add_numbers: Tool behavior inconsistent with stated purpose
-2025-08-26 14:46:08,224 - root - INFO - Successfully completed scanning server: stdio-server
-2025-08-26 14:46:08,251 - root - INFO - 
+2025-08-27 12:04:10,739 - root - INFO - Dynamic fuzzing is DISABLED - only static analysis will be performed
+2025-08-27 12:04:10,739 - mcp_analyzer.server - INFO - Starting server: tool-poison
+2025-08-27 12:04:10,739 - mcp_analyzer.server - INFO - tool-poison using sse transport, skipping process spawn
+2025-08-27 12:04:10,739 - mcp_analyzer.server - INFO - Initializing MCP client for tool-poison
+2025-08-27 12:04:10,739 - mcp_analyzer.server - INFO - No authentication configured, proceeding without auth
+2025-08-27 12:04:10,739 - mcp_analyzer.mcp_client - INFO - Connecting to MCP server...
+2025-08-27 12:04:10,739 - mcp_analyzer.mcp_client - INFO - Using SSE transport
+2025-08-27 12:04:11,374 - httpx - INFO - HTTP Request: GET http://9.30.25.150:9002/sse "HTTP/1.1 200 OK"
+2025-08-27 12:04:12,398 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=459bcde2187e42879a07c21ada338f96 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:12,401 - mcp_analyzer.mcp_client - INFO - Server initialized with metadata: meta=None protocolVersion='2025-06-18' capabilities=ServerCapabilities(experimental={}, logging=None, prompts=PromptsCapability(listChanged=False), resources=ResourcesCapability(subscribe=False, listChanged=False), tools=ToolsCapability(listChanged=False), completions=None) serverInfo=Implementation(name='Challenge 2 - Tool Poisoning', title=None, version='1.11.0') instructions=None
+2025-08-27 12:04:13,300 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=459bcde2187e42879a07c21ada338f96 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:13,891 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=459bcde2187e42879a07c21ada338f96 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:13,892 - mcp_analyzer.mcp_client - INFO - Found 2 tools
+2025-08-27 12:04:14,178 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=459bcde2187e42879a07c21ada338f96 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:14,182 - mcp_analyzer.mcp_client - INFO - Found 0 resources
+2025-08-27 12:04:14,182 - mcp_analyzer.server - INFO - Attempting to list tools using client
+2025-08-27 12:04:14,182 - mcp_analyzer.server - INFO - Found 2 tools via MCPClient.get_tools()
+2025-08-27 12:04:14,182 - mcp_analyzer.server - INFO - Found 0 resources via MCPClient.get_resources()
+2025-08-27 12:04:14,182 - mcp_analyzer.server - INFO - [PROOF] tool-poison unauthenticated → tools/list OK, no auth configured
+2025-08-27 12:04:14,471 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=459bcde2187e42879a07c21ada338f96 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:14,484 - root - INFO - Skipping static probe for execute_command - vulnerabilities already detected
+2025-08-27 12:04:14,484 - root - ERROR - Error executing ProbeType.FILE_READ probe: cannot access local variable 'param_names' where it is not associated with a value
+2025-08-27 12:04:14,484 - root - INFO - Running static probe for tool: read_file
+2025-08-27 12:04:14,484 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for read_file
+2025-08-27 12:04:14,484 - mcp_analyzer.static_payload_generator - INFO - Limiting static payloads from 31 to 30
+2025-08-27 12:04:14,484 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for read_file
+2025-08-27 12:04:14,484 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for read_file
+2025-08-27 12:04:14,772 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=459bcde2187e42879a07c21ada338f96 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:15,702 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=459bcde2187e42879a07c21ada338f96 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:15,993 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=459bcde2187e42879a07c21ada338f96 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:16,347 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=459bcde2187e42879a07c21ada338f96 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:16,637 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=459bcde2187e42879a07c21ada338f96 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:17,829 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=459bcde2187e42879a07c21ada338f96 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:18,616 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=459bcde2187e42879a07c21ada338f96 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:19,085 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=459bcde2187e42879a07c21ada338f96 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:19,374 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=459bcde2187e42879a07c21ada338f96 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:19,667 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=459bcde2187e42879a07c21ada338f96 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:21,033 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=459bcde2187e42879a07c21ada338f96 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:21,322 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=459bcde2187e42879a07c21ada338f96 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:21,617 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=459bcde2187e42879a07c21ada338f96 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:22,105 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=459bcde2187e42879a07c21ada338f96 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:23,036 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=459bcde2187e42879a07c21ada338f96 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:23,828 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=459bcde2187e42879a07c21ada338f96 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:24,374 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=459bcde2187e42879a07c21ada338f96 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:24,663 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=459bcde2187e42879a07c21ada338f96 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:24,956 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=459bcde2187e42879a07c21ada338f96 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:25,976 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=459bcde2187e42879a07c21ada338f96 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:27,527 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=459bcde2187e42879a07c21ada338f96 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:27,951 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=459bcde2187e42879a07c21ada338f96 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:28,240 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=459bcde2187e42879a07c21ada338f96 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:28,535 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=459bcde2187e42879a07c21ada338f96 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:28,831 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=459bcde2187e42879a07c21ada338f96 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:29,636 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=459bcde2187e42879a07c21ada338f96 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:29,932 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=459bcde2187e42879a07c21ada338f96 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:30,228 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=459bcde2187e42879a07c21ada338f96 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:30,523 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=459bcde2187e42879a07c21ada338f96 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:30,831 - httpx - INFO - HTTP Request: POST http://9.30.25.150:9002/messages/?session_id=459bcde2187e42879a07c21ada338f96 "HTTP/1.1 202 Accepted"
+2025-08-27 12:04:30,839 - root - INFO - Security testing completed for read_file - tool appears secure
+2025-08-27 12:04:30,840 - root - INFO - Successfully completed scanning server: tool-poison
+2025-08-27 12:04:30,849 - root - INFO - 
 ==================================================
 Scanning server: filesystem
 ==================================================
-2025-08-26 14:46:08,251 - root - INFO - Dynamic fuzzing is DISABLED - only static analysis will be performed
-2025-08-26 14:46:08,251 - mcp_analyzer.server - INFO - Starting server: filesystem
-2025-08-26 14:46:08,251 - mcp_analyzer.server - INFO - Starting process for filesystem: npx -y @gabrielmaialva33/mcp-filesystem /tmp
-2025-08-26 14:46:09,619 - mcp_analyzer.server - INFO - Enumerated 16 tools from filesystem
-2025-08-26 14:46:09,619 - mcp_analyzer.server - WARNING - Failed to list resources via stdio: recv_json_until() got an unexpected keyword argument 'want_resources'
-2025-08-26 14:46:09,619 - mcp_analyzer.server - INFO - [PROOF] filesystem unauthenticated → tools/list OK, no auth configured
-2025-08-26 14:46:09,630 - root - INFO - Running static probe for tool: read_file
-2025-08-26 14:46:09,632 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for read_file
-2025-08-26 14:46:09,632 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for read_file
-2025-08-26 14:46:09,632 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for read_file
-2025-08-26 14:46:12,169 - root - INFO - Security testing completed for read_file - tool appears secure
-2025-08-26 14:46:12,192 - root - INFO - Running static probe for tool: read_multiple_files
-2025-08-26 14:46:12,220 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for read_multiple_files
-2025-08-26 14:46:12,238 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for read_multiple_files
-2025-08-26 14:46:12,239 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for read_multiple_files
-2025-08-26 14:46:14,779 - root - INFO - Security testing completed for read_multiple_files - tool appears secure
-2025-08-26 14:46:14,788 - root - INFO - Running static probe for tool: write_file
-2025-08-26 14:46:14,790 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for write_file
-2025-08-26 14:46:14,790 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for write_file
-2025-08-26 14:46:14,790 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for write_file
-2025-08-26 14:46:17,326 - root - INFO - Security testing completed for write_file - tool appears secure
-2025-08-26 14:46:17,335 - root - INFO - Running static probe for tool: edit_file
-2025-08-26 14:46:17,336 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for edit_file
-2025-08-26 14:46:17,336 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for edit_file
-2025-08-26 14:46:17,336 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for edit_file
-2025-08-26 14:46:19,873 - root - INFO - Security testing completed for edit_file - tool appears secure
-2025-08-26 14:46:19,882 - root - INFO - Running static probe for tool: create_directory
-2025-08-26 14:46:19,883 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for create_directory
-2025-08-26 14:46:19,883 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for create_directory
-2025-08-26 14:46:19,883 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for create_directory
-2025-08-26 14:46:22,426 - root - INFO - Security testing completed for create_directory - tool appears secure
-2025-08-26 14:46:22,436 - root - INFO - Running static probe for tool: list_directory
-2025-08-26 14:46:22,438 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for list_directory
-2025-08-26 14:46:22,438 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for list_directory
-2025-08-26 14:46:22,438 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for list_directory
-2025-08-26 14:46:24,985 - root - INFO - Security testing completed for list_directory - tool appears secure
-2025-08-26 14:46:24,994 - root - INFO - Running static probe for tool: directory_tree
-2025-08-26 14:46:24,995 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for directory_tree
-2025-08-26 14:46:24,996 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for directory_tree
-2025-08-26 14:46:24,996 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for directory_tree
-2025-08-26 14:46:27,536 - root - INFO - Security testing completed for directory_tree - tool appears secure
-2025-08-26 14:46:27,544 - root - INFO - Running static probe for tool: move_file
-2025-08-26 14:46:27,545 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for move_file
-2025-08-26 14:46:27,545 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for move_file
-2025-08-26 14:46:27,545 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for move_file
-2025-08-26 14:46:30,089 - root - INFO - Security testing completed for move_file - tool appears secure
-2025-08-26 14:46:30,097 - root - INFO - Running static probe for tool: search_files
-2025-08-26 14:46:30,098 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for search_files
-2025-08-26 14:46:30,099 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for search_files
-2025-08-26 14:46:30,099 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for search_files
-2025-08-26 14:46:32,630 - root - INFO - Security testing completed for search_files - tool appears secure
-2025-08-26 14:46:32,639 - root - INFO - Running static probe for tool: get_file_info
-2025-08-26 14:46:32,640 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for get_file_info
-2025-08-26 14:46:32,640 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for get_file_info
-2025-08-26 14:46:32,640 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for get_file_info
-2025-08-26 14:46:35,183 - root - INFO - Security testing completed for get_file_info - tool appears secure
-2025-08-26 14:46:35,190 - root - INFO - Running static probe for tool: list_allowed_directories
-2025-08-26 14:46:35,191 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for list_allowed_directories
-2025-08-26 14:46:35,191 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for list_allowed_directories
-2025-08-26 14:46:35,191 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for list_allowed_directories
-2025-08-26 14:46:37,723 - root - INFO - Security testing completed for list_allowed_directories - tool appears secure
-2025-08-26 14:46:37,723 - root - INFO - Running static probe for tool: get_metrics
-2025-08-26 14:46:37,724 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for get_metrics
-2025-08-26 14:46:37,724 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for get_metrics
-2025-08-26 14:46:37,724 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for get_metrics
-2025-08-26 14:46:40,282 - root - INFO - Security testing completed for get_metrics - tool appears secure
-2025-08-26 14:46:40,311 - root - INFO - Running static probe for tool: execute_command
-2025-08-26 14:46:40,312 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for execute_command
-2025-08-26 14:46:40,312 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for execute_command
-2025-08-26 14:46:40,312 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for execute_command
-2025-08-26 14:46:42,854 - root - INFO - Security testing completed for execute_command - tool appears secure
-2025-08-26 14:46:42,879 - root - INFO - Running static probe for tool: bash_execute
-2025-08-26 14:46:42,880 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for bash_execute
-2025-08-26 14:46:42,881 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for bash_execute
-2025-08-26 14:46:42,881 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for bash_execute
-2025-08-26 14:46:45,420 - root - INFO - Security testing completed for bash_execute - tool appears secure
-2025-08-26 14:46:45,421 - root - INFO - Running static probe for tool: bash_pipe
-2025-08-26 14:46:45,422 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for bash_pipe
-2025-08-26 14:46:45,422 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for bash_pipe
-2025-08-26 14:46:45,422 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for bash_pipe
-2025-08-26 14:46:47,957 - root - INFO - Security testing completed for bash_pipe - tool appears secure
-2025-08-26 14:46:47,958 - root - INFO - Running static probe for tool: curl_request
-2025-08-26 14:46:47,959 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for curl_request
-2025-08-26 14:46:47,959 - mcp_analyzer.static_payload_generator - INFO - Generated 13 static payloads for curl_request
-2025-08-26 14:46:47,959 - mcp_analyzer.llm_fuzzer - INFO - Generated 13 static payloads for curl_request
-2025-08-26 14:47:07,397 - root - WARNING - Potential tool poisoning detected in curl_request: Tool behavior inconsistent with stated purpose
-2025-08-26 14:47:07,408 - root - INFO - Successfully completed scanning server: filesystem
+2025-08-27 12:04:30,849 - root - INFO - Dynamic fuzzing is DISABLED - only static analysis will be performed
+2025-08-27 12:04:30,849 - mcp_analyzer.server - INFO - Starting server: filesystem
+2025-08-27 12:04:30,849 - mcp_analyzer.server - INFO - Starting process for filesystem: npx -y @gabrielmaialva33/mcp-filesystem /tmp
+2025-08-27 12:04:33,816 - mcp_analyzer.server - INFO - Enumerated 16 tools from filesystem
+2025-08-27 12:04:33,816 - mcp_analyzer.server - WARNING - Failed to list resources via stdio: recv_json_until() got an unexpected keyword argument 'want_resources'
+2025-08-27 12:04:33,816 - mcp_analyzer.server - INFO - [PROOF] filesystem unauthenticated → tools/list OK, no auth configured
+2025-08-27 12:04:33,818 - root - INFO - Using parameters for read_file: ['path']
+2025-08-27 12:04:33,818 - root - INFO - Required parameters: ['path']
+2025-08-27 12:04:33,824 - root - INFO - Running static probe for tool: read_file
+2025-08-27 12:04:33,824 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for read_file
+2025-08-27 12:04:33,825 - mcp_analyzer.static_payload_generator - INFO - Limiting static payloads from 31 to 30
+2025-08-27 12:04:33,825 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for read_file
+2025-08-27 12:04:33,825 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for read_file
+2025-08-27 12:04:36,360 - root - INFO - Security testing completed for read_file - tool appears secure
+2025-08-27 12:04:36,362 - root - INFO - Using parameters for read_multiple_files: ['paths']
+2025-08-27 12:04:36,362 - root - INFO - Required parameters: ['paths']
+2025-08-27 12:04:36,366 - root - INFO - Running static probe for tool: read_multiple_files
+2025-08-27 12:04:36,366 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for read_multiple_files
+2025-08-27 12:04:36,366 - mcp_analyzer.static_payload_generator - INFO - Limiting static payloads from 31 to 30
+2025-08-27 12:04:36,366 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for read_multiple_files
+2025-08-27 12:04:36,366 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for read_multiple_files
+2025-08-27 12:04:38,902 - root - INFO - Security testing completed for read_multiple_files - tool appears secure
+2025-08-27 12:04:38,903 - root - INFO - Using parameters for write_file: ['path', 'content']
+2025-08-27 12:04:38,903 - root - INFO - Required parameters: ['path', 'content']
+2025-08-27 12:04:38,913 - root - INFO - Running static probe for tool: write_file
+2025-08-27 12:04:38,914 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for write_file
+2025-08-27 12:04:38,914 - mcp_analyzer.static_payload_generator - INFO - Limiting static payloads from 31 to 30
+2025-08-27 12:04:38,914 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for write_file
+2025-08-27 12:04:38,914 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for write_file
+2025-08-27 12:04:41,444 - root - INFO - Security testing completed for write_file - tool appears secure
+2025-08-27 12:04:41,446 - root - INFO - Using parameters for edit_file: ['path', 'edits']
+2025-08-27 12:04:41,446 - root - INFO - Required parameters: ['path', 'edits']
+2025-08-27 12:04:41,455 - root - INFO - Running static probe for tool: edit_file
+2025-08-27 12:04:41,455 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for edit_file
+2025-08-27 12:04:41,455 - mcp_analyzer.static_payload_generator - INFO - Limiting static payloads from 31 to 30
+2025-08-27 12:04:41,455 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for edit_file
+2025-08-27 12:04:41,455 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for edit_file
+2025-08-27 12:04:43,991 - root - INFO - Security testing completed for edit_file - tool appears secure
+2025-08-27 12:04:43,993 - root - INFO - Using parameters for create_directory: ['path']
+2025-08-27 12:04:43,993 - root - INFO - Required parameters: ['path']
+2025-08-27 12:04:43,997 - root - INFO - Running static probe for tool: create_directory
+2025-08-27 12:04:43,997 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for create_directory
+2025-08-27 12:04:43,997 - mcp_analyzer.static_payload_generator - INFO - Limiting static payloads from 31 to 30
+2025-08-27 12:04:43,998 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for create_directory
+2025-08-27 12:04:43,998 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for create_directory
+2025-08-27 12:04:46,538 - root - INFO - Security testing completed for create_directory - tool appears secure
+2025-08-27 12:04:46,539 - root - INFO - Using parameters for list_directory: ['path']
+2025-08-27 12:04:46,540 - root - INFO - Required parameters: ['path']
+2025-08-27 12:04:46,544 - root - INFO - Running static probe for tool: list_directory
+2025-08-27 12:04:46,544 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for list_directory
+2025-08-27 12:04:46,544 - mcp_analyzer.static_payload_generator - INFO - Generated 4 targeted static payloads for list_directory
+2025-08-27 12:04:46,544 - mcp_analyzer.llm_fuzzer - INFO - Generated 4 static payloads for list_directory
+2025-08-27 12:04:46,548 - root - INFO - Security testing completed for list_directory - tool appears secure
+2025-08-27 12:04:46,549 - root - INFO - Using parameters for directory_tree: ['path']
+2025-08-27 12:04:46,549 - root - INFO - Required parameters: ['path']
+2025-08-27 12:04:46,554 - root - INFO - Running static probe for tool: directory_tree
+2025-08-27 12:04:46,554 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for directory_tree
+2025-08-27 12:04:46,555 - mcp_analyzer.static_payload_generator - INFO - Limiting static payloads from 31 to 30
+2025-08-27 12:04:46,555 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for directory_tree
+2025-08-27 12:04:46,555 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for directory_tree
+2025-08-27 12:04:49,094 - root - INFO - Security testing completed for directory_tree - tool appears secure
+2025-08-27 12:04:49,095 - root - INFO - Using parameters for move_file: ['source', 'destination']
+2025-08-27 12:04:49,095 - root - INFO - Required parameters: ['source', 'destination']
+2025-08-27 12:04:49,105 - root - INFO - Running static probe for tool: move_file
+2025-08-27 12:04:49,105 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for move_file
+2025-08-27 12:04:49,105 - mcp_analyzer.static_payload_generator - INFO - Limiting static payloads from 31 to 30
+2025-08-27 12:04:49,105 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for move_file
+2025-08-27 12:04:49,105 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for move_file
+2025-08-27 12:04:51,644 - root - INFO - Security testing completed for move_file - tool appears secure
+2025-08-27 12:04:51,645 - root - INFO - Using parameters for search_files: ['path', 'pattern']
+2025-08-27 12:04:51,645 - root - INFO - Required parameters: ['path', 'pattern']
+2025-08-27 12:04:51,654 - root - INFO - Running static probe for tool: search_files
+2025-08-27 12:04:51,654 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for search_files
+2025-08-27 12:04:51,654 - mcp_analyzer.static_payload_generator - INFO - Limiting static payloads from 31 to 30
+2025-08-27 12:04:51,654 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for search_files
+2025-08-27 12:04:51,654 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for search_files
+2025-08-27 12:04:54,185 - root - INFO - Security testing completed for search_files - tool appears secure
+2025-08-27 12:04:54,186 - root - INFO - Using parameters for get_file_info: ['path']
+2025-08-27 12:04:54,186 - root - INFO - Required parameters: ['path']
+2025-08-27 12:04:54,190 - root - INFO - Running static probe for tool: get_file_info
+2025-08-27 12:04:54,190 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for get_file_info
+2025-08-27 12:04:54,190 - mcp_analyzer.static_payload_generator - INFO - Limiting static payloads from 31 to 30
+2025-08-27 12:04:54,190 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for get_file_info
+2025-08-27 12:04:54,190 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for get_file_info
+2025-08-27 12:04:56,726 - root - INFO - Security testing completed for get_file_info - tool appears secure
+2025-08-27 12:04:56,728 - root - ERROR - Error executing ProbeType.FILE_READ probe: cannot access local variable 'param_names' where it is not associated with a value
+2025-08-27 12:04:56,728 - root - INFO - Running static probe for tool: list_allowed_directories
+2025-08-27 12:04:56,728 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for list_allowed_directories
+2025-08-27 12:04:56,728 - mcp_analyzer.static_payload_generator - INFO - Generated 4 targeted static payloads for list_allowed_directories
+2025-08-27 12:04:56,728 - mcp_analyzer.llm_fuzzer - INFO - Generated 4 static payloads for list_allowed_directories
+2025-08-27 12:04:56,730 - root - INFO - Security testing completed for list_allowed_directories - tool appears secure
+2025-08-27 12:04:56,731 - root - INFO - Running static probe for tool: get_metrics
+2025-08-27 12:04:56,731 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for get_metrics
+2025-08-27 12:04:56,731 - mcp_analyzer.static_payload_generator - INFO - Limiting static payloads from 31 to 30
+2025-08-27 12:04:56,732 - mcp_analyzer.static_payload_generator - INFO - Generated 30 static payloads for get_metrics
+2025-08-27 12:04:56,732 - mcp_analyzer.llm_fuzzer - INFO - Generated 30 static payloads for get_metrics
+2025-08-27 12:04:59,279 - root - INFO - Security testing completed for get_metrics - tool appears secure
+2025-08-27 12:04:59,308 - root - INFO - Skipping static probe for execute_command - vulnerabilities already detected
+2025-08-27 12:04:59,680 - root - WARNING - Bash execution vulnerability found in bash_execute with payload {'command': 'ps aux | grep bash'}
+2025-08-27 12:04:59,680 - root - INFO - Skipping static probe for bash_execute - vulnerabilities already detected
+2025-08-27 12:04:59,681 - root - ERROR - Error executing ProbeType.BASH_EXEC probe: 'commands'
+2025-08-27 12:04:59,681 - root - INFO - Running static probe for tool: bash_pipe
+2025-08-27 12:04:59,681 - mcp_analyzer.llm_fuzzer - INFO - Using static payload generator for bash_pipe
+2025-08-27 12:04:59,681 - mcp_analyzer.static_payload_generator - INFO - Generated 6 static payloads for bash_pipe
+2025-08-27 12:04:59,681 - mcp_analyzer.llm_fuzzer - INFO - Generated 6 static payloads for bash_pipe
+2025-08-27 12:05:00,192 - root - INFO - Security testing completed for bash_pipe - tool appears secure
+2025-08-27 12:05:00,234 - root - WARNING - API endpoint vulnerability found in curl_request with payload {'url': 'http://localhost:8080'}
+2025-08-27 12:05:00,234 - root - INFO - Skipping static probe for curl_request - vulnerabilities already detected
+2025-08-27 12:05:00,245 - root - INFO - Successfully completed scanning server: filesystem
+2025-08-27 12:05:00,303 - root - INFO - Scan results saved to /Users/divyeshprajapati-ibm/Documents/dp/mcp/mcp-scanner/mcp-analyzer/scan_results.json

@@ -190,6 +190,24 @@ def get_complete_proof(finding: dict) -> str:
     
     # Try to get proof from probe_results first
     if 'probe_results' in finding and finding['probe_results']:
+        # First, look for probe results that indicate vulnerabilities
+        for probe_type, probe_data in finding['probe_results'].items():
+            if not probe_data:
+                continue
+                
+            # Prioritize probe results that show success/vulnerabilities
+            if (probe_data.get('success') and 
+                probe_data.get('proof') and 
+                probe_data.get('severity') in ['critical', 'high', 'medium']):
+                return json.dumps({
+                    'tool_name': finding.get('tool', ''),
+                    'server': finding.get('server', ''),
+                    'probe_type': probe_type,
+                    'proof': probe_data['proof'],
+                    'classification': 'suspicious_behavior'
+                }, indent=2)
+        
+        # If no vulnerable probe results found, fall back to any proof
         for probe_type, probe_data in finding['probe_results'].items():
             if not probe_data:
                 continue
@@ -377,7 +395,7 @@ def generate_report(all_findings: List[Finding]) -> None:
         # Only show safe findings if there are no security issues
         if not has_security_issues:
             console.print("\n[green]✓ No security vulnerabilities found[/]")
-            console.print("All tools are safe to use.")
+            #console.print("All tools are safe to use.")
         else:
             # Print detailed findings by risk level (skip 'safe' if no security issues)
             risk_levels = ['critical', 'high', 'medium', 'low']
@@ -414,10 +432,26 @@ def generate_report(all_findings: List[Finding]) -> None:
                     
                     complete_proof = get_complete_proof(finding)
                     if complete_proof:
+                        # Debug: print the first 200 chars of the proof to see what we're working with
+                        proof_str = str(complete_proof)
+                        if len(proof_str) > 200:
+                            proof_str = proof_str[:200] + "..."
+                        console.print(f"   [dim]DEBUG: {proof_str}[/]")
+                        
+                        # Simple string check for safe findings - if the proof contains the safe pattern, show just one line
+                    if 'suspicious_behaviors_found": 0' in str(complete_proof) or 'No suspicious behavior observed' in str(complete_proof):
+                        console.print(f"   [green]✓ No vulnerabilities found for {finding['tool']}[/]")
+                        continue
+
                         console.print("\n   [bold]Proof:[/]")
                         console.print(f"   [dim]{'─'*70}[/]")
-                        proof_lines = format_proof(complete_proof).split('\n')
-                        for line in proof_lines:
+                        formatted = format_proof(complete_proof)
+                        # Support Text or str
+                        if hasattr(formatted, 'plain'):
+                            lines = str(formatted).split('\n')
+                        else:
+                            lines = str(formatted).split('\n')
+                        for line in lines:
                             console.print(f"   {line}")
                         console.print(f"   [dim]{'─'*70}[/]")
         

@@ -1,12 +1,5 @@
 {
    "mcpServers": {
-      "local-sse-server": {
-         "url": "http://localhost:8080/sse",
-         "transport": "sse",
-         "description": "Local SSE Server",
-         "timeout": 10,
-         "verify_ssl": false
-      },
       "dvmcp": {
          "url": "http://9.30.25.150:9001/sse",
          "transport": "sse",
@@ -20,13 +13,6 @@
          "description": "Tool Poison Server",
          "timeout": 10,
          "verify_ssl": false
-      },
-      "stdio-server": {
-         "command":"npx",
-         "args":[
-            "-y",
-            "github:divyesh-0x01/mcp-minimal"
-         ]
       },
       "filesystem": {
       "command": "npx",
