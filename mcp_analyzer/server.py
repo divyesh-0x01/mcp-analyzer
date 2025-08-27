@@ -901,11 +901,24 @@ async def scan_server(
                     finding.active_risk = risk_level
                     finding.matches = matches
                     finding.static_risk = risk_level  # Keep them in sync
-        else:
-            # No suspicious behaviors found - tool is safe
-            finding.active_risk = "safe"
-            finding.static_risk = "safe"
-            finding.matches = []
+                else:
+                    # No suspicious behaviors found - tool is safe
+                    finding.active_risk = "safe"
+                    finding.static_risk = "safe"
+                    finding.matches = []
+
+        # Final safeguard: if proof explicitly reports 0 suspicious behaviors, force SAFE
+        try:
+            if finding.proof:
+                proof_obj = json.loads(finding.proof) if isinstance(finding.proof, str) else finding.proof
+                if isinstance(proof_obj, dict):
+                    body = proof_obj.get('proof', proof_obj)
+                    if isinstance(body, dict) and body.get('suspicious_behaviors_found') == 0:
+                        finding.active_risk = "safe"
+                        finding.static_risk = "safe"
+                        finding.matches = []
+        except Exception:
+            pass
 
         findings.append(finding)
 

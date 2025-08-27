@@ -430,6 +430,11 @@ class StaticPayloadGenerator:
     def generate_payloads(self, tool_name: str, tool_desc: str, input_schema: Dict, include_prompt: bool = False) -> List[StaticPayloadResult]:
         """Generate static payloads based on tool type"""
         
+        # Skip parameter-based testing for tools without input parameters
+        if not input_schema.get('properties'):
+            logger.debug(f"Skipping parameter-based testing for {tool_name} as it doesn't expect any parameters")
+            return []
+            
         # Classify the tool to select relevant payloads
         tool_type = self._classify_tool(tool_name, tool_desc)
         logger.debug(f"Tool {tool_name} classified as: {tool_type}")

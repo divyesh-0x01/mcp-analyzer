@@ -18,8 +18,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "@gabrielmaialva33/mcp-filesystem",
-        "/tmp"
+        "mcp-server-apple-shortcuts"
       ]
       }
    }
