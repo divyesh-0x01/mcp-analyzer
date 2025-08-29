@@ -890,10 +890,39 @@ def is_suspicious_behavior(tool_name: str, tool_desc: str, input_payload: Any, o
     
     output_lower = output_text.lower()
     output_stripped = output_text.strip()
+    tool_desc_lower = (tool_desc or "").lower()
     
     # First, check for obviously safe outputs
     if not output_stripped:  # Empty output is not suspicious
         return False
+        
+    # Check for suspicious patterns in tool description that indicate hidden behavior
+    suspicious_desc_patterns = [
+        # Hidden instructions to access confidential data
+        r'<IMPORTANT>.*?company://confidential',
+        r'<HIDDEN>.*?confidential',
+        r'override[-_]auth[-_]protocol[-_]?\d+',
+        r'secret.*?authorization',
+        r'bypass.*?security',
+        r'internal.*?only',
+        # Suspicious URL patterns
+        r'\b(?:[a-z]+://|@|\[\s*["\']?)(?:localhost|127\.0\.0\.1|internal[^\s"\]]+)[^\s"\]]*',
+        # Hardcoded credentials or tokens
+        r'(?:password|passwd|pwd|token|key|secret)[\s=:]+[\'"][^\s"\']+[\'"]',
+        # Suspicious file access patterns
+        r'\b(?:file|read|access)[^\n]*\b(?:/etc/passwd|/etc/shadow|~\.ssh|C:\\Windows\\System32)\\',
+        # Suspicious command execution patterns
+        r'\b(?:exec|eval|system|subprocess|os\.popen|os\.system)\s*\(',
+        # Hidden backdoor patterns
+        r'\b(?:backdoor|malicious|hidden|undocumented|secret)\b.*?\b(?:functionality|behavior|code)\b',
+        # Data exfiltration patterns
+        r'\b(?:send|exfiltrate|leak|upload)[^\n]*\b(?:data|info|credentials)\b'
+    ]
+    
+    # Check if tool description contains any suspicious patterns
+    if any(re.search(pattern, tool_desc_lower, re.DOTALL | re.IGNORECASE) for pattern in suspicious_desc_patterns):
+        logging.warning(f"Suspicious pattern found in tool description for {tool_name}")
+        return True
     
     # Get tool purpose for better classification
     tool_purpose = f"{tool_name} {tool_desc}".lower()
@@ -1057,6 +1086,40 @@ def is_suspicious_behavior(tool_name: str, tool_desc: str, input_payload: Any, o
             
         if any(c in output_text for c in '{}[]|;`$()'):
             return True
+    
+    # Check for suspicious patterns in the output that might indicate data leakage
+    suspicious_output_patterns = [
+        # Common sensitive data patterns (only if not in an error message)
+        (r'\b(?:confidential|secret|internal|restricted|classified|proprietary)\b.*?\b(?:data|information|documents?|records?)\b', 
+         lambda m: not any(e in output_lower for e in ['not found', 'error', 'invalid', 'failed'])),
+        
+        # Common credential patterns (only if not in an error message)
+        (r'\b(?:password|token|key|secret)[\s=:]+[^\s\n]+', 
+         lambda m: not any(e in output_lower for e in ['not found', 'error', 'invalid', 'failed'])),
+        
+        # Common internal URL patterns (must be a complete URL, not just part of an error message)
+        (r'\b(?:https?://|www\.|api\.|internal\.|staging\.|dev\.|test\.)[^\s"\'<>]+\b', 
+         lambda m: not any(e in output_lower for e in ['not found', 'error', 'invalid'])),
+        
+        # File paths in output (must be complete paths, not just parts of error messages)
+        (r'\b(?:/etc/(?:passwd|shadow|hosts)|/root/|/home/[^/]+/|C:\\Windows\\)[^\s"\'<>]*\b', 
+         lambda m: not any(e in output_lower for e in ['not found', 'no such', 'invalid', 'error'])),
+        
+        # Command output patterns (only if they look like actual command output, not error messages)
+        (r'\b(?:uid|gid|user|group|hostname|pwd|path)[\s=:]+[^\s\n]+', 
+         lambda m: not any(e in output_lower for e in ['not found', 'error', 'invalid'])),
+        
+        # Sensitive data patterns (only if they appear in a non-error context)
+        (r'\b(?:ssn|social security|credit card|bank account|routing number|api[_-]?key|secret[_-]?key)\b', 
+         lambda m: not any(e in output_lower for e in ['not found', 'error', 'invalid']))
+    ]
+    
+    # Check if output contains any suspicious patterns with their conditions
+    for pattern, condition in suspicious_output_patterns:
+        if re.search(pattern, output_lower, re.IGNORECASE):
+            if condition(None):  # Only log if condition is met
+                logging.warning(f"Suspicious output pattern detected in {tool_name}: {pattern}")
+                return True
     
     # For any tool, if we detected command output, it's suspicious
     return has_command_output

@@ -8,7 +8,7 @@
          "verify_ssl": false
       },
       "tool-poison": {
-         "url": "http://9.30.25.150:9002/sse",
+         "url": "http://localhost:8002/sse",
          "transport": "sse",
          "description": "Tool Poison Server",
          "timeout": 10,
@@ -18,7 +18,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "mcp-server-apple-shortcuts"
+        "github:divyesh-0x01/mcp-minimal"
       ]
       }
    }
