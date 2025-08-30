@@ -108,21 +108,20 @@ def generate_single_server_report(findings: List[Finding], server_name: str) -> 
         else:
             console.print("  [yellow]No tools found[/yellow]")
         
-        # Print risk summary
-        console.print(f"\n[bold]Risk Summary:[/]")
-        console.print(f"  • [bold]Total Tools:[/] {len(data['tools'])}")
+        # Skip risk summary section as requested
         
-        if risk_counts['critical'] > 0:
-            console.print(f"  • [bold red]Critical/High Risk:[/] {risk_counts['critical']}")
-        if risk_counts['medium'] > 0:
-            console.print(f"  • [bold yellow]Medium Risk:[/] {risk_counts['medium']}")
-        if risk_counts['low'] > 0:
-            console.print(f"  • [bold blue]Low Risk:[/] {risk_counts['low']}")
-        if risk_counts['safe'] > 0:
-            console.print(f"  • [bold green]Safe:[/] {risk_counts['safe']}")
+        # Separate tools and resources
+        tool_findings = []
+        resource_findings = []
         
-        # Group findings by risk level
-        findings_by_risk = {
+        for finding in server_findings:
+            if finding.get('tool', '').startswith('resource:'):
+                resource_findings.append(finding)
+            else:
+                tool_findings.append(finding)
+        
+        # Group tool findings by risk level
+        tool_findings_by_risk = {
             'critical': [],
             'high': [],
             'medium': [],
@@ -130,83 +129,143 @@ def generate_single_server_report(findings: List[Finding], server_name: str) -> 
             'safe': []
         }
         
-        for finding in server_findings:
+        for finding in tool_findings:
             risk = finding['active_risk']
             if risk in ['critical', 'high']:
-                findings_by_risk['critical'].append(finding)
-            elif risk in findings_by_risk:
-                findings_by_risk[risk].append(finding)
+                tool_findings_by_risk['critical'].append(finding)
+            elif risk in tool_findings_by_risk:
+                tool_findings_by_risk[risk].append(finding)
             else:
-                findings_by_risk['safe'].append(finding)
+                tool_findings_by_risk['safe'].append(finding)
         
-        # Check if there are any security findings (not safe)
+        # Check if there are any security findings (not safe) or rogue servers
         has_security_issues = any(risk_counts[level] > 0 for level in ['critical', 'high', 'medium', 'low'])
+        has_rogue_servers = any('Rogue Server Detected' in finding.get('tool', '') for finding in server_findings)
         
         # Only show non-safe findings; omit SAFE sections entirely
-        if not has_security_issues:
+        if not has_security_issues and not resource_findings and not has_rogue_servers:
             console.print("\n[green]✓ No security vulnerabilities found[/]")
             #console.print("All tools are safe to use.")
         else:
-            # Print detailed findings by risk level (skip 'safe' if no security issues)
+            # Print resource findings first if any exist
+            if resource_findings:
+                console.print("\n[bold red]Sensitive Information leaked in Resources[/]")
+                console.print("-" * 80)
+                
+                for i, finding in enumerate(resource_findings, 1):
+                    console.print(f"\n[bold]{i}. {finding['tool']}[/]")
+                    if finding.get('description'):
+                        console.print(f"   [dim]Description:[/] {finding['description']}")
+                    
+                    # Show proof for resources
+                    if finding.get('proof'):
+                        console.print("   [bold]Proof:[/]")
+                        try:
+                            proof_data = json.loads(finding['proof'])
+                            console.print("   {")
+                            for key, value in proof_data.items():
+                                console.print(f"     {key}: {value}")
+                            console.print("   }")
+                        except (json.JSONDecodeError, AttributeError):
+                            console.print(f"   {finding['proof']}")
+            
+            # Print tool findings by risk level (skip 'safe' if no security issues)
             risk_levels = ['critical', 'high', 'medium', 'low']
                 
             for risk_level in risk_levels:
-                findings = findings_by_risk[risk_level]
+                findings = tool_findings_by_risk[risk_level]
                 if not findings:
                     continue
                     
+                # Get risk level and color
+                risk_level = findings[0].get('active_risk', 'none')
                 risk_color = {
                     'critical': 'red',
                     'high': 'red',
                     'medium': 'yellow',
                     'low': 'blue',
-                }[risk_level]
+                    'none': 'green',
+                    'safe': 'green'
+                }.get(risk_level, 'white')
                 
-                console.print(f"\n[bold {risk_color}]{risk_level.upper()} FINDINGS[/]")
-                console.print("-" * 80)
-                
-                for i, finding in enumerate(findings, 1):
-                    console.print(f"\n[bold]{i}. {finding['tool']}[/]")
-                    if finding.get('description'):
-                        console.print(f"   [dim]Description:[/] {finding['description']}")
-                    
-                    console.print(f"   [bold]Risk Level:[/] [{risk_color}]{risk_level.upper()}[/]")
-                    
-                    # Skipping indicators in console output as they're available in the logs
-                    if finding.get('proof'):
+                # Only print the risk level header if there are findings
+                if findings:
+                    # Check if all findings in this group are tool poisoning
+                    all_tool_poisoning = True
+                    for finding in findings:
                         try:
-                            proof_data = json.loads(finding['proof'])
-                            # Show full proof for both critical and high risk findings
-                            if risk_level in ['critical', 'high']:
-                                console.print("\n   [bold]Proof:[/]")
-                                console.print(f"   [dim]{'─'*70}[/]")
-                                proof_text = json.dumps(proof_data, indent=2)
-                                proof_lines = proof_text.split('\n')
-                                for line in proof_lines:
-                                    console.print(f"   {line}")
-                                console.print(f"   [dim]{'─'*70}[/]")
-                            # Don't show safe message for high/critical risk tools
-                            # Check if this is a safe tool with no suspicious behaviors
-                            elif (isinstance(proof_data, dict) and 
-                                proof_data.get('security_testing_performed', False) and 
-                                proof_data.get('suspicious_behaviors_found', 0) == 0 and 
-                                'security_assessment' in proof_data):
-                                console.print(f"\n   [green]✓ security_assessment: {proof_data['security_assessment']}[/]")
+                            if finding.get('proof'):
+                                parsed = json.loads(finding['proof']) if isinstance(finding['proof'], str) else finding['proof']
+                                if not (isinstance(parsed, dict) and parsed.get('description_sensitive')):
+                                    all_tool_poisoning = False
+                                    break
+                        except Exception:
+                            all_tool_poisoning = False
+                            break
+                    
+                    # Check if all findings are rogue servers
+                    all_rogue_servers = all('Rogue Server Detected' in finding.get('tool', '') for finding in findings)
+                    
+                    # Print appropriate header
+                    if all_rogue_servers:
+                        console.print(f"\n[bold red]Rogue Server Detected[/]")
+                        console.print("-" * 80)
+                    elif all_tool_poisoning and risk_level == 'critical':
+                        console.print(f"\n[bold red]Tool Poisoning - Hidden Instructions in Description[/]")
+                        console.print("-" * 80)
+                    elif risk_level != 'none':
+                        console.print(f"\n[bold]{risk_level.upper() if risk_level != 'safe' else 'SAFE'} FINDINGS[/]")
+                        console.print("-" * 80)
+                    
+                    for i, finding in enumerate(findings, 1):
+                        
+                        console.print(f"\n[bold]{i}. {finding['tool']}[/]")
+                        # Detect description-sensitive proofs to avoid duplicate description printing
+                        is_description_sensitive = False
+                        leaked_description = None
+                        try:
+                            if finding.get('proof'):
+                                parsed = json.loads(finding['proof']) if isinstance(finding['proof'], str) else finding['proof']
+                                if isinstance(parsed, dict) and parsed.get('description_sensitive'):
+                                    is_description_sensitive = True
+                                    leaked_description = parsed.get('tool_description') or finding.get('description')
+                        except Exception:
+                            pass
+
+                        # Only show the generic description if not description-sensitive
+                        if finding.get('description') and not is_description_sensitive:
+                            console.print(f"   [dim]Description:[/] {finding['description']}")
+                        
+                        console.print(f"   [bold]Risk Level:[/] [{risk_color}]{risk_level.upper() if risk_level != 'safe' else 'SAFE'}[/]")
+                        
+                        # Show proof
+                        if finding.get('proof'):
+                            # For rogue servers, always show proof
+                            if 'Rogue Server Detected' in finding.get('tool', ''):
+                                console.print("   [bold]Proof:[/]")
+                                try:
+                                    proof_data = json.loads(finding['proof'])
+                                    console.print("   {")
+                                    for key, value in proof_data.items():
+                                        console.print(f"     {key}: {value}")
+                                    console.print("   }")
+                                except (json.JSONDecodeError, AttributeError):
+                                    console.print(f"   {finding['proof']}")
+                            # For description-sensitive, show leaked description only (no message header since it's in section header)
+                            elif is_description_sensitive:
+                                if leaked_description:
+                                    for line in str(leaked_description).split('\n'):
+                                        console.print(f"     {line}")
                             else:
-                                # For tools with findings, show the full proof
-                                console.print("\n   [bold]Proof:[/]")
-                                console.print(f"   [dim]{'─'*70}[/]")
-                                proof_text = json.dumps(proof_data, indent=2)
-                                proof_lines = proof_text.split('\n')
-                                for line in proof_lines:
-                                    console.print(f"   {line}")
-                                console.print(f"   [dim]{'─'*70}[/]")
-                        except (json.JSONDecodeError, AttributeError):
-                            # Fallback for non-JSON proofs
-                            console.print("\n   [bold]Proof:[/]")
-                            console.print(f"   [dim]{'─'*70}[/]")
-                            console.print(f"   {finding['proof']}")
-                            console.print(f"   [dim]{'─'*70}[/]")
+                                console.print("   [bold]Proof:[/]")
+                                try:
+                                    proof_data = json.loads(finding['proof'])
+                                    console.print("   {")
+                                    for key, value in proof_data.items():
+                                        console.print(f"     {key}: {value}")
+                                    console.print("   }")
+                                except (json.JSONDecodeError, AttributeError):
+                                    console.print(f"   {finding['proof']}")
         
         console.print("\n" + "="*120 + "\n")
 

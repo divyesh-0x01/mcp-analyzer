@@ -188,11 +188,54 @@ def get_complete_proof(finding: dict) -> str:
     if not isinstance(finding, dict):
         return None
     
+    # Get the tool name and description for context
+    tool_name = finding.get('tool', '').lower()
+    tool_desc = finding.get('description', '').lower()
+    
+    # List of tools that might handle file paths legitimately
+    file_handling_tools = ['file', 'read', 'write', 'save', 'load', 'data', 'document']
+    
+    # Check if this is likely a file handling tool
+    is_file_tool = any(term in tool_name or term in tool_desc for term in file_handling_tools)
+    
     # Try to get proof from probe_results first
     if 'probe_results' in finding and finding['probe_results']:
         # First, look for probe results that indicate vulnerabilities
         for probe_type, probe_data in finding['probe_results'].items():
             if not probe_data:
+                continue
+            
+            # Prioritize description-only sensitive proofs to avoid duplicate description printing
+            try:
+                raw_proof = probe_data.get('proof')
+                parsed = json.loads(raw_proof) if isinstance(raw_proof, str) else raw_proof
+                if isinstance(parsed, dict) and parsed.get('description_sensitive'):
+                    return json.dumps({
+                        'tool_name': finding.get('tool', ''),
+                        'server': finding.get('server', ''),
+                        'probe_type': probe_type,
+                        'proof': parsed,
+                        'classification': 'description_sensitive'
+                    }, indent=2)
+            except Exception:
+                pass
+                
+            # Check for actual malicious patterns, not just file paths
+            proof_text = str(probe_data.get('proof', '')).lower()
+            
+            # Common malicious patterns that indicate real issues
+            malicious_patterns = [
+                'command executed', 'shell access', 'eval(', 'os.system',
+                'subprocess.run', 'exec(', 'import os', 'import subprocess',
+                'rm -rf', ';', '&&', '||', '`', '$(', '${', '>', '>>', '|',
+                '/etc/passwd', '/etc/shadow', '~/.ssh', 'authorized_keys',
+                'id_rsa', 'id_dsa', 'known_hosts', '.bash_history',
+                '.ssh/config', 'ssh_config', 'sshd_config', 'passwd',
+                'shadow', 'group', 'sudoers'
+            ]
+            
+            # If it's a file-related tool, we need stronger evidence of malicious intent
+            if is_file_tool and not any(pattern in proof_text for pattern in malicious_patterns):
                 continue
                 
             # Prioritize probe results that show success/vulnerabilities
@@ -214,6 +257,26 @@ def get_complete_proof(finding: dict) -> str:
                 
             # Handle direct proof in probe_data
             if 'proof' in probe_data and probe_data['proof']:
+                proof_text = str(probe_data['proof']).lower()
+                
+                # If description-only sensitive, label accordingly
+                try:
+                    parsed = json.loads(probe_data['proof']) if isinstance(probe_data['proof'], str) else probe_data['proof']
+                    if isinstance(parsed, dict) and parsed.get('description_sensitive'):
+                        return json.dumps({
+                            'tool_name': finding.get('tool', ''),
+                            'server': finding.get('server', ''),
+                            'probe_type': probe_type,
+                            'proof': parsed,
+                            'classification': 'description_sensitive'
+                        }, indent=2)
+                except Exception:
+                    pass
+                
+                # Skip if this is just a file path and the tool handles files
+                if is_file_tool and not any(pattern in proof_text for pattern in malicious_patterns):
+                    continue
+                    
                 return json.dumps({
                     'tool_name': finding.get('tool', ''),
                     'server': finding.get('server', ''),
@@ -249,6 +312,14 @@ def get_complete_proof(finding: dict) -> str:
             try:
                 # If it's already a JSON string, parse and re-format it
                 proof_data = json.loads(finding['proof'])
+                # If description-only sensitive, ensure it is clearly classified
+                if isinstance(proof_data, dict) and proof_data.get('description_sensitive'):
+                    return json.dumps({
+                        'tool_name': finding.get('tool', ''),
+                        'server': finding.get('server', ''),
+                        'proof': proof_data,
+                        'classification': 'description_sensitive'
+                    }, indent=2)
                 return json.dumps({
                     'tool_name': finding.get('tool', ''),
                     'server': finding.get('server', ''),
@@ -358,18 +429,7 @@ def generate_report(all_findings: List[Finding]) -> None:
         else:
             console.print("  [yellow]No tools found[/yellow]")
         
-        # Print risk summary
-        console.print(f"\n[bold]Risk Summary:[/]")
-        console.print(f"  • [bold]Total Tools:[/] {len(data['tools'])}")
-        
-        if risk_counts['critical'] > 0:
-            console.print(f"  • [bold red]Critical/High Risk:[/] {risk_counts['critical']}")
-        if risk_counts['medium'] > 0:
-            console.print(f"  • [bold yellow]Medium Risk:[/] {risk_counts['medium']}")
-        if risk_counts['low'] > 0:
-            console.print(f"  • [bold blue]Low Risk:[/] {risk_counts['low']}")
-        if risk_counts['safe'] > 0:
-            console.print(f"  • [bold green]Safe:[/] {risk_counts['safe']}")
+        # Skip risk summary section as requested
         
         # Group findings by risk level
         findings_by_risk = {
@@ -416,44 +476,74 @@ def generate_report(all_findings: List[Finding]) -> None:
                 }[risk_level]
                 
                 console.print(f"\n[bold {risk_color}]{risk_level.upper() if risk_level != 'safe' else 'SAFE'} FINDINGS[/]")
-                console.print("-" * 80)
+                console.print("-" * 120)
                 
                 for i, finding in enumerate(findings, 1):
                     console.print(f"\n[bold]{i}. {finding['tool']}[/]")
-                    if finding.get('description'):
+                    # Precompute proof and whether this is description-sensitive to avoid duplicate printing
+                    complete_proof = get_complete_proof(finding)
+                    is_description_sensitive = False
+                    description_text_override = None
+                    if complete_proof:
+                        try:
+                            proof_obj = json.loads(complete_proof)
+                            if isinstance(proof_obj, dict) and proof_obj.get('classification') == 'description_sensitive':
+                                inner = proof_obj.get('proof', {})
+                                if isinstance(inner, dict) and inner.get('description_sensitive'):
+                                    is_description_sensitive = True
+                                    description_text_override = inner.get('tool_description') or finding.get('description')
+                        except Exception:
+                            pass
+
+                    # Only show the generic Description when not in description-sensitive mode
+                    if finding.get('description') and not is_description_sensitive:
                         console.print(f"   [dim]Description:[/] {finding['description']}")
                     
-                    console.print(f"   [bold]Risk Level:[/] [{risk_color}]{risk_level.upper() if risk_level != 'safe' else 'SAFE'}[/]")
+                    # For resources with critical risk, show a different message
+                    #if finding.get('tool', '').startswith('resource:') and risk_level == 'critical':
+                     #   console.print("   [bold]Sensitive Information leaked in Resources[/]")
+                    #else:
+                    #    console.print(f"   [bold]Risk Level:[/] [{risk_color}]{risk_level.upper() if risk_level != 'safe' else 'SAFE'}[/]")
                     
                     if finding.get('matches'):
                         console.print("\n   [bold]Indicators:[/]")
                         for match in finding['matches']:
                             console.print(f"     • {match}")
                     
-                    complete_proof = get_complete_proof(finding)
                     if complete_proof:
-                        # Debug: print the first 200 chars of the proof to see what we're working with
-                        proof_str = str(complete_proof)
-                        if len(proof_str) > 200:
-                            proof_str = proof_str[:200] + "..."
-                        console.print(f"   [dim]DEBUG: {proof_str}[/]")
-                        
-                        # Simple string check for safe findings - if the proof contains the safe pattern, show just one line
-                    if 'suspicious_behaviors_found": 0' in str(complete_proof) or 'No suspicious behavior observed' in str(complete_proof):
-                        console.print(f"   [green]✓ No vulnerabilities found for {finding['tool']}[/]")
-                        continue
+                        # Detect description-only sensitive findings
+                        description_text = description_text_override
+                        console.print("code tracking")
 
-                        console.print("\n   [bold]Proof:[/]")
-                        console.print(f"   [dim]{'─'*70}[/]")
-                        formatted = format_proof(complete_proof)
-                        # Support Text or str
-                        if hasattr(formatted, 'plain'):
-                            lines = str(formatted).split('\n')
+                        if is_description_sensitive:
+                            # Show requested header at top for description-only leaks
+                            console.print("   [bold]message: Tool Poisoning - Hidden Instructions in Description[/]")
+                            if description_text:
+                                console.print("\n   [bold]Leaked Description:[/]")
+                                for line in str(description_text).split('\n'):
+                                    console.print(f"     {line}")
                         else:
-                            lines = str(formatted).split('\n')
-                        for line in lines:
-                            console.print(f"   {line}")
-                        console.print(f"   [dim]{'─'*70}[/]")
+                            # Debug: print the first 200 chars of the proof to see what we're working with
+                            proof_str = str(complete_proof)
+                            if len(proof_str) > 200:
+                                proof_str = proof_str[:200] + "..."
+                            console.print(f"   [dim]DEBUG: {proof_str}[/]")
+                            
+                            # Simple string check for safe findings - if the proof contains the safe pattern, show just one line
+                            if 'suspicious_behaviors_found": 0' in str(complete_proof) or 'No suspicious behavior observed' in str(complete_proof):
+                                console.print(f"   [green]✓ No vulnerabilities found for {finding['tool']}[/]")
+                            else:
+                                console.print("\n   [bold]Proof:[/]")
+                                console.print(f"   [dim]{'─'*70}[/]")
+                                formatted = format_proof(complete_proof)
+                                # Support Text or str
+                                if hasattr(formatted, 'plain'):
+                                    lines = str(formatted).split('\n')
+                                else:
+                                    lines = str(formatted).split('\n')
+                                for line in lines:
+                                    console.print(f"   {line}")
+                                console.print(f"   [dim]{'─'*70}[/]")
         
         #console.print("\n" + "="*120 + "\n")
     

@@ -1,25 +1,40 @@
 {
    "mcpServers": {
-      "dvmcp": {
+      "9001": {
          "url": "http://9.30.25.150:9001/sse",
          "transport": "sse",
-         "description": "DVMCP Server",
+         "description": "Tool Poison Server",
          "timeout": 10,
          "verify_ssl": false
       },
-      "tool-poison": {
+      "9002": {
          "url": "http://localhost:8002/sse",
          "transport": "sse",
          "description": "Tool Poison Server",
          "timeout": 10,
          "verify_ssl": false
       },
-      "filesystem": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "github:divyesh-0x01/mcp-minimal"
-      ]
+      "9003": {
+         "url": "http://localhost:8003/sse",
+         "transport": "sse",
+         "description": "Tool Poison Server",
+         "timeout": 10,
+         "verify_ssl": false
+      },
+      "9004": {
+         "url": "http://9.30.25.150:9004/sse",
+         "transport": "sse",
+         "description": "Tool Poison Server",
+         "timeout": 10,
+         "verify_ssl": false
+      },
+      "rogue-servers": {
+         "command": "npx",
+         "args": [
+            "-y",
+            "github:divyesh-0x01/mcp-minimal"
+         ]
       }
+
    }
 }

@@ -23,6 +23,29 @@ class ProbeType(str, Enum):
     API_ENDPOINT = "api_endpoint"
     AUTHENTICATION = "authentication"
     DATA_EXPOSURE = "data_exposure"
+    SQL_INJECTION = "sql_injection"  # For SQL injection vulnerabilities
+    XSS = "xss"  # For Cross-Site Scripting vulnerabilities
+
+# Registry of available probes
+PROBE_REGISTRY: Dict[ProbeType, ProbeFunction] = {}
+
+def register_probe(probe_type: ProbeType) -> Callable[[ProbeFunction], ProbeFunction]:
+    """Decorator to register a probe function for a specific type."""
+    def decorator(func: ProbeFunction) -> ProbeFunction:
+        PROBE_REGISTRY[probe_type] = func
+        return func
+    return decorator
+
+# Register probe functions
+@register_probe(ProbeType.SQL_INJECTION)
+async def sql_injection_probe(mcp_client: Any, tool: Dict[str, Any], use_dynamic: bool = False) -> Dict[str, Any]:
+    """Probe for SQL injection vulnerabilities."""
+    return await probe_sql_injection(mcp_client, tool, use_dynamic)
+
+@register_probe(ProbeType.XSS)
+async def xss_probe(mcp_client: Any, tool: Dict[str, Any], use_dynamic: bool = False) -> Dict[str, Any]:
+    """Probe for Cross-Site Scripting (XSS) vulnerabilities."""
+    return await probe_xss(mcp_client, tool, use_dynamic)
 
 @dataclass
 class ProbeResult:
@@ -60,40 +83,60 @@ def register_probe(probe_type: ProbeType) -> Callable[[ProbeFunction], ProbeFunc
 async def get_relevant_probes(tool: Dict[str, Any]) -> List[ProbeType]:
     """Determine which probes are relevant for a given tool based on its metadata."""
     probes = []
-    tool_name = tool.get('name', '').lower()
-    tool_desc = tool.get('description', '').lower()
+    tool_name = (tool.get('name') or '').lower()
+    description = (tool.get('description') or '').lower()
     
     # Check for file operations
-    if any(term in tool_name or term in tool_desc 
-           for term in ['file', 'read', 'write', 'open', 'load']):
+    if any(x in tool_name for x in ['read', 'write', 'file', 'dir', 'path']):
         probes.append(ProbeType.FILE_READ)
     
-    # Check for command execution (but exclude HTTP/curl tools and bash-specific tools)
-    if any(term in tool_name or term in tool_desc 
-           for term in ['exec', 'command', 'run', 'shell', 'terminal']):
-        # Don't add COMMAND_EXEC if it's clearly an HTTP/API tool
-        if not any(http_term in tool_name or http_term in tool_desc 
-                  for http_term in ['curl', 'http', 'https', 'api', 'endpoint', 'request']):
-            # Don't add COMMAND_EXEC if it's a bash-specific tool (needs different payloads)
-            if not any(bash_term in tool_name.lower() for bash_term in ['bash_pipe', 'bash_execute']):
-                probes.append(ProbeType.COMMAND_EXEC)
+    # Check for command execution
+    if any(x in tool_name for x in ['exec', 'run', 'cmd', 'command', 'shell']):
+        if 'bash' in tool_name or 'shell' in tool_name:
+            probes.append(ProbeType.BASH_EXEC)
+        else:
+            probes.append(ProbeType.COMMAND_EXEC)
     
-    # Check for bash-specific tools (bash_pipe, bash_execute)
-    if any(term in tool_name.lower() for term in ['bash_pipe', 'bash_execute']):
-        probes.append(ProbeType.BASH_EXEC)
-    
-    # Check for API endpoints (prioritize this over command execution for HTTP tools)
-    if any(term in tool_name or term in tool_desc 
-           for term in ['api', 'endpoint', 'http', 'https', 'curl', 'request']):
+    # Check for API/HTTP endpoints
+    if any(x in tool_name for x in ['http', 'api', 'request', 'fetch', 'call']):
         probes.append(ProbeType.API_ENDPOINT)
     
-    # Check for authentication
-    if any(term in tool_name or term in tool_desc 
-           for term in ['auth', 'login', 'token', 'credential']):
+    # Check for authentication related tools
+    if any(x in tool_name for x in ['auth', 'login', 'password', 'token', 'jwt']):
         probes.append(ProbeType.AUTHENTICATION)
     
-    # For dynamic fuzzing, always include a general probe for all tools
-    # This will be handled in execute_probes function
+    # Check for data exposure
+    if any(x in tool_name for x in ['data', 'get', 'list', 'find', 'search', 'query']):
+        probes.append(ProbeType.DATA_EXPOSURE)
+    
+    # Check for SQL injection vulnerabilities
+    sql_keywords = ['sql', 'query', 'select', 'insert', 'update', 'delete', 'where', 'from', 'database', 'db']
+    if any(x in tool_name for x in sql_keywords) or any(x in description for x in sql_keywords):
+        probes.append(ProbeType.SQL_INJECTION)
+    
+    # Check for XSS vulnerabilities
+    xss_keywords = ['html', 'render', 'display', 'show', 'view', 'content', 'template', 'form', 'input', 'output']
+    if any(x in tool_name for x in xss_keywords) or any(x in description for x in xss_keywords):
+        probes.append(ProbeType.XSS)
+    
+    # Check parameters for SQLi and XSS indicators
+    params = tool.get('parameters', {})
+    for param_name, param_schema in params.items():
+        param_type = get_parameter_type(param_name, param_schema)
+        if param_type in [ParameterType.SQL_QUERY, ParameterType.SQL_FILTER]:
+            probes.append(ProbeType.SQL_INJECTION)
+        elif param_type == ParameterType.HTML_INPUT:
+            probes.append(ProbeType.XSS)
+    
+    # If no specific probes matched, add some safe defaults
+    if not probes:
+        probes.extend([
+            ProbeType.FILE_READ,
+            ProbeType.COMMAND_EXEC,
+            ProbeType.API_ENDPOINT,
+            ProbeType.SQL_INJECTION,
+            ProbeType.XSS
+        ])
     
     return list(set(probes))  # Remove duplicates
 
@@ -246,12 +289,36 @@ async def probe_prompt_injection(mcp_client: Any, tool: Dict[str, Any], use_dyna
     result = ProbeResult(probe_type=ProbeType.DATA_EXPOSURE, severity="high")
     result.attempts = []
 
+    # Skip tools that are not likely to be vulnerable to prompt injection
+    tool_name = (tool.get('name') or '').lower()
+    tool_desc = (tool.get('description') or '').lower()
+    
+    # Skip system/internal tools
+    if any(term in tool_name for term in ['system', 'internal', 'admin']):
+        result.proof = "Skipped system/internal tool"
+        return result.to_dict()
+    
     from .static_payload_generator import StaticPayloadGenerator
     generator = StaticPayloadGenerator()
-    # Select only context/role/instruction manipulation payloads
-    pi_payloads = [p for p in generator._load_static_payloads() if p.attack_type in {
-        "context_manipulation", "role_confusion", "instruction_injection", "delimiter_attack", "encoding_attack"
-    }]
+    
+    # Get tool's input schema to generate appropriate payloads
+    input_schema = tool.get('inputSchema', {})
+    properties = input_schema.get('properties', {})
+    
+    # Skip if no parameters are defined
+    if not properties:
+        result.proof = "No parameters defined in input schema"
+        return result.to_dict()
+    
+    # Select only context/role/instruction manipulation payloads that match the schema
+    valid_attack_types = {
+        "context_manipulation", "role_confusion", "instruction_injection", 
+        "delimiter_attack", "encoding_attack"
+    }
+    pi_payloads = [
+        p for p in generator._load_static_payloads() 
+        if p.attack_type in valid_attack_types
+    ]
 
     # Adapt payloads to tool schema if available
     input_schema = tool.get("raw", {}).get("inputSchema", {}) or {}
@@ -264,24 +331,97 @@ async def probe_prompt_injection(mcp_client: Any, tool: Dict[str, Any], use_dyna
             resp = await call_tool_with_client(mcp_client, tool['name'], payload)
             attempt["response"] = resp
             text = extract_result_text(resp) if resp else ""
-
-            # If execution traces or sensitive outputs appear, mark as vulnerable
-            if looks_like_passwd(text) or any(s in text for s in ["uid=", "root:", "/etc/passwd"]):
-                attempt["classification"] = "vulnerable"
-                result.success = True
-                result.payload = payload
-                result.proof = json.dumps({
-                    "payload": payload,
-                    "response": extract_concise_response(text)
-                }, ensure_ascii=False)
-                result.confidence = 0.85
-                result.attempts.append(attempt)
-                return result.to_dict()
-
-            if any(tok in text for tok in ["Method not found", "invalid", "denied", "error"]):
+            text = str(text).lower()
+            payload_str = str(payload).lower()
+            
+            # Common error patterns that indicate reflection without vulnerability
+            reflection_patterns = [
+                r'(?i)(?:no (?:data|results?) (?:found|available)(?: for [^:]+:)?)',
+                r'(?i)(?:(?:user|item|record) (?:not found|not exist|doesn\'t exist))',
+                r'(?i)(?:search (?:results?|returned) (?:no matches|nothing|empty))',
+                r'(?i)(?:error(?: message)?:? [^\n]*(?:unable to (?:find|process)|invalid|failed|rejected|denied|not (?:found|valid|allowed))[^\n]*)',
+                r'(?i)(?:invalid (?:input|parameter|request|query|syntax|command|operation|format))',
+                r'(?i)(?:unexpected (?:error|token|character|input|value))',
+                r'(?i)(?:syntax error(?: in| at| near)?)',
+                r'(?i)(?:command (?:not found|failed|error))',
+                r'(?i)(?:permission (?:denied|error|not allowed))',
+                r'(?i)(?:failed to (?:process|execute|find|retrieve))'
+            ]
+            
+            # Check if this is just a reflected error message
+            is_reflected_error = any(re.search(pattern, text) for pattern in reflection_patterns)
+            
+            # Check if the response contains the payload (reflected input)
+            if payload_str in text:
+                # Check for command execution indicators with more context
+                command_patterns = [
+                    # System information
+                    r'(?i)(?:uid=\d+\([^\s]+\)\s+gid=\d+\b)',
+                    r'(?i)(?:user\s*:\s*[^\s]+\s*\bshell\b)',
+                    r'(?i)(?:hostname\s*:\s*[^\s\n]+)',
+                    # Command output patterns
+                    r'(?i)(?:command (?:output|result):?\s*[^\n]{10,})',
+                    r'(?i)(?:std(?:out|err):?\s*[^\n]{10,})',
+                    # System directories and files
+                    r'(?i)(?:/(?:etc|var|usr|home|root|tmp)(?:/[^\s/]+)+\b)',
+                    # Process information
+                    r'(?i)(?:process(?: id|or)?\s*[0-9]+)',
+                    # Shell indicators
+                    r'(?i)(?:bash(?:\s+\-\w+)+)',
+                    # Network information
+                    r'(?i)(?:inet\s+[0-9.]+|inet6\s+[0-9a-f:]+)',
+                    # System calls
+                    r'(?i)(?:system\([^)]+\)|exec\w*\s+[^\s;|&]+)'
+                ]
+                
+                # Check for command execution patterns
+                command_execution_found = any(re.search(pattern, text) for pattern in command_patterns)
+                
+                if command_execution_found:
+                    # Additional checks to reduce false positives
+                    is_likely_vulnerable = True
+                    
+                    # Check if the command output looks like an error message
+                    if any(re.search(pattern, text) for pattern in [
+                        r'(?i)(?:error|failed|invalid|unexpected|exception|syntax error)',
+                        r'(?i)(?:command not found|no such file or directory)'
+                    ]):
+                        # If it's a common error message, it's likely not a real vulnerability
+                        if len(text) < 1000:  # Short error messages are more likely to be false positives
+                            is_likely_vulnerable = False
+                    
+                    if is_likely_vulnerable:
+                        result.success = True
+                        result.payload = payload
+                        result.proof = f"Command execution detected in response to payload: {payload}"
+                        result.confidence = 0.95  # Increased confidence due to better detection
+                        attempt["classification"] = "vulnerable"
+                        result.attempts.append(attempt)
+                        return result.to_dict()
+                
+                # If we get here and it's a reflected error, mark it as safe
+                if is_reflected_error:
+                    attempt["classification"] = "safe_reflection"
+                    result.attempts.append(attempt)
+                    continue
+            
+            # Classify the response with more detailed categories
+            if is_reflected_error:
+                attempt["classification"] = "safe_reflection"
+            elif any(re.search(pattern, text) for pattern in [
+                r'(?i)(?:error|exception|failed|rejected|denied|invalid|unexpected)',
+                r'(?i)(?:syntax error|parse error|validation failed)',
+                r'(?i)(?:not (?:found|allowed|permitted|authorized))',
+                r'(?i)(?:unable to (?:process|execute|find|retrieve))'
+            ]):
                 attempt["classification"] = "error_response"
-            else:
+            elif any(re.search(pattern, text) for pattern in [
+                r'(?i)(?:success|completed|finished|result:|output:)'
+            ]):
                 attempt["classification"] = "success"
+            else:
+                attempt["classification"] = "unknown"
+                
             result.attempts.append(attempt)
         except Exception as e:
             attempt["classification"] = "error"
@@ -638,245 +778,657 @@ async def probe_api_endpoint(mcp_client: Any, tool: Dict[str, Any], use_dynamic:
     return result.to_dict()
 
 
-@register_probe(ProbeType.FILE_READ)
-async def probe_file_read(mcp_client: Any, tool: Dict[str, Any], use_dynamic: bool = False) -> Dict[str, Any]:
-    """Probe for file read vulnerabilities using tool schema for parameter names."""
-    result = ProbeResult(probe_type=ProbeType.FILE_READ, severity="high")
-    result.attempts = []
+class ParameterType(Enum):
+    """Enum for different parameter types."""
+    USERNAME = "username"
+    PASSWORD = "password"
+    EMAIL = "email"
+    FILEPATH = "filepath"
+    URL = "url"
+    COMMAND = "command"
+    SEARCH = "search"
+    ID = "id"
+    GENERIC = "generic"
+    SQL_QUERY = "sql_query"
+    SQL_FILTER = "sql_filter"
+    HTML_INPUT = "html_input"
 
-    # Comprehensive path traversal test cases
-    test_files = [
-        # Standard path traversal attempts
-        "/tmp/../etc/passwd",
-        "/tmp/../etc/hosts",
-        "/tmp/safe/../../etc/passwd",  # New payload
-        "/etc/passwd",                 # New payload - direct path
-        "/etc/hosts",                  # New payload - direct path
-        # Windows path traversal
-        "C:\\Windows\\System32\\drivers\\etc\\hosts",
-        # Additional variations
-        "/var/tmp/../../../etc/passwd",
-        "/usr/local/../../etc/passwd"
-    ]
-
-    # Get parameter info from tool schema
-    schema = None
-    required_params = []
-    param_properties = {}
+def get_parameter_type(param_name: str, param_schema: Optional[Dict] = None) -> ParameterType:
+    """Determine the type of parameter based on its name and schema."""
+    param_name = (param_name or "").lower()
     
-    try:
-        # Try to get the schema from the tool dict first
-        if 'inputSchema' in tool:
-            schema = tool['inputSchema']
+    # Check by common parameter name patterns
+    if any(x in param_name for x in ['user', 'login', 'name', 'uname']):
+        return ParameterType.USERNAME
+    elif any(x in param_name for x in ['pass', 'pwd', 'secret']):
+        return ParameterType.PASSWORD
+    elif any(x in param_name for x in ['email', 'mail']):
+        return ParameterType.EMAIL
+    elif any(x in param_name for x in ['file', 'path', 'dir']):
+        return ParameterType.FILEPATH
+    elif any(x in param_name for x in ['url', 'uri', 'endpoint']):
+        return ParameterType.URL
+    elif any(x in param_name for x in ['cmd', 'command', 'exec']):
+        return ParameterType.COMMAND
+    elif any(x in param_name for x in ['search', 'q', 'query']):
+        return ParameterType.SEARCH
+    elif any(x in param_name for x in ['id', 'uuid', 'guid']):
+        return ParameterType.ID
+    
+    # SQL injection related parameters
+    sql_keywords = ['sql', 'select', 'where', 'from', 'table', 'query', 'filter', 'sort', 'order']
+    if any(x in param_name for x in sql_keywords):
+        if any(x in param_name for x in ['query', 'sql']):
+            return ParameterType.SQL_QUERY
+        return ParameterType.SQL_FILTER
+    
+    # XSS related parameters
+    xss_keywords = ['html', 'content', 'body', 'text', 'message', 'comment', 'input', 'output']
+    if any(x in param_name for x in xss_keywords):
+        return ParameterType.HTML_INPUT
+    
+    # Check schema if available
+    if param_schema and isinstance(param_schema, dict):
+        if 'format' in param_schema:
+            if param_schema['format'] in ['email', 'idn-email']:
+                return ParameterType.EMAIL
+            elif param_schema['format'] in ['uri', 'url']:
+                return ParameterType.URL
         
-        # If no schema in tool dict, try to fetch it
-        if not schema and hasattr(mcp_client, 'get_tool_schema'):
-            tool_schema = await mcp_client.get_tool_schema(tool.get('name', ''))
-            if tool_schema and 'inputSchema' in tool_schema:
-                schema = tool_schema['inputSchema']
-        
-        # Extract parameter information
-        if schema and 'properties' in schema:
-            param_properties = schema['properties']
-            # Get list of required parameters if specified
-            required_params = schema.get('required', [])
-            
-            # If there are required params, use those first
-            if required_params:
-                param_names = required_params
-            else:
-                # Otherwise try to find parameters that look like they accept file paths
-                for param, props in param_properties.items():
-                    if isinstance(props, dict):
-                        # Look for parameters with 'file' or 'path' in name or type
-                        param_lower = param.lower()
-                        if ('file' in param_lower or 'path' in param_lower or 
-                            (isinstance(props.get('type'), str) and 
-                             any(t in props['type'].lower() for t in ['string', 'file', 'path']))):
-                            param_names.append(param)
+        if 'type' in param_schema:
+            if param_schema['type'] == 'string':
+                if 'format' in param_schema and param_schema['format'] == 'password':
+                    return ParameterType.PASSWORD
+                if 'maxLength' in param_schema and param_schema['maxLength'] > 1000:
+                    # Likely a content field that could be vulnerable to XSS
+                    return ParameterType.HTML_INPUT
                 
-                # If no file-like params found, use all parameters
-                if not param_names and param_properties:
-                    param_names = list(param_properties.keys())
-    except Exception as e:
-        logging.debug(f"Error getting tool schema for {tool.get('name', 'unknown')}: {e}")
-
-    # Fallback to common parameter names if we couldn't determine them from the schema
-    if not param_names:
-        param_names = ['filename', 'file', 'path', 'filepath', 'input']
-        logging.info(f"Using fallback parameter names for {tool.get('name', 'unknown')}")
-    else:
-        logging.info(f"Using parameters for {tool.get('name', 'unknown')}: {param_names}")
-        if required_params:
-            logging.info(f"Required parameters: {required_params}")
-    
-    # Remove any duplicate parameters while preserving order
-    seen = set()
-    param_names = [x for x in param_names if not (x in seen or seen.add(x))]
-
-    for test_file in test_files:
-        for param in param_names:
-            # Create payload with all required parameters that have default values
-            payload = {}
-            
-            # Add the current parameter with test file
-            payload[param] = test_file
-            
-            # Add other required parameters with default values if they exist
-            for req_param in required_params:
-                if req_param != param and req_param not in payload:
-                    # Try to get default from schema or use empty string
-                    default_value = ""
-                    if req_param in param_properties and isinstance(param_properties[req_param], dict):
-                        prop = param_properties[req_param]
-                        if 'default' in prop:
-                            default_value = prop['default']
-                        elif 'type' in prop:
-                            # Provide type-appropriate default values
-                            if prop['type'] == 'number':
-                                default_value = 0
-                            elif prop['type'] == 'boolean':
-                                default_value = False
-                            elif prop['type'] == 'array':
-                                default_value = []
-                            elif prop['type'] == 'object':
-                                default_value = {}
-                    payload[req_param] = default_value
-            
-            attempt = {"args": payload, "classification": "pending"}
-            try:
-                resp = await call_tool_with_client(mcp_client, tool['name'], payload)
-                attempt["response"] = resp
-                text = extract_result_text(resp) if resp else ""
-                attempt["classification"] = "safe"
-
-                # Check for successful file read
-                if looks_like_passwd(text) or text.startswith("root:"):
-                    attempt["classification"] = "vulnerable"
-                    result.success = True
-                    result.payload = payload
-                    result.proof = json.dumps({
-                        "payload": payload,
-                        "response": extract_concise_response(text)
-                    }, ensure_ascii=False)
-                    result.confidence = 0.95
-                    result.attempts.append(attempt)
-                    logging.warning(f"File read vulnerability found in {tool.get('name', 'unknown')} with parameter '{param}'")
-                    return result.to_dict()
+                # Check for SQL-like content in description/pattern
+                desc = (param_schema.get('description') or '').lower()
+                if any(x in desc for x in ['sql', 'query', 'select', 'where']):
+                    if 'query' in desc or 'sql' in desc:
+                        return ParameterType.SQL_QUERY
+                    return ParameterType.SQL_FILTER
+                
+                # Check for HTML content
+                if any(x in desc for x in ['html', 'rich text', 'formatted']):
+                    return ParameterType.HTML_INPUT
+                
+                # Check for URL patterns
+                if any(x in desc for x in ['url', 'endpoint']):
+                    return ParameterType.URL
                     
-                # Check for hosts file read
-                if "127.0.0.1" in text and "hosts" in text:
-                    attempt["classification"] = "vulnerable"
+                # Check for command patterns
+                if any(x in desc for x in ['command', 'execute']):
+                    return ParameterType.COMMAND
+                    
+                # Check for search patterns
+                if 'search' in desc or 'query' in desc:
+                    return ParameterType.SEARCH
+    
+    return ParameterType.GENERIC
+
+# SQL Injection detection patterns
+SQL_ERROR_PATTERNS = [
+    r'(?i)SQL.*syntax',
+    r'(?i)SQL.*error',
+    r'(?i)ORA-\d+',
+    r'(?i)PostgreSQL.*ERROR',
+    r'(?i)MySQL.*error',
+    r'(?i)SQLite.*error',
+    r'(?i)unexpected token',
+    r'(?i)unterminated quoted',
+    r'(?i)column.*not found',
+    r'(?i)table.*not found',
+    r'(?i)unknown column',
+    r'(?i)unknown table',
+    r'(?i)SQL command not properly ended',
+    r'(?i)data exception',
+    r'(?i)data truncated',
+    r'(?i)division by zero',
+    r'(?i)incorrect syntax',
+    r'(?i)invalid column',
+    r'(?i)invalid number',
+    r'(?i)invalid parameter',
+    r'(?i)missing expression',
+    r'(?i)missing right parenthesis',
+    r'(?i)null value in column',
+    r'(?i)subquery returns more than one row',
+    r'(?i)syntax error',
+    r'(?i)unclosed quotation mark',
+    r'(?i)violation of [\w ]+ constraint',
+    r'(?i)you have an error in your SQL syntax',
+]
+
+# SQL Injection test payloads
+SQLI_TEST_PAYLOADS = [
+    # Boolean-based blind
+    "' OR '1'='1",
+    '" OR "1"="1',
+    "' OR 1=1--",
+    "' OR 1=1#",
+    "' OR 1=1;--",
+    
+    # Time-based blind
+    "' OR (SELECT * FROM (SELECT(SLEEP(5)))a)--",
+    "' OR (SELECT * FROM (SELECT(SLEEP(5)))a)#",
+    
+    # Error-based
+    "' OR 1=CONVERT(int, @@version)--",
+    "' AND 1=CONVERT(int, @@version)--",
+    
+    # UNION-based
+    "' UNION SELECT NULL--",
+    "' UNION SELECT NULL, NULL--",
+    "' UNION SELECT NULL, NULL, NULL--",
+    "' UNION ALL SELECT NULL, NULL, NULL, NULL--",
+    
+    # Stacked queries
+    "'; SELECT 1;--",
+    "'; EXEC sp_helpuser;--",
+    
+    # Alternative encodings
+    "%27%20OR%201=1--",
+    "\u0027 OR 1=1--",
+    
+    # Database-specific
+    "' OR 1=1 LIMIT 1--",  # MySQL
+    "' OR 1=1 OFFSET 0--",  # PostgreSQL
+    "' OR 1=1 ROWNUM=1--",  # Oracle
+]
+
+async def analyze_sql_injection_response(response: Any) -> bool:
+    """Analyze response for signs of SQL injection success."""
+    if not response:
+        return False
+    
+    response_text = str(response).lower()
+    
+    # Check for SQL error messages that indicate actual SQL syntax issues
+    if any(re.search(pattern, response_text) for pattern in SQL_ERROR_PATTERNS):
+        # Check if this is just a reflected input in an error message
+        if 'no data available for type:' in response_text or \
+           'user not found:' in response_text or \
+           'search results for' in response_text:
+            return False
+        return True
+        
+    # Check for time delays (this would require timing analysis)
+    # This is a simplified check - in reality, you'd want to measure response times
+    if 'sleep(' in response_text or 'waitfor delay' in response_text:
+        return True
+        
+    # Check for unusual content that might indicate successful injection
+    suspicious_phrases = [
+        'syntax error', 'unterminated', 'missing expression', 'invalid character',
+        'invalid number', 'missing keyword', 'missing right parenthesis',
+        'column not found', 'table not found', 'violation of constraint',
+        'data exception', 'integrity constraint violation'
+    ]
+    
+    # Check for specific SQL error patterns that indicate real issues
+    if any(phrase in response_text for phrase in suspicious_phrases):
+        return True
+        
+    # Check for common SQL injection patterns in the response
+    injection_indicators = [
+        'select.*from', 'insert into', 'update .* set', 'delete from',
+        'drop table', 'truncate table', 'create table', 'alter table',
+        'union select', 'exec xp_cmdshell', 'sp_', 'information_schema'
+    ]
+    
+    if any(re.search(pattern, response_text) for pattern in injection_indicators):
+        return True
+        
+    return False
+
+async def probe_sql_injection(mcp_client: Any, tool: Dict[str, Any], use_dynamic: bool = False) -> Dict[str, Any]:
+    """Probe for SQL injection vulnerabilities in tool parameters."""
+    result = ProbeResult(
+        probe_type=ProbeType.SQL_INJECTION,
+        severity="high",
+        confidence=0.0,
+        attempts=[]
+    )
+    
+    # Get tool parameters
+    params = tool.get('parameters', {})
+    if not params:
+        result.proof = "No parameters found to test for SQL injection"
+        return result.to_dict()
+    
+    # Find parameters that might be vulnerable to SQLi
+    sql_params = []
+    for param_name, param_schema in params.items():
+        param_type = get_parameter_type(param_name, param_schema)
+        if param_type in [ParameterType.SQL_QUERY, ParameterType.SQL_FILTER, ParameterType.SEARCH, ParameterType.ID]:
+            sql_params.append((param_name, param_type))
+    
+    if not sql_params:
+        result.proof = "No SQL-related parameters found to test"
+        return result.to_dict()
+    
+    # Test each vulnerable parameter
+    for param_name, param_type in sql_params:
+        for payload in SQLI_TEST_PAYLOADS:
+            attempt = {
+                "param": param_name,
+                "payload": payload,
+                "classification": "pending"
+            }
+            
+            try:
+                # Create payload with the test SQLi attempt
+                test_payload = {param_name: payload}
+                
+                # Add other required parameters with default values
+                for req_param in params.keys():
+                    if req_param != param_name and req_param not in test_payload:
+                        test_payload[req_param] = "test"  # Default test value
+                
+                # Call the tool with the test payload
+                resp = await call_tool_with_client(mcp_client, tool['name'], test_payload)
+                response_text = extract_result_text(resp) if resp else ""
+                
+                # Analyze the response
+                is_vulnerable = await analyze_sql_injection_response(response_text)
+                
+                if is_vulnerable:
                     result.success = True
-                    result.payload = payload
+                    result.confidence = 0.9  # High confidence if we get a clear SQL error
+                    result.payload = {param_name: payload}
                     result.proof = json.dumps({
+                        "parameter": param_name,
                         "payload": payload,
-                        "response": extract_concise_response(text)
+                        "response": limit_lines(response_text, max_lines=5, max_chars=500)
                     }, ensure_ascii=False)
-                    result.confidence = 0.85
+                    
+                    logging.warning(
+                        f"SQL injection vulnerability found in {tool.get('name', 'unknown')} "
+                        f"with parameter '{param_name}'"
+                    )
+                    
+                    # Add the attempt and return the result
+                    attempt["classification"] = "vulnerable"
+                    attempt["response"] = limit_lines(response_text, max_lines=2, max_chars=200)
                     result.attempts.append(attempt)
-                    logging.warning(f"Hosts file read vulnerability found in {tool.get('name', 'unknown')} with parameter '{param}'")
+                    
                     return result.to_dict()
+                else:
+                    attempt["classification"] = "safe"
                     
             except Exception as e:
                 error_msg = str(e).lower()
                 if 'validation' in error_msg or 'field required' in error_msg:
                     attempt["classification"] = "invalid_parameter"
-                    # Provide more detailed validation error information
-                    if hasattr(e, 'response') and hasattr(e.response, 'text'):
-                        try:
-                            error_data = json.loads(e.response.text)
-                            if 'detail' in error_data:
-                                if isinstance(error_data['detail'], list):
-                                    # Handle FastAPI-style validation errors
-                                    error_msgs = [f"{err['loc'][-1]}: {err['msg']}" 
-                                                for err in error_data['detail'] 
-                                                if 'loc' in err and 'msg' in err]
-                                    if error_msgs:
-                                        error_msg = "; ".join(error_msgs)
-                                else:
-                                    error_msg = str(error_data['detail'])
-                                    
-                            attempt["error"] = error_msg
-                            logging.debug(f"Validation error for {tool.get('name', 'unknown')} with payload {payload}: {error_msg}")
-                        except (json.JSONDecodeError, AttributeError, KeyError):
-                            attempt["error"] = str(e)
-                    continue
-                
-                attempt["classification"] = "error"
-                attempt["error"] = str(e)
-                logging.warning(f"Error testing {tool.get('name', 'unknown')} with parameter '{param}': {e}", 
-                             exc_info=logging.DEBUG >= logging.root.level)
+                else:
+                    attempt["classification"] = "error"
+                    attempt["error"] = str(e)
+                    logging.warning(
+                        f"Error testing SQL injection on {tool.get('name', 'unknown')} "
+                        f"with parameter '{param_name}': {e}",
+                        exc_info=logging.DEBUG >= logging.root.level
+                    )
             
             result.attempts.append(attempt)
     
+    # If we get here, no SQL injection was found
+    result.success = False
+    result.proof = "No SQL injection vulnerabilities found"
     return result.to_dict()
 
-    # Generate payloads from LLM with the MCP client
-    payloads_result = await generate_payloads(
-        tool_name=tool.get('name', ''),
-        tool_description=tool.get('description', ''),
-        input_schema=tool.get('inputSchema', {}),
-        mcp_client=mcp_client,
-        use_llm=use_dynamic
+# XSS detection patterns and test payloads
+XSS_TEST_PAYLOADS = [
+    # Basic XSS
+    '<script>alert(1)</script>',
+    '<img src="x" onerror="alert(1)">',
+    '<svg onload="alert(1)">',
+    '<body onload=alert(1)>',
+    
+    # OWASP XSS Filter Evasion Cheat Sheet examples
+    '<SCRIPT>alert(String.fromCharCode(88,83,83))</SCRIPT>',
+    '<IMG SRC=JaVaScRiPt:alert(1)>',
+    '<IMG SRC=javascript:alert("XSS")>',
+    "<IMG SRC=javascript:alert('RSnake says, XSS')>",
+    '<IMG """><SCRIPT>alert("XSS")</SCRIPT>">',
+    '<IMG SRC=javascript:alert(String.fromCharCode(88,83,83))>',
+    
+    # Event handlers
+    '" onmouseover=alert(1) x="',
+    '" onfocus=alert(1) autofocus="',
+    '" onload=alert(1) src="',
+    
+    # Encoded payloads
+    '&#x3C;script&#x3E;alert(1)&#x3C;/script&#x3E;',
+    '%3Cscript%3Ealert(1)%3C/script%3E',
+    
+    # DOM-based XSS
+    '#<script>alert(1)</script>',
+    'javascript:alert(1)',
+    'data:text/html,<script>alert(1)</script>',
+    
+    # Special characters
+    '<>\'\";alert(1)//',
+    '\'><script>alert(1)</script>',
+    '"><script>alert(1)</script>',
+    
+    # Bypass filters
+    '<scr<script>ipt>alert(1)</scr</script>ipt>',
+    '<scr<script>ipt>alert(1)</script>',
+    '<scr<script>ipt>alert(1)</scr<scr</script>ipt>ipt>',
+]
+
+XSS_DETECTION_PATTERNS = [
+    # Script tags and event handlers
+    r'<script[^>]*>',
+    r'javascript:',
+    r'on\w+\s*=',
+    
+    # HTML tags that can execute JavaScript
+    r'<img[^>]*>',
+    r'<svg[^>]*>',
+    r'<body[^>]*>',
+    r'<iframe[^>]*>',
+    r'<object[^>]*>',
+    r'<embed[^>]*>',
+    r'<applet[^>]*>',
+    r'<style[^>]*>',
+    r'<link[^>]*>',
+    r'<meta[^>]*>',
+    r'<form[^>]*>',
+    r'<input[^>]*>',
+    r'<button[^>]*>',
+    r'<select[^>]*>',
+    r'<textarea[^>]*>',
+    r'<video[^>]*>',
+    r'<audio[^>]*>',
+    r'<source[^>]*>',
+    r'<track[^>]*>',
+    r'<canvas[^>]*>',
+    r'<math[^>]*>',
+    r'<marquee[^>]*>',
+    r'<frameset[^>]*>',
+    r'<frame[^>]*>',
+    r'<base[^>]*>',
+    r'<blink[^>]*>',
+    r'<isindex[^>]*>',
+    r'<a[^>]*>',
+    r'<div[^>]*>',
+    r'<span[^>]*>',
+    r'<table[^>]*>',
+    r'<td[^>]*>',
+    r'<tr[^>]*>',
+    r'<th[^>]*>',
+    r'<ilayer[^>]*>',
+    r'<layer[^>]*>',
+    r'<bgsound[^>]*>',
+    r'<command[^>]*>',
+    r'<details[^>]*>',
+    r'<keygen[^>]*>',
+    r'<menuitem[^>]*>',
+    r'<wbr[^>]*>',
+    r'<xss[^>]*>',
+]
+
+async def analyze_xss_response(response: Any, payload: str) -> bool:
+    """Analyze response for signs of successful XSS."""
+    if not response:
+        return False
+    
+    response_text = str(response)
+    
+    # Check if the payload appears in the response (unescaped)
+    # We look for the payload with HTML special characters unescaped
+    if payload in response_text:
+        return True
+    
+    # Check for common XSS patterns in the response
+    if any(re.search(pattern, response_text, re.IGNORECASE) for pattern in XSS_DETECTION_PATTERNS):
+        return True
+    
+    # Check for common XSS strings in the response
+    xss_indicators = [
+        'alert(', 'prompt(', 'confirm(',
+        'onerror=', 'onload=', 'onclick=', 'onmouseover=',
+        'javascript:', 'vbscript:', 'data:',
+        '<script>', '</script>',
+        '<img ', '<svg ', '<body ', '<iframe '
+    ]
+    
+    if any(indicator in response_text.lower() for indicator in xss_indicators):
+        return True
+    
+    return False
+
+async def probe_xss(mcp_client: Any, tool: Dict[str, Any], use_dynamic: bool = False) -> Dict[str, Any]:
+    """Probe for Cross-Site Scripting (XSS) vulnerabilities in tool parameters."""
+    result = ProbeResult(
+        probe_type=ProbeType.XSS,
+        severity="high",
+        confidence=0.0,
+        attempts=[]
     )
+    
+    # Get tool parameters
+    params = tool.get('parameters', {})
+    if not params:
+        result.proof = "No parameters found to test for XSS"
+        return result.to_dict()
+    
+    # Find parameters that might be vulnerable to XSS
+    xss_params = []
+    for param_name, param_schema in params.items():
+        param_type = get_parameter_type(param_name, param_schema)
+        if param_type in [ParameterType.HTML_INPUT, ParameterType.SEARCH, ParameterType.URL, ParameterType.GENERIC]:
+            xss_params.append((param_name, param_type))
+    
+    if not xss_params:
+        result.proof = "No XSS-vulnerable parameters found to test"
+        return result.to_dict()
+    
+    # Test each vulnerable parameter
+    for param_name, param_type in xss_params:
+        for payload in XSS_TEST_PAYLOADS:
+            attempt = {
+                "param": param_name,
+                "payload": payload,
+                "classification": "pending"
+            }
+            
+            try:
+                # Create payload with the test XSS attempt
+                test_payload = {param_name: payload}
+                
+                # Add other required parameters with default values
+                for req_param in params.keys():
+                    if req_param != param_name and req_param not in test_payload:
+                        test_payload[req_param] = "test"  # Default test value
+                
+                # Call the tool with the test payload
+                resp = await call_tool_with_client(mcp_client, tool['name'], test_payload)
+                response_text = extract_result_text(resp) if resp else ""
+                
+                # Analyze the response
+                is_vulnerable = await analyze_xss_response(response_text, payload)
+                
+                if is_vulnerable:
+                    result.success = True
+                    result.confidence = 0.9  # High confidence if we see the payload reflected
+                    result.payload = {param_name: payload}
+                    result.proof = json.dumps({
+                        "parameter": param_name,
+                        "payload": payload,
+                        "response": limit_lines(response_text, max_lines=5, max_chars=500)
+                    }, ensure_ascii=False)
+                    
+                    logging.warning(
+                        f"XSS vulnerability found in {tool.get('name', 'unknown')} "
+                        f"with parameter '{param_name}'"
+                    )
+                    
+                    # Add the attempt and return the result
+                    attempt["classification"] = "vulnerable"
+                    attempt["response"] = limit_lines(response_text, max_lines=2, max_chars=200)
+                    result.attempts.append(attempt)
+                    
+                    return result.to_dict()
+                else:
+                    attempt["classification"] = "safe"
+                    
+            except Exception as e:
+                error_msg = str(e).lower()
+                if 'validation' in error_msg or 'field required' in error_msg:
+                    attempt["classification"] = "invalid_parameter"
+                else:
+                    attempt["classification"] = "error"
+                    attempt["error"] = str(e)
+                    logging.warning(
+                        f"Error testing XSS on {tool.get('name', 'unknown')} "
+                        f"with parameter '{param_name}': {e}",
+                        exc_info=logging.DEBUG >= logging.root.level
+                    )
+            
+            result.attempts.append(attempt)
+    
+    # If we get here, no XSS was found
+    result.success = False
+    result.proof = "No XSS vulnerabilities found"
+    return result.to_dict()
 
-    # Extract payloads from the results, including empty payloads for tools with no parameters
-    payloads = []
-    for p in payloads_result:
-        payload = p.get("payload")
-        if payload is not None:  # Include both empty {} and non-empty payloads
-            payloads.append(payload)
+async def analyze_file_read_response(response: Any, test_file: str) -> bool:
+    """Analyze response for signs of successful file read."""
+    if not response:
+        return False
+    
+    response_text = str(response).lower()
+    
+    # Common file content patterns
+    file_patterns = {
+        '/etc/passwd': ['root:', 'nobody:'],
+        '/etc/hosts': ['localhost', '127.0.0.1'],
+        '/etc/group': ['root:', 'wheel:', 'sudo:'],
+        'win.ini': ['[extensions]', '[mci extensions]'],
+    }
+    
+    # Check for known file content
+    for file_pattern, patterns in file_patterns.items():
+        if file_pattern in test_file:
+            if any(pattern in response_text for pattern in patterns):
+                return True
+    
+    # Check for common error messages that indicate file access
+    error_indicators = [
+        'permission denied', 'permissionerror', 'filenotfound', 'no such file',
+        'eacces', 'eperm', 'eio', 'enotdir', 'eisdir', 'enotempty', 'enospc',
+        'enomem', 'eexist', 'ebadf', 'einval', 'enametoolong', 'eloop',
+        'enotblk', 'enodev', 'enxio', 'eoverflow', 'erofs', 'espipe', 'esrch',
+        'etxtbsy', 'ewouldblock', 'eagain'
+    ]
+    
+    # If we get an error message that includes the filename, it might be vulnerable
+    if any(indicator in response_text for indicator in error_indicators) and test_file.lower() in response_text.lower():
+        return True
+    
+    return False
 
-    if not payloads:
-        return probe
+@register_probe(ProbeType.FILE_READ)
+async def probe_file_read(mcp_client: Any, tool: Dict[str, Any], use_dynamic: bool = False, param_types: Optional[Dict[str, ParameterType]] = None) -> Dict[str, Any]:
+    """Probe for file read vulnerabilities, targeting only filepath parameters."""
+    result = ProbeResult(probe_type=ProbeType.FILE_READ, severity="high")
+    result.attempts = []
 
-    # Add static file read payloads only for tools that accept file parameters
-    if param_names:  # Only add if tool has parameters
-        test_files = [
-            "/tmp/../etc/passwd",  # Updated path traversal
-            "/tmp/../etc/hosts",   # Updated path traversal
-            "C:\\Windows\\System32\\drivers\\etc\\hosts"
-        ]
-        for param in param_names:
-            for file in test_files:
-                payload = {param: file}
-                payloads.append(payload)
+    # Only test files that are likely to exist and contain sensitive information
+    test_files = [
+        # Common Unix/Linux sensitive files
+        "/etc/passwd",
+        "/etc/shadow",
+        "/etc/group",
+        "/etc/hosts",
+        "/etc/issue",
+        "/etc/motd",
+        "/etc/resolv.conf",
+        "/etc/ssh/sshd_config",
+        "/etc/sudoers",
+        
+        # Common Windows sensitive files
+        "C:\\Windows\\System32\\drivers\\etc\\hosts",
+        "C:\\Windows\\win.ini",
+        "C:\\Windows\\System.ini",
+        "C:\\boot.ini",
+        
+        # Common log files that might leak information
+        "/var/log/auth.log",
+        "/var/log/syslog",
+        "/var/log/secure",
+        "C:\\Windows\\System32\\LogFiles\\HTTPERR\\httperr1.log",
+        
+        # Common configuration files
+        "~/.ssh/authorized_keys",
+        "~/.ssh/id_rsa",
+        "~/.aws/credentials",
+        "~/.docker/config.json",
+        
+        # Common environment files
+        "/proc/self/environ",
+        "/proc/self/cmdline",
+    ]
 
-    for payload in payloads:
-        try:
-            resp = await call_tool_with_client(mcp_client, tool["name"], payload)
-            if resp is None:
-                continue
-        except Exception as e:
-            logging.error("Error calling tool %s: %s", tool["name"], e)
-            continue
+    # Get schema from tool
+    schema = tool.get('inputSchema', {})
+    properties = schema.get('properties', {})
+    
+    # If no param_types provided, determine them
+    if param_types is None:
+        param_types = {name: get_parameter_type(name, prop) for name, prop in properties.items()}
+    
+    # Only test parameters that are likely to be file paths
+    target_params = [name for name, ptype in param_types.items() 
+                    if ptype == ParameterType.FILEPATH or 
+                       (ptype == ParameterType.GENERIC and 'path' in name.lower())]
+    
+    if not target_params:
+        result.success = False
+        result.proof = "No filepath parameters found to test"
+        return result.to_dict()
 
-        attempt = {"args": payload, "resp_short": str(resp)[:200] if resp else None}
+    # Test each target parameter
+    for param_name in target_params:
+        for test_file in test_files:
+            try:
+                # Create payload with test file
+                payload = {p: "test" for p in properties}  # Default values
+                payload[param_name] = test_file
+                
+                # Execute the tool with the test payload
+                response = await mcp_client.execute_tool(tool['name'], payload)
+                
+                # Analyze response for signs of file read
+                is_vulnerable = await analyze_file_read_response(response, test_file)
+                
+                attempt = {
+                    "param": param_name,
+                    "payload": test_file,
+                    "vulnerable": is_vulnerable,
+                    "response": str(response)[:500]  # Truncate long responses
+                }
+                result.attempts.append(attempt)
+                
+                if is_vulnerable:
+                    result.success = True
+                    result.proof = f"File read vulnerability found in parameter '{param_name}' with payload '{test_file}'"
+                    return result.to_dict()
+                    
+            except Exception as e:
+                logging.warning(f"Error testing file read on {param_name}: {str(e)}")
+                result.attempts.append({
+                    "param": param_name,
+                    "payload": test_file,
+                    "error": str(e)
+                })
 
-        if not resp:
-            attempt["classification"] = "no_response"
-            probe["attempts"].append(attempt)
-            continue
-
-        text = extract_result_text(resp)
-
-        if looks_like_passwd(text) or ("127.0.0.1" in text and "hosts" in text):
-            attempt["classification"] = "vulnerable"
-            probe.update(success=True, payload=payload, proof=text[:2000], response=resp)
-            probe["attempts"].append(attempt)
-            logging.info("FILE READ PROOF: %s", probe["proof"][:120])
-            return probe
-        elif "denied" in text.lower():
-            attempt["classification"] = "denied"
-        elif "invalid" in text.lower() or "error" in text.lower():
-            attempt["classification"] = "invalid"
-        else:
-            attempt["classification"] = "success"
-
-        probe["attempts"].append(attempt)
-
-    return probe
+    result.success = False
+    result.proof = "No file read vulnerabilities found"
+    return result.to_dict()
 
 
 def is_suspicious_behavior(tool_name: str, tool_desc: str, input_payload: Any, output_text: str) -> bool:
@@ -897,6 +1449,8 @@ def is_suspicious_behavior(tool_name: str, tool_desc: str, input_payload: Any, o
         return False
         
     # Check for suspicious patterns in tool description that indicate hidden behavior
+    # NOTE: We no longer use description matches alone to flag behavioral suspicion.
+    #       Description sensitivity is reported separately during probe aggregation.
     suspicious_desc_patterns = [
         # Hidden instructions to access confidential data
         r'<IMPORTANT>.*?company://confidential',
@@ -919,10 +1473,10 @@ def is_suspicious_behavior(tool_name: str, tool_desc: str, input_payload: Any, o
         r'\b(?:send|exfiltrate|leak|upload)[^\n]*\b(?:data|info|credentials)\b'
     ]
     
-    # Check if tool description contains any suspicious patterns
-    if any(re.search(pattern, tool_desc_lower, re.DOTALL | re.IGNORECASE) for pattern in suspicious_desc_patterns):
-        logging.warning(f"Suspicious pattern found in tool description for {tool_name}")
-        return True
+    # Do not mark as suspicious based solely on description content to avoid false positives
+    # if any(re.search(pattern, tool_desc_lower, re.DOTALL | re.IGNORECASE) for pattern in suspicious_desc_patterns):
+    #     logging.warning(f"Sensitive pattern found in tool description for {tool_name}")
+    #     return True
     
     # Get tool purpose for better classification
     tool_purpose = f"{tool_name} {tool_desc}".lower()
@@ -1155,16 +1709,35 @@ async def probe_exec(server: str, tool: Dict[str, Any], mcp_client, use_dynamic:
     tool_name = tool.get("name", "")
     tool_desc = tool.get("description", "")
     
+    # Detect sensitive information in description (reported separately if behavior is safe)
+    def _description_is_sensitive(desc: str) -> bool:
+        desc_lower = (desc or "").lower()
+        patterns = [
+            r'<important>.*?company://confidential',
+            r'<hidden>.*?confidential',
+            r'override[-_]auth[-_]protocol[-_]?\d+',
+            r'secret.*?authorization',
+            r'bypass.*?security',
+            r'internal.*?only',
+        ]
+        return any(re.search(p, desc_lower, re.DOTALL | re.IGNORECASE) for p in patterns)
+    
+    description_sensitive = _description_is_sensitive(tool_desc)
+    
     # Generate payloads from LLM with the MCP client
-    payloads_result = await generate_payloads(
-        tool_name,
-        tool_desc,
-        tool.get("raw", {}).get("inputSchema", {}),
-        mcp_client=mcp_client,
-        use_llm=use_dynamic,
-        use_static=use_static,
-        use_prompt=use_prompt
-    )
+    payloads_result = []
+    
+    # Only include prompt injection payloads if use_prompt is True
+    if use_prompt or not any('prompt' in str(p).lower() for p in payloads_result):
+        payloads_result = await generate_payloads(
+            tool_name,
+            tool_desc,
+            tool.get("raw", {}).get("inputSchema", {}),
+            mcp_client=mcp_client,
+            use_llm=use_dynamic,
+            use_static=use_static,
+            use_prompt=use_prompt
+        )
     
     if not payloads_result:
         return probe
@@ -1313,16 +1886,11 @@ async def probe_exec(server: str, tool: Dict[str, Any], mcp_client, use_dynamic:
         # Show only one representative proof entry instead of all suspicious behaviors
         representative_behavior = suspicious_behaviors[0]  # Take the first one as representative
         proof_data = {
-            "suspicious_behavior_detected": True,
-            "total_suspicious_behaviors_found": len(suspicious_behaviors),
             "representative_proof": {
                 "payload": representative_behavior["payload"],
                 "response": representative_behavior["response"],
                 "reason": representative_behavior["reason"]
-            },
-            "tool_name": tool["name"],
-            "tool_description": tool.get("description", ""),
-            "server": server
+            }
         }
         
         try:
@@ -1345,23 +1913,41 @@ async def probe_exec(server: str, tool: Dict[str, Any], mcp_client, use_dynamic:
         logging.warning("Potential tool poisoning detected in %s: %s", 
                       tool_name, suspicious_behaviors[0]["reason"])
     else:
-        # No suspicious behaviors found - emit a minimal safe note and skip verbose proof
-        safe_note = {
-            "security_testing_performed": True,
-            "total_payloads_tested": len(probe["attempts"]),
-            "suspicious_behaviors_found": 0,
-            "tool_name": tool["name"],
-            "server": server,
-            "security_assessment": "No suspicious behavior observed. Tool appears to be safe."
-        }
+        # No suspicious behaviors found
+        if description_sensitive:
+            # Emit structured proof highlighting description leakage only
+            proof_obj = {
+                "message": "Tool Poisoning - Hidden Instructions in Description",
+                "description_sensitive": True,
+                "tool_name": tool_name,
+                "tool_description": tool_desc,
+                "server": server
+            }
+            probe.update(
+                success=True,
+                is_tool_poisoning=False,
+                proof=json.dumps(proof_obj, indent=2, ensure_ascii=False),
+                payload=None
+            )
+            logging.warning("Sensitive information detected in description for %s; behavior appears safe", tool_name)
+        else:
+            # Emit a minimal safe note and skip verbose proof
+            safe_note = {
+                "security_testing_performed": True,
+                "total_payloads_tested": len(probe["attempts"]),
+                "suspicious_behaviors_found": 0,
+                "tool_name": tool["name"],
+                "server": server,
+                "security_assessment": "No suspicious behavior observed. Tool appears to be safe."
+            }
 
-        probe.update(
-            success=False,
-            is_tool_poisoning=False,
-            proof=json.dumps(safe_note, indent=2, ensure_ascii=False),
-            payload=None
-        )
-        logging.info("Security testing completed for %s - tool appears secure", tool_name)
+            probe.update(
+                success=False,
+                is_tool_poisoning=False,
+                proof=json.dumps(safe_note, indent=2, ensure_ascii=False),
+                payload=None
+            )
+            logging.info("Security testing completed for %s - tool appears secure", tool_name)
     
     return probe
 

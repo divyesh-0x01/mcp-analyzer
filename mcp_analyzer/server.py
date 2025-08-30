@@ -469,8 +469,23 @@ async def scan_server(
     # ---- Get resources if available ----
     resources = []
     if transport in ('http', 'sse') and mcp and hasattr(mcp, 'get_resources'):
-        resources = mcp.get_resources()
-        logger.info("Found %d resources via MCPClient.get_resources()", len(resources))
+        try:
+            resources = mcp.get_resources()
+            logger.info("Found %d resources via MCPClient.get_resources()", len(resources))
+            
+            # Filter out any tools that might have been incorrectly classified as resources
+            resource_names = [r.get('name', '') for r in resources if isinstance(r, dict)]
+            logger.debug("Resource names: %s", resource_names)
+            
+            # Ensure tools don't include any resources
+            if tools and resource_names:
+                tools = [t for t in tools if not (isinstance(t, dict) and t.get('name') in resource_names)]
+                logger.info("Filtered tools to remove any resources, now have %d tools", len(tools))
+                
+        except Exception as e:
+            logger.warning("Error processing resources: %s", str(e))
+            resources = []
+            
     elif transport == 'stdio' and reader and writer:
         # Try to list resources for stdio transport
         try:
@@ -484,11 +499,40 @@ async def scan_server(
             resources_result = await recv_json_until(reader, wanted_id=req_id, timeout=list_timeout, want_resources=True)
             if isinstance(resources_result, dict) and 'result' in resources_result:
                 result = resources_result['result']
-                if isinstance(result, dict) and 'resources' in result:
-                    resources = result['resources']
-                    logger.info("Found %d resources via stdio", len(resources))
+                if isinstance(result, dict):
+                    if 'resources' in result:
+                        resources = result['resources']
+                        logger.info("Found %d resources via stdio", len(resources))
+                        
+                        # Filter out any tools that might have been incorrectly classified as resources
+                        resource_names = [r.get('name', '') for r in resources if isinstance(r, dict)]
+                        logger.debug("Resource names: %s", resource_names)
+                        
+                        # Ensure tools don't include any resources
+                        if tools and resource_names:
+                            tools = [t for t in tools if not (isinstance(t, dict) and t.get('name') in resource_names)]
+                            logger.info("Filtered tools to remove any resources, now have %d tools", len(tools))
+                    
+                    # Handle case where resources are directly in the result
+                    elif all(k in result for k in ['name', 'description']):
+                        resources = [result]
+                        logger.info("Found 1 resource via stdio (direct result)")
+                        
+                elif isinstance(result, list):
+                    resources = [r for r in result if isinstance(r, dict) and 'name' in r]
+                    logger.info("Found %d resources via stdio (direct list)", len(resources))
+                    
+                    # Filter out any tools that might have been incorrectly classified as resources
+                    resource_names = [r.get('name', '') for r in resources if isinstance(r, dict)]
+                    logger.debug("Resource names: %s", resource_names)
+                    
+                    # Ensure tools don't include any resources
+                    if tools and resource_names:
+                        tools = [t for t in tools if not (isinstance(t, dict) and t.get('name') in resource_names)]
+                        logger.info("Filtered tools to remove any resources, now have %d tools", len(tools))
+                        
         except Exception as e:
-            logger.warning("Failed to list resources via stdio: %s", str(e))
+            logger.warning("Failed to list resources via stdio: %s", str(e), exc_info=True)
 
     # ---- If we expected a subprocess for stdio but proc missing => failed to start ----
     if transport == "stdio" and not proc:
@@ -545,13 +589,29 @@ async def scan_server(
 
     # ---- Normalize tools list into dicts with name/description/raw ----
     normalized_tools: List[Dict[str, Any]] = []
+    resource_names = {r.get('name', '') for r in resources if isinstance(r, dict) and 'name' in r}
+    
     for t in tools:
+        if not t:
+            continue
+            
         if isinstance(t, dict):
-            name = t.get('name') or t.get('id') or t.get('tool') or "<unknown>"
-            desc = t.get('description') or t.get('desc') or t.get('summary') or ""
+            name = str(t.get('name') or t.get('id') or t.get('tool') or "<unknown>").strip()
+            # Skip if this is actually a resource
+            if name in resource_names or name.startswith('resource:'):
+                logger.debug(f"Skipping resource misclassified as tool: {name}")
+                continue
+                
+            desc = str(t.get('description') or t.get('desc') or t.get('summary') or "").strip()
             normalized_tools.append({"name": name, "description": desc, "raw": t})
         else:
-            normalized_tools.append({"name": str(t), "description": "", "raw": t})
+            name = str(t).strip()
+            # Skip if this is actually a resource
+            if name in resource_names or name.startswith('resource:'):
+                logger.debug(f"Skipping resource misclassified as tool: {name}")
+                continue
+                
+            normalized_tools.append({"name": name, "description": "", "raw": t})
 
     # ---- For HTTP transport choose mcp client; for stdio, create SimpleMCPClient if needed ----
     for t in normalized_tools:
@@ -607,6 +667,7 @@ async def scan_server(
                         # Return cache if present
                         if self._tools_cache is not None:
                             return self._tools_cache
+                            
                         request_id = next_id()
                         await send_jsonrpc(self.writer, {
                             "jsonrpc": "2.0",
@@ -617,17 +678,41 @@ async def scan_server(
                         result = await recv_json_until(self.reader, request_id, timeout=5.0)
                         tools = []
                         try:
-                            # Expecting { jsonrpc, id, result: { tools: [...] } } or { result: [...] }
+                            # Handle different response formats
                             if isinstance(result, dict):
                                 res = result.get("result", result)
-                                if isinstance(res, dict) and "tools" in res:
-                                    tools = res.get("tools", [])
+                                if isinstance(res, dict):
+                                    # Format: { "tools": [...] } or { "resources": [...] }
+                                    if "tools" in res:
+                                        tools = res.get("tools", [])
+                                    elif "resources" in res:
+                                        # If we only got resources, skip them - we only want tools here
+                                        tools = []
+                                    elif all(isinstance(v, (str, int, float, bool, type(None))) for v in res.values()):
+                                        # If it's a flat dict, it might be a single tool
+                                        tools = [res]
                                 elif isinstance(res, list):
-                                    tools = res
-                        except Exception:
+                                    # Format: [tool1, tool2, ...]
+                                    tools = [t for t in res if isinstance(t, (str, dict))]
+                        except Exception as e:
+                            logger.warning(f"Error parsing tools list: {e}")
                             tools = []
-                        self._tools_cache = tools
-                        return tools
+                            
+                        # Ensure tools have the correct structure
+                        processed_tools = []
+                        for tool in tools:
+                            if isinstance(tool, str):
+                                processed_tools.append({"name": tool})
+                            elif isinstance(tool, dict):
+                                # Ensure we have a name field
+                                if "name" not in tool and "id" in tool:
+                                    tool["name"] = tool["id"]
+                                elif "name" not in tool and "tool" in tool:
+                                    tool["name"] = tool["tool"]
+                                processed_tools.append(tool)
+                        
+                        self._tools_cache = processed_tools
+                        return processed_tools
 
                     async def get_tool_schema(self, tool_name):
                         """Fetch and return the tool object/schema for a given tool name."""
@@ -654,6 +739,7 @@ async def scan_server(
                 if probe_results:
                     finding.probe_results = probe_results
                     
+# ... (rest of the code remains the same)
                     # Extract suspicious behaviors from probe results for reclassification
                     suspicious_behaviors = []
                     for result in probe_results.values():
@@ -676,27 +762,16 @@ async def scan_server(
                                             'classification': attempt.get('classification', '')
                                         })
                     
-                    # Check for rogue server behavior by looking for suspicious patterns in responses
-                    # Only flag as rogue if tool has innocent description but behaves maliciously
+                    # Check for rogue server behavior - tools that execute dangerous operations without honest description
                     is_rogue = False
-                    suspicious_indicators = [
-                        'poisoning',  # Covers 'TOOL POISONING DETECTED' and similar
-                        'user:', 'hostname:', 'system:',  # System information disclosure
-                        'uid=', 'gid=', 'groups=',  # Command output patterns
-                        'divyeshprajapati-ibm'  # Your username in the output
+                    dangerous_indicators = [
+                        'command executed', 'shell access', 'uid=', 'gid=', 'groups=',
+                        'user:', 'hostname:', 'system:', 'root:', 'whoami', 'pwd',
+                        'process', 'subprocess', 'os.system', 'eval(', 'exec('
                     ]
                     
-                    # Check if tool description suggests innocent behavior
+                    # Check if tool description honestly mentions execution capabilities
                     description_lower = t.get('description', '').lower()
-                    innocent_keywords = [
-                        "hello", "greeting", "message", "simple", "basic", "add", "sum", "calculate", 
-                        "multiply", "divide", "subtract", "math", "number", "text", "string", "format",
-                        "display", "show", "print", "return", "echo", "say", "tell", "inform",
-                        "welcome", "hi", "goodbye", "farewell", "thanks", "thank you", "appreciate",
-                        "nice", "pleasant", "friendly", "helpful", "assist", "support", "guide"
-                    ]
-                    
-                    # Also check for clearly honest descriptions about command execution and file operations
                     honest_execution_keywords = [
                         "execute", "command", "system", "bash", "shell", "terminal", "process",
                         "run", "launch", "start", "invoke", "call", "exec", "subprocess",
@@ -704,33 +779,26 @@ async def scan_server(
                         "metadata", "info", "tree", "path", "content", "contents", "access"
                     ]
                     
-                    has_innocent_description = any(keyword in description_lower for keyword in innocent_keywords)
                     has_honest_execution_description = any(keyword in description_lower for keyword in honest_execution_keywords)
                     
-                    # Only flag as rogue if it has innocent description AND NOT honest execution description
-                    should_check_for_rogue = has_innocent_description and not has_honest_execution_description
-                    
-                    # Only check for rogue behavior if tool claims to be innocent but not honest about execution
-                    if should_check_for_rogue:
-                        logger.debug(f"Checking for rogue behavior in tool: {tname}")
-                        logger.debug(f"Tool description: {t.get('description', 'No description')}")
-                        
-                        for result in probe_results.values():
-                            if not isinstance(result, dict):
-                                continue
-                            for attempt in result.get('attempts', []):
-                                response = str(attempt.get('response', '')).lower()
-                                logger.debug(f"Checking response for suspicious indicators: {response[:200]}...")
-                                for indicator in suspicious_indicators:
-                                    if indicator in response:
-                                        logger.warning(f"Suspicious indicator found in response: {indicator}")
-                                        logger.warning(f"Full response: {response}")
-                                        is_rogue = True
-                                        break
-                                if is_rogue:
-                                    break
-                            if is_rogue:
+                    # Check if tool executes dangerous operations
+                    has_dangerous_behavior = False
+                    for result in probe_results.values():
+                        if not isinstance(result, dict):
+                            continue
+                        for attempt in result.get('attempts', []):
+                            response = str(attempt.get('response', '')).lower()
+                            if any(indicator in response for indicator in dangerous_indicators):
+                                has_dangerous_behavior = True
+                                logger.warning(f"Dangerous behavior detected in {tname}: {response[:200]}...")
                                 break
+                        if has_dangerous_behavior:
+                            break
+                    
+                    # Flag as rogue if tool executes dangerous operations but doesn't honestly describe its capabilities
+                    if has_dangerous_behavior and not has_honest_execution_description:
+                        is_rogue = True
+                        logger.warning(f"Rogue server detected: {tname} executes dangerous operations without honest description")
                     
                     if is_rogue:
                         # Update tool name to indicate rogue behavior
@@ -740,12 +808,8 @@ async def scan_server(
                         finding.matches.append("rogue_server:command_execution")
                         # Create proof with detailed information
                         proof = {
-                            "tool_name": tname,
-                            "server": server_name,
-                            "description": "Tool is masquerading as a simple greeting tool but is actually executing system commands",
-                            "classification": "rogue_server",
-                            "suspicious_indicators_found": suspicious_indicators,
-                            "response_samples": []
+                            "rational": "Tool executes dangerous operations without honestly describing its capabilities",
+                            "response": []
                         }
                         # Add sample responses that triggered the detection
                         for result in probe_results.values():
@@ -755,12 +819,16 @@ async def scan_server(
                                         response = attempt['response']
                                         # Handle both string and dict responses
                                         if isinstance(response, str):
-                                            proof['response_samples'].append(response[:500])  # Limit response size
+                                            proof['response'].append(response[:500])  # Limit response size
                                         else:
-                                            proof['response_samples'].append(str(response)[:500])  # Convert dict to string and limit
+                                            proof['response'].append(str(response)[:500])  # Convert dict to string and limit
                         
                         # Update finding with proof
                         finding.proof = json.dumps(proof, indent=2)
+                        
+                        # Mark as tool poisoning and set critical risk
+                        finding.active_risk = "critical"
+                        finding.matches.append("tool_poisoning:detected")
                         
                         # Ensure the tool poisoning flag is set in probe results
                         for result in probe_results.values():
@@ -772,17 +840,19 @@ async def scan_server(
                         logger.warning(f"   Server: {server_name}")
                         logger.warning(f"   Description: {t.get('description', 'No description')}")
                         logger.warning(f"   Risk Level: CRITICAL")
-                        logger.warning(f"   Indicators found: {suspicious_indicators}")
+                        logger.warning(f"   Indicators found: {dangerous_indicators}")
                         logger.warning(f"   Proof saved to findings")
                     
-                    # Update active risk based on probe results
+                    # Update active risk based on probe results (but preserve rogue server critical risk)
                     def _max_risk(a: str, b: str) -> str:
                         order = {"none": 0, "denied": 1, "low": 2, "medium": 3, "high": 4, "critical": 5}
                         return a if order.get(a.lower(), 0) >= order.get(b.lower(), 0) else b
 
-                    for probe_type, result in probe_results.items():
-                        if not isinstance(result, dict):
-                            continue
+                    # Skip probe results processing if this is a rogue server (already set to critical)
+                    if not is_rogue:
+                        for probe_type, result in probe_results.items():
+                            if not isinstance(result, dict):
+                                continue
                             
                         # Check for successful command execution or file read
                         if result.get('success') and 'attempts' in result:
@@ -834,13 +904,39 @@ async def scan_server(
                                 else:
                                     finding.active_risk = _max_risk(finding.active_risk, "medium")
                             
-                            # Store proof if available
-                            if 'proof' in result and result['proof']:
+                            # Store proof if available (but preserve rogue server proof)
+                            if 'proof' in result and result['proof'] and not is_rogue:
                                 finding.proof = result['proof']
+                                # If description-only sensitive proof, mark as medium risk so it shows up
+                                try:
+                                    proof_obj = json.loads(result['proof']) if isinstance(result['proof'], str) else result['proof']
+                                    if isinstance(proof_obj, dict) and proof_obj.get('description_sensitive'):
+                                        finding.active_risk = _max_risk(finding.active_risk, "medium")
+                                        finding.static_risk = _max_risk(finding.static_risk, "medium")
+                                        finding.matches.append("description:sensitive_instructions")
+                                except Exception:
+                                    pass
                         else:
-                            # Even if probe was not successful (tool is secure), store proof if available
-                            if 'proof' in result and result['proof']:
+                            # Even if probe was not successful (tool is secure), store proof if available (but preserve rogue server proof)
+                            if 'proof' in result and result['proof'] and not is_rogue:
                                 finding.proof = result['proof']
+                                # If description-only sensitive proof, mark as medium risk so it shows up
+                                try:
+                                    proof_obj = json.loads(result['proof']) if isinstance(result['proof'], str) else result['proof']
+                                    if isinstance(proof_obj, dict) and proof_obj.get('description_sensitive'):
+                                        finding.active_risk = _max_risk(finding.active_risk, "medium")
+                                        finding.static_risk = _max_risk(finding.static_risk, "medium")
+                                        finding.matches.append("description:sensitive_instructions")
+                                except Exception:
+                                    pass
+                        # End of probe results processing for non-rogue servers
+                    
+                    # Ensure rogue servers are properly classified even without probe results
+                    if is_rogue:
+                        finding.active_risk = "critical"
+                        finding.static_risk = "critical"
+                        if "rogue_server:capability_mismatch" not in finding.matches:
+                            finding.matches.append("rogue_server:capability_mismatch")
             except Exception as e:
                 logger.error("Error during probe execution for %s on %s: %s", tname, server_name, str(e), exc_info=True)
                 error_proof = f"Error during probe execution: {str(e)}"
@@ -867,9 +963,17 @@ async def scan_server(
 
                 # If execution error hinted tool poisoning, conservatively flag high risk
                 # (Detailed poisoning classification is handled in probe results when available)
+                
+                # Ensure rogue servers maintain their critical risk even after exceptions
+                if is_rogue:
+                    finding.active_risk = "critical"
+                    finding.static_risk = "critical"
+                    if "rogue_server:capability_mismatch" not in finding.matches:
+                        finding.matches.append("rogue_server:capability_mismatch")
 
             # Determine risk based purely on probe results (no more static classification)
-            if probe_results:
+            # Skip this if it's already been classified as a rogue server
+            if probe_results and not is_rogue:
                 suspicious_behaviors = []
                 for result in probe_results.values():
                     if isinstance(result, dict):
@@ -902,14 +1006,32 @@ async def scan_server(
                     finding.matches = matches
                     finding.static_risk = risk_level  # Keep them in sync
                 else:
-                    # No suspicious behaviors found - tool is safe
-                    finding.active_risk = "safe"
-                    finding.static_risk = "safe"
-                    finding.matches = []
+                    # No suspicious behaviors found - check for description-sensitive proof
+                    description_sensitive_found = False
+                    for result in probe_results.values():
+                        try:
+                            proof_obj = json.loads(result.get('proof', '{}')) if isinstance(result.get('proof'), str) else result.get('proof')
+                            if isinstance(proof_obj, dict) and proof_obj.get('description_sensitive'):
+                                description_sensitive_found = True
+                                break
+                        except Exception:
+                            continue
+
+                    if description_sensitive_found:
+                        finding.active_risk = "critical"
+                        finding.static_risk = "critical"
+                        if "tool_poisoning:description_hidden_instructions" not in finding.matches:
+                            finding.matches.append("tool_poisoning:description_hidden_instructions")
+                    else:
+                        # Tool is safe
+                        finding.active_risk = "safe"
+                        finding.static_risk = "safe"
+                        finding.matches = []
 
         # Final safeguard: if proof explicitly reports 0 suspicious behaviors, force SAFE
+        # But preserve rogue server critical risk
         try:
-            if finding.proof:
+            if finding.proof and not is_rogue:
                 proof_obj = json.loads(finding.proof) if isinstance(finding.proof, str) else finding.proof
                 if isinstance(proof_obj, dict):
                     body = proof_obj.get('proof', proof_obj)
@@ -919,6 +1041,13 @@ async def scan_server(
                         finding.matches = []
         except Exception:
             pass
+        
+        # Final safeguard: ensure rogue servers are never classified as safe
+        if is_rogue:
+            finding.active_risk = "critical"
+            finding.static_risk = "critical"
+            if "rogue_server:capability_mismatch" not in finding.matches:
+                finding.matches.append("rogue_server:capability_mismatch")
 
         findings.append(finding)
 
@@ -970,9 +1099,7 @@ async def scan_server(
                     "resource_name": name,
                     "resource_uri": uri,
                     "description": desc,
-                    "content": resource_content[:500] if resource_content else "",
-                    "has_prompt_injection": has_injection,
-                    "detected_patterns": injection_patterns
+                    "content": resource_content[:500] if resource_content else ""
                 }, indent=2) if has_injection else None
             )
             findings.append(resource_finding)
@@ -1058,12 +1185,9 @@ if __name__ == "__main__":
                 all_findings.extend(f)
             except Exception as e:
                 logger.error("Error scanning %s: %s", name, str(e), exc_info=True)
-        console.rule("[bold green]Findings[/bold green]")
-        if not all_findings:
-            console.print("No vulnerabilities found!")
-        else:
-            for fa in all_findings:
-                console.print(f"- {fa}")
+        # Generate the report - this will handle all output
+        from mcp_analyzer.report import generate_report
+        generate_report(all_findings)
 
     try:
         asyncio.run(_main())
